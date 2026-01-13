@@ -1,0 +1,23 @@
+### IDE ###
+.idea/
+.vscode/
+
+### Gradle ###
+.gradle/
+build/
+
+### Logs ###
+*.log
+
+### Compiled files ###
+*.class
+*.jar
+*.war
+!gradle/wrapper/gradle-wrapper.jar
+
+### OS ###
+.DS_Store
+Thumbs.db
+
+### Env files ###
+.env
