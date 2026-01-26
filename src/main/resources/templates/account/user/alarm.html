@@ -1,18 +1,18 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fan Place - 알람</title>
-    <link rel="icon" href="/img/PF_Icon.png">
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon" th:href="@{/img/PF_Icon.png}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body class="flexColumn">
     <!-- 토스트 -->
-    <div id="toastWarp"></div>
-    
+    <div th:replace="commons :: toast"></div>
+
     <!-- 헤더 -->
-    <div id="header"></div>
+    <div th:replace="commons :: header"></div>
 
     <!-- 섹션 -->
     <section class="flexColumn gapSm">
@@ -112,15 +112,14 @@
     </section>
 
     <!-- 스크롤 내비게이션 -->
-    <div id="scrollNav"></div>
+    <div th:replace="commons :: scrollNav"></div>
 
     <!-- 푸터 -->
-    <div id="footer"></div>
+    <div th:replace="commons :: footer"></div>
 
     <!-- 모달 -->
-    <div id="modalOveray"></div>
-    
-    <script src="/js/import.js"></script>
-    <script type="module" src="/js/script.js"></script>
+    <div th:replace="commons :: modal"></div>
+
+    <script type="module" th:src="@{/js/script.js}"></script>
 </body>
 </html>
