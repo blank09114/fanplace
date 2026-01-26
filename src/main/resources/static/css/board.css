@@ -1,0 +1,96 @@
+/* 탭 */
+.tabs
+{
+    height: 30px;
+    padding: 0 10px;
+
+    border-top: 1px solid var(--main-color);
+    border-bottom: 1px solid var(--main-color);
+    background-color: var(--main-background-color-1);
+
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+}
+.tab
+{
+    width: auto !important;
+    flex-shrink: 0;
+    padding: 0 10px;
+
+    text-decoration: none !important;
+}
+.tab:hover, .tab.now { color: var(--main-color); font-weight: bold; }
+
+/* 게시글 목록 */
+.postList
+{
+    border-top: 2px solid var(--main-color);
+    border-bottom: 2px solid var(--main-color);
+    background-color: var(--main-background-color-1);
+}
+.post { border-bottom: 1px solid var(--line-color); }
+.post:last-child { border: none; }
+.postTab
+{
+    min-width: 100px;
+    height: 24px;
+    padding: 0 20px;
+
+    background-color: var(--main-color);
+
+    font-size: 16px;
+    color: #F7F8FA;
+    line-height: 24px;
+}
+.writer { width: auto !important; }
+
+/* 게시글 영역 */
+.postInfo { border-bottom: 1px solid var(--line-color); padding-bottom: 5px; }
+.postContent { min-height: 300px; }
+.btn.like
+{
+    background: none;
+    border: 1px solid var(--point-color);
+    color: var(--point-color);
+}
+.btn.like:hover { background-color: var(--main-background-color-2); }
+
+/* 삭제 표시 */
+.deletedCard
+{
+    min-height: 30px;
+    background: linear-gradient(
+        to right,
+        rgba(38, 166, 154, 1) 0%,
+        rgba(38, 166, 154, 0.5) 50%,
+        rgba(38, 166, 154, 1) 100%
+    );
+}
+.deletedCard .textBtn { width: auto; }
+.deletedCard .textBtn:hover { text-decoration: underline; }
+
+/* 댓글 영역 */
+.commentForm textarea[name="content"] { height: 100px; }
+.comment { position: relative; }
+.commentMenu { position: absolute; top: 5px; right: 5px; }
+form[name="recommentForm"] { display: none; }
+.recomment { border-left: 1px solid var(--line-color); }
+.recommentLine { width: 100px; height: 20px; border-bottom: 1px solid var(--line-color); }
+
+/* 작성 폼 */
+.writeForm { background-color: var(--main-background-color-1); border: 1px solid var(--line-color); }
+select[name="tab"] { width: 200px; }
+textarea[name="content"] { height: 600px; }
+
+/* 모바일 */
+@media(max-width: 768px)
+{
+    /* 댓글 */
+    .recommentLine { width: 20px; }
+
+    /* 작성 폼 */
+    select[name="tab"] { width: 100%; }
+    textarea[name="content"] { height: 300px; }
+}

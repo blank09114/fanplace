@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fan Place - 로그인</title>
+    <link rel="icon" th:href="@{/img/PF_Icon.png}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="flexColumn">
+    <!-- 토스트 -->
+    <div th:replace="commons :: toast"></div>
+
+    <!-- 헤더 -->
+    <div th:replace="commons :: header"></div>
+
+    <!-- 섹션 -->
+    <section class="flex justifyCenter alignCenter">
+        <!-- 로그인 폼 -->
+        <form name="loginForm" class="authForm">
+            <p class="formHeader widthFull textCenter">로그인</p>
+            <!-- 폼 요소 -->
+            <div class="formContent widthFull pdMd flexColumn gapSm">
+                <input name="id" type="text" placeholder="ID">
+                <div class="inputWrap">
+                        <input class="pwInput" name="pw" type="password" placeholder="PW">
+                    <label class="checkbox flex justifyEnd alignCenter gapXs"> <input type="checkbox" onchange="togglePw('loginForm', this)"> 비밀번호 보기 </label>
+                </div>
+                <button type="button" class="btn teal" onclick="login()">로그인</button>
+            </div>
+        </form>
+    </section>
+
+    <!-- 푸터 -->
+    <div th:replace="commons :: footer"></div>
+
+    <!-- 모달 -->
+    <div th:replace="commons :: modal"></div>
+
+    <script type="module" th:src="@{/js/script.js}"></script>
+</body>
+</html>

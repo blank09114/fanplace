@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<!-- 헤더 -->
+<header th:fragment="header" class="header widthFull">
+    <!-- 컨테이너 -->
+    <div class="container flexColumn gapSm">
+        <!-- 상단 -->
+        <div class="headerTop widthFull flex justifyEnd alignCenter gapSm">
+            <a class="text3 lightText">로그인</a>
+            <a class="text3 lightText">회원가입</a>
+            <a class="text3 lightText">계정 찾기</a>
+            <button class="textBtn text3 lightText" onclick="openModal('logoutModal')">로그아웃</button>
+            <button class="textBtn text3 lightText" onclick="toggleUi()">다크 모드</button>
+        </div>
+        <!-- 중앙 -->
+        <div class="headerMiddle widthFull flexColumnMov justifyBetween alignEnd">
+            <a class="toMian background"></a>
+            <form name="univSearch" class="searchForm flex gapXs">
+                <input type="text" name="keyword" placeholder="통합 검색">
+                <button type="button" class="btn teal" onclick="searchUniv()">검색</button>
+            </form>
+        </div>
+        <!-- 하단 -->
+        <div class="headerBottom widthFull flex">
+            <a class="btn navy widthFull">스포츠</a>
+            <a class="btn navy widthFull">미디어</a>
+            <a class="btn navy widthFull">커뮤니티</a>
+            <!-- 서브 메뉴 -->
+            <div class="subMenuWrap widthFull">
+                <div class="subMenu widthFull flex">
+                    <div class="widthFull pdMd">
+                        <a class="text1">야구</a>
+                        <a class="text1">축구</a>
+                        <a class="text1">농구</a>
+                        <a class="text1">E스포츠</a>
+                        <a class="text1">기타 스포츠</a>
+                    </div>
+                    <div class="widthFull pdMd">
+                        <a class="text1">창작물</a>
+                        <a class="text1">게임</a>
+                        <a class="text1">예능/방송</a>
+                    </div>
+                    <div class="widthFull pdMd">
+                        <a class="text1">공지사항</a>
+                        <a class="text1">문의/건의</a>
+                        <a class="text1">자유</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 햄버거 메뉴 -->
+    <button class="textBtn hamburger" onclick="toggleDrawer()">☰</button>
+    <!-- 드로어 -->
+    <div class="drawer">
+        <a class="title1Text">사용자 메뉴</a>
+        <div class="drawerMenu widthFull pdMd gapXs">
+            <a class="text1">로그인</a>
+            <a class="text1">회원가입</a>
+            <a class="text1">계정 찾기</a>
+            <button class="textBtn text1 textLeft" onclick="openModal('logoutModal')">로그아웃</button>
+            <button class="textBtn text1 textLeft" onclick="toggleUi()">다크모드</button>
+        </div>
+        <a class="title1Text">스포츠</a>
+        <div class="drawerMenu widthFull pdMd gapXs">
+            <a class="text1">야구</a>
+            <a class="text1">축구</a>
+            <a class="text1">농구</a>
+            <a class="text1">배구</a>
+            <a class="text1">E스포츠</a>
+            <a class="text1">기타 스포츠</a>
+        </div>
+        <a class="title1Text">미디어</a>
+        <div class="drawerMenu widthFull pdMd gapXs">
+            <a class="text1">창작물</a>
+            <a class="text1">게임</a>
+            <a class="text1">예능/방송</a>
+        </div>
+        <a class="title1Text">커뮤니티</a>
+        <div class="drawerMenu widthFull pdMd gapXs">
+            <a class="text1">공지사항</a>
+            <a class="text1">문의/건의</a>
+            <a class="text1">자유</a>
+        </div>
+    </div>
+</header>
+
+<!-- 관리자 헤더 -->
+<header th:fragment="adminHaeder" class="adminHaeder">
+    <div class="container flexColumn gapSm">
+        <div class="headerBottom widthFull flex">
+            <a class="btn navy widthFull">대시보드</a>
+            <a class="btn navy widthFull">회원 목록</a>
+            <a class="btn navy widthFull">삭제된 글</a>
+            <a class="btn navy widthFull">삭제된 댓글</a>
+            <a class="btn teal widthFull">관리자 나가기</a>
+        </div>
+    </div>
+</header>
+
+<!-- 푸터 -->
+<footer th:fragment="footer" class="pdMd">
+    <div class="container flexColumn gapMd">
+        <div class="footerMenu flex gapSm">
+            <a class="text1">이용약관</a>
+            <a class="text1">개인정보 처리방침</a>
+            <a class="text1">청소년 보호 정책</a>
+            <a class="text1">게시판 이용 규정</a>
+            <a class="text1">공지사항</a>
+            <a class="text1">문의/건의</a>
+        </div>
+        <p class="text1">
+            BLANKSPACE↗ | 사업자등록번호 716-50-01088 | 개인정보 보호 책임자 박예린 <br>
+            문의 b1ank09114@gmail.com <br>
+            COPYRIGHT © 2026 BLANKSPACE. ALL RIGHTS RESERVED. <br>
+        </p>
+    </div>
+</footer>
+
+<!-- 토스트 -->
+<div th:fragment="toast" class="toastWarp">
+    <div class="toast widthFull">
+        <div class="toastContent flex alignCenter gapXs">
+            <span id="toastText" class="text1">토스트</span>
+            <button class="textBtn textCenter" onclick="closeToast()">X</button>
+            <div class="progress widthFull"> <div class="progressBar widthFull"></div> </div>
+        </div>
+    </div>
+</div>
+
+<!-- 스크롤 내비게이션 -->
+<nav th:fragment="scrollNav" class="scrollNav flexColumn">
+    <button class="scrollBtn textBtn" onclick="scrollCtr('top')">▲</button>
+    <button class="scrollBtn textBtn" onclick="scrollCtr('bottom')">▼</button>
+</nav>
+
+<!-- 모달 목록 -->
+<div th:fragment="modal" class="modalOveray widthFull justifyCenter alignCenter">
+    <!-- 로그아웃 모달 -->
+    <div class="modal pdMd flexColumn alignEnd gapXs" id="logoutModal">
+        <button class="textBtn" onclick="closeModal('logoutModal')">X</button>
+        <p class="text1">로그아웃하시겠습니까?</p>
+        <button class="btn teal">예</button>
+    </div>
+
+    <!-- 차단 모달 -->
+    <div class="modal pdMd flexColumn alignEnd gapXs" id="blockModal">
+        <button class="textBtn" onclick="closeModal('blockModal')">X</button>
+        <div class="widthFull flex gapSm">
+            <select name="long">
+                <option>1일</option>
+                <option>7일</option>
+                <option>30일</option>
+                <option>영구</option>
+            </select>
+            <input name="reason" type="text" placeholder="차단 사유">
+        </div>
+        <button class="btn teal">차단</button>
+    </div>
+
+    <!-- 삭제 모달 -->
+    <div class="modal pdMd flexColumn alignEnd gapXs" id="deletedModal">
+        <button class="textBtn" onclick="closeModal('deletedModal')">X</button>
+        <p class="text1">게시글 혹은 댓글을 삭제하시겠습니까?</p>
+        <button class="btn teal">확인</button>
+    </div>
+
+    <!-- 관리자 삭제 모달 -->
+    <div class="modal pdMd flexColumn alignEnd gapXs" id="adminDeletedModal">
+        <button class="textBtn" onclick="closeModal('adminDeletedModal')">X</button>
+        <input name="reason" type="text" placeholder="삭제 사유">
+        <button class="btn teal">확인</button>
+    </div>
+
+    <!-- 삭제 사유 변경 모달 -->
+    <div class="modal pdMd flexColumn alignEnd gapXs" id="deletedReasonModal">
+        <button class="textBtn" onclick="closeModal('deletedReasonModal')">X</button>
+        <input name="reason" type="text" placeholder="삭제 사유 입력">
+        <button class="btn teal">확인</button>
+    </div>
+</div>
+</html>
