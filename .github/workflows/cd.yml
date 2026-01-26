@@ -25,12 +25,12 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
-
+    
       - name: Deploy on EC2 via SSM (run deploy.sh)
         shell: bash
         run: |
           set -euo pipefail
-
+          
           COMMAND_ID=$(
             aws ssm send-command \
               --document-name "AWS-RunShellScript" \
@@ -41,35 +41,35 @@ jobs:
               --query "Command.CommandId" \
               --output text
           )
-
+          
           echo "SSM CommandId: ${COMMAND_ID}"
-
+          
           aws ssm wait command-executed \
             --command-id "${COMMAND_ID}" \
-            --instance-id "${{ secrets.EC2_INSTANCE_ID }}"
-
+            --instance-id "${{ secrets.EC2_INSTANCE_ID }}" || true
+          
           STATUS=$(aws ssm get-command-invocation \
             --command-id "${COMMAND_ID}" \
             --instance-id "${{ secrets.EC2_INSTANCE_ID }}" \
             --query "Status" \
             --output text)
-
+          
           echo "SSM Status: ${STATUS}"
-
-          # 출력 로그도 같이 찍어주기(디버깅용)
+          
+          echo "===== STDOUT ====="
           aws ssm get-command-invocation \
             --command-id "${COMMAND_ID}" \
             --instance-id "${{ secrets.EC2_INSTANCE_ID }}" \
             --query "StandardOutputContent" \
             --output text || true
-
+          
+          echo "===== STDERR ====="
           aws ssm get-command-invocation \
             --command-id "${COMMAND_ID}" \
             --instance-id "${{ secrets.EC2_INSTANCE_ID }}" \
             --query "StandardErrorContent" \
             --output text || true
-
+          
           if [[ "${STATUS}" != "Success" ]]; then
-            echo "Deploy failed (SSM Status=${STATUS})"
             exit 1
           fi
