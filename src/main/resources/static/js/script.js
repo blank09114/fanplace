@@ -66,4 +66,18 @@ document.addEventListener('DOMContentLoaded', () =>
         commons.showToast("로그아웃 됐습니다.");
         history.replaceState({}, "", window.location.pathname);
     }
+
+    // 비밀번호 재설정
+    const reset = params.get("reset");
+
+    if (reset === "done")
+    {
+        commons.showToast("임시 비밀번호가 적용됐습니다.");
+        history.replaceState({}, "", window.location.pathname);
+    }
+    if (reset === "expired")
+    {
+        commons.showToast("링크가 만료됐거나 유효하지 않습니다.");
+        history.replaceState({}, "", window.location.pathname);
+    }
 });

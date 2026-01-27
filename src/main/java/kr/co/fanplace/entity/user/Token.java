@@ -41,10 +41,11 @@ public class Token {
     @Column(name = "token_created_at", nullable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "token_pw_hash", length = 255)
+    private String pwHash;
+
     @PrePersist
-    void prePersist() {
-        if (createdAt == null) createdAt = LocalDateTime.now();
-    }
+    void prePersist() { if (createdAt == null) createdAt = LocalDateTime.now(); }
 
     public boolean isUsed() { return usedAt != null; }
 

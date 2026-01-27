@@ -18,7 +18,8 @@ public class MailService
     @Value("${app.mail.from:}")
     private String from;
 
-    public void sendHtml(String to, String subject, String html) {
+    public void sendHtml(String to, String subject, String html)
+    {
         try
         {
             MimeMessage msg = mailSender.createMimeMessage();

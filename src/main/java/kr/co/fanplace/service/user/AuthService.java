@@ -10,6 +10,7 @@ import kr.co.fanplace.repository.user.UserRepository;
 import kr.co.fanplace.service.user.mail.MailComposer;
 import kr.co.fanplace.service.user.mail.MailService;
 import kr.co.fanplace.setting.geoip.GeoIpService;
+import kr.co.fanplace.setting.security.AuthSessionKeys;
 import kr.co.fanplace.setting.security.TokenUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,6 +46,9 @@ public class AuthService
     @Value("${app.join-token-minutes:30}")
     private long joinTokenMinutes;
 
+    @Value("${app.reset-token-minutes:30}")
+    private long resetTokenMinutes;
+
     // 로그인
     @Transactional
     public void login(AuthReqs.LoginRequest req, HttpServletRequest request)
@@ -61,7 +65,7 @@ public class AuthService
         if (!passwordEncoder.matches(userPw, user.getPassword())) throw new IllegalArgumentException("아이디 또는 비밀번호가 올바르지 않습니다.");
 
         // 탈퇴 계정이면 로그인 시 탈퇴 취소
-        if (user.isWithdraw())  { user.cancelWithdraw(); }
+        if (user.isWithdraw()) { user.cancelWithdraw(); }
 
         // 권한
         String role = "ROLE_" + user.getRole().name(); // USER/ADMIN
@@ -76,6 +80,11 @@ public class AuthService
             HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
             SecurityContextHolder.getContext()
         );
+
+        // 비번 변경 시각 스냅샷 저장
+        long pwAt = (user.getPasswordChangedAt() == null) ? 0L
+        : user.getPasswordChangedAt().atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli();
+        session.setAttribute(AuthSessionKeys.PW_CHANGED_AT, pwAt);
 
         // 로그인 기록
         loginLogService.recordLogin(user, session, request);
@@ -188,6 +197,68 @@ public class AuthService
         token.getUser().enable();
     }
 
+    // 계정 복구 요청
+    @Transactional
+    public void requestReset(AuthReqs.ResetRequest req, String clientIp)
+    {
+        String userMail = lower(trim(req.getUserMail()));
+        validateNaverOnly(userMail);
+
+        User user = userRepository.findByMail(userMail)
+        .orElseThrow(() -> new IllegalArgumentException("가입된 이메일이 아닙니다."));
+
+        geoIpService.resolveRegion(clientIp);
+        tokenRepository.expireActiveResetTokens(user.getId(), LocalDateTime.now());
+
+        // 임시 비밀번호 생성
+        String tempPw = TokenUtil.generateToken(16);
+        String tempPwHash = passwordEncoder.encode(tempPw);
+
+        // RESET 토큰 발급
+        String rawToken = TokenUtil.generateToken(48);
+        String tokenHash = TokenUtil.sha256Hex(rawToken);
+
+        Token token = Token.builder()
+        .user(user).type(Token.TokenType.RESET).hash(tokenHash).pwHash(tempPwHash)
+        .expiresAt(LocalDateTime.now().plusMinutes(resetTokenMinutes)).usedAt(null).build();
+
+        tokenRepository.save(token);
+
+        String encoded = URLEncoder.encode(rawToken, StandardCharsets.UTF_8);
+        String applyUrl = baseUrl + "/api/auth/reset/apply?token=" + encoded;
+
+        var mail = mailComposer.resetFindAccount(
+            user.getMail(), user.getName(), user.getId(),
+            tempPw, applyUrl, resetTokenMinutes
+        );
+
+        mailService.sendHtml(mail.getTo(), mail.getSubject(), mail.getHtml());
+    }
+
+    // 임시 비밀번호 적용
+    @Transactional
+    public void applyReset(String rawToken)
+    {
+        if (rawToken == null || rawToken.isBlank()) throw new IllegalArgumentException("토큰이 비어있습니다.");
+
+        String hash = TokenUtil.sha256Hex(rawToken);
+
+        Token token = tokenRepository.findResetByHash(hash)
+        .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 토큰입니다."));
+
+        LocalDateTime now = LocalDateTime.now();
+
+        if (token.isUsed()) throw new IllegalArgumentException("이미 사용된 토큰입니다.");
+        if (token.isExpired(now)) throw new IllegalArgumentException("만료된 토큰입니다.");
+
+        String pwHash = token.getPwHash();
+        if (pwHash == null || pwHash.isBlank()) throw new IllegalArgumentException("임시 비밀번호 정보가 없습니다.");
+
+        LocalDateTime changedAt = changePassword(token.getUser(), pwHash);
+        token.markUsed(changedAt);
+    }
+
+    // 메일
     private void issueJoinTokenAndSendMail(User user)
     {
         String rawToken = TokenUtil.generateToken(48);
@@ -225,4 +296,12 @@ public class AuthService
 
     private String trim(String s) { return s == null ? "" : s.trim(); }
     private String lower(String s) { return s == null ? "" : s.toLowerCase(); }
+
+    // 비밀번호 변경 메서드
+    private LocalDateTime changePassword(User user, String newEncodedPw)
+    {
+        LocalDateTime now = LocalDateTime.now();
+        user.changePassword(newEncodedPw, now);
+        return now;
+    }
 }

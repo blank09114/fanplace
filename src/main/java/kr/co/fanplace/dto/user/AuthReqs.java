@@ -101,4 +101,14 @@ public class AuthReqs
         @NotBlank
         private String token;
     }
+
+    // 계정 찾기 요청
+    @Getter @Setter
+    public static class ResetRequest
+    {
+        @NotBlank
+        @Email
+        @Size(max = 255)
+        private String userMail;
+    }
 }

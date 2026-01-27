@@ -1,5 +1,7 @@
 package kr.co.fanplace.setting.config;
 
+import kr.co.fanplace.repository.user.UserRepository;
+import kr.co.fanplace.setting.security.PasswordChangedSessionFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,6 +14,8 @@ import org.springframework.security.web.SecurityFilterChain;
 @RequiredArgsConstructor
 public class SecurityConfig
 {
+    private final UserRepository userRepository;
+
     // 비밀번호 암호화
     @Bean
     public PasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(); }
@@ -20,14 +24,22 @@ public class SecurityConfig
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception
     {
-        http
-        .csrf(csrf -> csrf.disable())
+        http.csrf(csrf -> csrf.disable())
         .formLogin(f -> f.disable())
         .httpBasic(b -> b.disable())
         .authorizeHttpRequests(auth -> auth
+            // 비로그인 사용자만 허용
+
+
+            // 로그인 사용자만 허용
+
+            // 관리자만 허용
+
             // 나머지는 전부 허용
             .anyRequest().permitAll()
         );
+        http.addFilterBefore(new PasswordChangedSessionFilter(userRepository),
+        org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 }

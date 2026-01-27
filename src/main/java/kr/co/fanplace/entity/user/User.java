@@ -63,4 +63,10 @@ public class User
     public void enable() { this.enabled = true; }
 
     public void cancelWithdraw() { this.withdraw = false; }
+
+    public void changePassword(String encodedPw, LocalDateTime now)
+    {
+        this.password = encodedPw;
+        this.passwordChangedAt = now;
+    }
 }

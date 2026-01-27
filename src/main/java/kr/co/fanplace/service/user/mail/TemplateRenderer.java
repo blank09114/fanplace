@@ -18,7 +18,8 @@ public class TemplateRenderer
         return html;
     }
 
-    private String load(String classpathLocation) {
+    private String load(String classpathLocation)
+    {
         try
         {
             ClassPathResource res = new ClassPathResource(classpathLocation);

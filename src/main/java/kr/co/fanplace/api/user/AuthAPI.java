@@ -79,4 +79,25 @@ public class AuthAPI
         }
         catch (IllegalArgumentException e) { response.sendRedirect("/?joined=expired"); }
     }
+
+    // 계정 찾기 요청
+    @PostMapping("/reset/request")
+    public ResponseEntity<ApiOk> requestReset(@RequestBody @Valid AuthReqs.ResetRequest req, HttpServletRequest request)
+    {
+        String clientIp = IpUtil.resolveClientIp(request);
+        authService.requestReset(req, clientIp);
+        return ResponseEntity.ok(ApiOk.ok());
+    }
+
+    // 임시 비밀번호 적용
+    @GetMapping("/reset/apply")
+    public void applyReset(@RequestParam("token") String token, HttpServletResponse response) throws IOException
+    {
+        try
+        {
+            authService.applyReset(token);
+            response.sendRedirect("/?reset=done");
+        }
+        catch (IllegalArgumentException e) { response.sendRedirect("/?reset=expired"); }
+    }
 }

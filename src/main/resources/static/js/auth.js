@@ -125,14 +125,25 @@ async function token(commons)
 }
 
 // 계정 찾기
-function findAccount(commons)
+async function findAccount(commons)
 {
     const f = document.forms.findAccountForm;
     if (!f) return;
 
     if (!commons.validate(f.mail, '메일 주소', REGEX.mail, MSG.mail)) return;
 
-    commons.showToast('메일을 발송했습니다.');
+    const body = { userMail: commons.getValueEl(f.mail) };
+
+    commons.showToast("메일 발송 중….");
+    const res = await commons.postJson("/api/auth/reset/request", body,
+    {
+        toastOnSuccess: "계정 찾기 메일을 발송했습니다.",
+        parseJson: true
+    });
+
+    if (!res) return;
+
+    f.mail.value = "";
 }
 
 // 로그인
