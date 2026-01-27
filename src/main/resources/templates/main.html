@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fan Place</title>
+    <link rel="icon" th:href="@{/img/PF_Icon.png}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="flexColumn">
+    <!-- 토스트 -->
+    <div th:replace="commons :: toast"></div>
+    
+    <!-- 헤더 -->
+    <div th:replace="commons :: header"></div>
+
+    <!-- 섹션 -->
+    <section class="flexColumn gapLg">
+        <!-- 로그인 -->
+        <div class="card pdMd widthFull flexColumn alignCenter gapSm">
+            <p class="text1 textCenter">로그인하고 내 활동 리포트를 확인하세요!</p>
+            <a class="btn teal">로그인</a>
+        </div>
+
+        <!-- 내 정보 -->
+        <div class="mainUser flexColumnMov gapSm">
+            <!-- 활동 리포트 -->
+            <div class="flexColumn widthFull gapXs">
+                <div class="sectionHeader report flexColumnMov justifyBetween alignCenter gapXs">
+                    <span class="title2Text bold">닉네임 님의 주간 활동 리포트</span>
+                    <button class="btn navy" onclick="toggleMoon()">월간 리포트 보기</button>
+                </div>
+                <div class="card pdMd widthFull flexColumn alignCenter gapSm">
+                    <p class="text1">
+                        <span class="mainColorText">닉네임</span> 님은 최근 7일간, <br>
+                        글을 <span class="mainColorText">10회</span> 작성했고, <br>
+                        댓글을 <span class="mainColorText">100회</span> 작성했고, <br>
+                        자주 이용한 게시판은 <span class="mainColorText">야구</span> 게시판이에요.
+                    </p>
+                </div>
+            </div>
+
+            <!-- 회원 정보 -->
+            <div class="mainUserInfo card pdMd flexColumn justifyCenter alignCenter gapXs">
+                <p class="text1 textCenter"><span class="mainColorText bold">닉네임</span> 님, 반갑습니다.</p>
+                <button class="btn teal" onclick="openModal('logoutModal')">로그아웃</button>
+                <p class="text1 textCenter">글 <span class="mainColorText">1000</span> 댓글 <span class="mainColorText">1000</span></p>
+                <p class="text1 textCenter">상태: <span class="pointColorText bold">차단됨</span>(7일 후 해제)</p>
+            </div>
+        </div>
+
+        <!-- 최신 공지사항 -->
+        <div class="flexColumn gapSm">
+            <div class="sectionHeader widthFull flex justifyBetween alignCenter">
+                <span class="title2Text bold">최신 공지사항</span>
+                <a class="btn navy">전체 공지사항 보기</a>
+            </div>
+
+            <!-- 게시글 목록 -->
+            <div class="postList widthFull">
+                <div class="post widthFull pdSm">
+                    <div class="flex alignCenter gapXs">
+                        <span class="postTab textCenter">탭</span>
+                        <a class="text1">게시글 제목</a>
+                    </div>
+                    <a class="text1 writer">작성자</a>
+                    <p class="text1 lightText">2026.01.01. 00:00</p>
+                </div>
+                <div class="post widthFull pdSm">
+                    <div class="flex alignCenter gapXs">
+                        <span class="postTab textCenter">탭</span>
+                        <a class="text1">게시글 제목</a>
+                    </div>
+                    <a class="text1 writer">작성자</a>
+                    <p class="text1 lightText">2026.01.01. 00:00</p>
+                </div>
+                <div class="post widthFull pdSm">
+                    <div class="flex alignCenter gapXs">
+                        <span class="postTab textCenter">탭</span>
+                        <a class="text1">게시글 제목</a>
+                    </div>
+                    <a class="text1 writer">작성자</a>
+                    <p class="text1 lightText">2026.01.01. 00:00</p>
+                </div>
+                <div class="post widthFull pdSm">
+                    <div class="flex alignCenter gapXs">
+                        <span class="postTab textCenter">탭</span>
+                        <a class="text1">게시글 제목</a>
+                    </div>
+                    <a class="text1 writer">작성자</a>
+                    <p class="text1 lightText">2026.01.01. 00:00</p>
+                </div>
+                <div class="post widthFull pdSm">
+                    <div class="flex alignCenter gapXs">
+                        <span class="postTab textCenter">탭</span>
+                        <a class="text1">게시글 제목</a>
+                    </div>
+                    <a class="text1 writer">작성자</a>
+                    <p class="text1 lightText">2026.01.01. 00:00</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 지금 우리 사이트는 -->
+        <div class="flexColumn gapSm">
+            <p class="title2Text bold">지금 우리 사이트는…</p>
+            <div class="card pdMd widthFull flexColumn alignCenter gapSm">
+                <p class="text1">
+                    지난 24시간 동안, <br>
+                    <span class="mainColorText">10명</span>의 신규 유저가 가입했고, <br>
+                    <span class="mainColorText">100개</span>의 글이 작성됐고, <br>
+                    <span class="mainColorText">1000개</span>의 댓글이 작성됐고, <br>
+                    가장 활발한 곳은 <span class="mainColorText">야구</span> 게시판이에요.
+                </p>
+            </div>
+        </div>
+
+        <!-- 최신글 -->
+        <div class="flexColumn gapSm">
+            <p class="title2Text bold">최신글</p>
+
+            <!-- 게시글 목록 -->
+            <div class="postList widthFull">
+                <div class="post widthFull pdSm">
+                    <div class="flex alignCenter gapXs">
+                        <span class="postTab textCenter">탭</span>
+                        <a class="text1">게시글 제목</a>
+                    </div>
+                    <a class="text1 writer">작성자</a>
+                    <p class="text1 lightText">2026.01.01. 00:00</p>
+                </div>
+                <div class="post widthFull pdSm">
+                    <div class="flex alignCenter gapXs">
+                        <span class="postTab textCenter">탭</span>
+                        <a class="text1">게시글 제목</a>
+                    </div>
+                    <a class="text1 writer">작성자</a>
+                    <p class="text1 lightText">2026.01.01. 00:00</p>
+                </div>
+                <div class="post widthFull pdSm">
+                    <div class="flex alignCenter gapXs">
+                        <span class="postTab textCenter">탭</span>
+                        <a class="text1">게시글 제목</a>
+                    </div>
+                    <a class="text1 writer">작성자</a>
+                    <p class="text1 lightText">2026.01.01. 00:00</p>
+                </div>
+                <div class="post widthFull pdSm">
+                    <div class="flex alignCenter gapXs">
+                        <span class="postTab textCenter">탭</span>
+                        <a class="text1">게시글 제목</a>
+                    </div>
+                    <a class="text1 writer">작성자</a>
+                    <p class="text1 lightText">2026.01.01. 00:00</p>
+                </div>
+                <div class="post widthFull pdSm">
+                    <div class="flex alignCenter gapXs">
+                        <span class="postTab textCenter">탭</span>
+                        <a class="text1">게시글 제목</a>
+                    </div>
+                    <a class="text1 writer">작성자</a>
+                    <p class="text1 lightText">2026.01.01. 00:00</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 스크롤 내비게이션 -->
+    <div th:replace="commons :: scrollNav"></div>
+
+    <!-- 푸터 -->
+    <div th:replace="commons :: footer"></div>
+
+    <!-- 모달 -->
+    <div th:replace="commons :: modal"></div>
+
+    <script type="module" th:src="@{/js/script.js}"></script>
+</body>
+</html>

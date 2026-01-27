@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fan Place - 회원 탈퇴</title>
+    <link rel="icon" href="/img/PF_Icon.png">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="flexColumn">
+    <!-- 토스트 -->
+    <div th:replace="commons :: toast"></div>
+
+    <!-- 헤더 -->
+    <div th:replace="commons :: header"></div>
+
+    <!-- 섹션 -->
+    <section class="flexColumn justifyCenter alignCenter gapSm">
+        <!-- 계정 찾기 폼 -->
+        <form name="withdrawForm" class="authForm">
+            <p class="formHeader widthFull textCenter">회원 탈퇴</p>
+            <!-- 폼 요소 -->
+            <div class="formContent widthFull pdMd flexColumn gapSm">
+                <!-- PW -->
+                <div class="inputWrap">
+                    <input class="pwInput" name="pw" type="password" placeholder="PW">
+                    <label class="checkbox flex justifyEnd alignCenter gapXs"> <input type="checkbox" onchange="togglePw('withdrawForm', this)"> 비밀번호 보기 </label>
+                </div>
+                <p class="text1">
+                    이메일 인증을 통해 회원 탈퇴가 진행됩니다.<br>
+                    작성한 방명록과 댓글은 자동으로 삭제되지 않습니다.
+                </p>
+                <button type="button" class="btn teal" onclick="withdraw()">회원 탈퇴</button>
+            </div>
+        </form>
+    </section>
+
+    <!-- 푸터 -->
+    <div th:replace="commons :: footer"></div>
+
+    <!-- 모달 -->
+    <div th:replace="commons :: modal"></div>
+
+    <script type="module" th:src="@{/js/script.js}"></script>
+</body>
+</html>

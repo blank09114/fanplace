@@ -1,0 +1,60 @@
+/* 인증 폼 */
+.authForm
+{
+    width: 600px;
+    max-width: 90%;
+
+    border: 1px solid var(--main-color);
+    background-color: var(--main-background-color-1);
+}
+.formHeader
+{
+    height: 50px;
+    background-color: var(--main-color);
+    
+    font-size: 24px;
+    line-height: 50px;
+    color: #F7F8FA;
+}
+
+/* 폼 요소 */
+.input .btn { width: 100px; flex-shrink: 0; }
+#ok, #no { display: none; }
+.input .checkbox { display: inline-flex; }
+
+/* 회원 정보 카드 */
+.card
+{
+    border: 1px solid var(--line-color);
+    background-color: var(--main-background-color-1);
+}
+.cardItem .title2Text { display: inline-block; }
+.cardItem .title2Text:first-child { width: 200px; flex-shrink: 0; }
+form[name="nameForm"] { display: none; }
+form[name="nameForm"] .btn { flex-shrink: 0; }
+
+/* 목록 */
+.list
+{
+    border-top: 2px solid var(--main-color);
+    border-bottom: 2px solid var(--main-color);
+    background-color: var(--main-background-color-1);
+}
+.row { padding: 5px 10px; min-height: 30px; border-bottom: 1px solid var(--line-color); }
+.row:last-child { border: none; }
+.date { width: 150px !important; flex-shrink: 0; }
+
+/* 스크롤 버튼 */
+#userInfoScr { background-image: url("/img/icon/Icon1.png"); }
+#userInfoScr:hover { background-image: url("/img/icon/Icon1_Hover.png"); }
+#sanctionLogScr { background-image: url("/img/icon/Icon2.png"); }
+#sanctionLogScr:hover { background-image: url("/img/icon/Icon2_Hover.png"); }
+#loginLogScr { background-image: url("/img/icon/Icon3.png"); }
+#loginLogScr:hover { background-image: url("/img/icon/Icon3_Hover.png"); }
+#myPostScr { background-image: url("/img/icon/Icon4.png"); }
+#myPostScr:hover { background-image: url("/img/icon/Icon4_hover.png"); }
+#myCommentScr { background-image: url("/img/icon/Icon5.png"); }
+#myCommentScr:hover { background-image: url("/img/icon/Icon5_Hover.png"); }
+
+/* 알람 헤더 */
+.alarmHeader .title2Text { display: inline-block; width: auto; }

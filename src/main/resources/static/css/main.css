@@ -1,0 +1,49 @@
+/* 메인 페이지 */
+.sectionHeader .btn { flex-shrink: 0; }
+.mainUserInfo.card { width: 300px; flex-shrink: 0; }
+
+/* 모바일 */
+@media(max-width: 768px)
+{
+    .mainUser { flex-direction: column-reverse !important; }
+    .report.sectionHeader { align-items: flex-end !important; }
+    .mainUserInfo.card { width: 100%; }
+}
+
+/* 에러 페이지 */
+.errorBody
+{ background: radial-gradient( circle, rgba(13, 71, 161, 0.5) 0%, rgba(13, 71, 161, 1) 100%); }
+.error
+{
+    width: 600px;
+    max-width: 90%;
+
+    background-color: rgba(247, 248, 250, 0.5);
+}
+.error .title1Text, .error .title2Text { color: #1F2328; }
+.errorCode
+{
+    display: inline-block;
+    font-size: 100px;
+    background: linear-gradient(90deg,#08306B 0%,#0D73A1 50%,#08306B 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+.error .btn { margin-top: 10px; }
+
+/* 관리자 페이지 */
+#week { width: auto; }
+.dateBtn
+{
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+
+    border: 1px solid var(--typo-color-1);
+    background: none;
+
+    font-size: 20px;
+    cursor: pointer;
+}
+.grayCard { background-color: rgba(var(--ling-rgb), 0.5); }

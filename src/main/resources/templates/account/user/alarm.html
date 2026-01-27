@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fan Place - 알람</title>
+    <link rel="icon" th:href="@{/img/PF_Icon.png}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="flexColumn">
+    <!-- 토스트 -->
+    <div th:replace="commons :: toast"></div>
+
+    <!-- 헤더 -->
+    <div th:replace="commons :: header"></div>
+
+    <!-- 섹션 -->
+    <section class="flexColumn gapSm">
+        <div class="alarmHeader flex justifyBetween">
+            <p class="title2Text bold">알람</p>
+            <label class="checkbox flex justifyEnd alignCenter gapXs"> <input type="checkbox"> 안 읽은 알람만 보기 </label>
+        </div>
+
+        <!-- 목록 -->
+        <div class="list widthFull">
+            <div class="row widthFull flex alignCenter">
+                <p class="text1 textCenter">내역</p>
+                <p class="text1 textCenter date">일시</p>
+            </div>
+            <a class="row widthFull flex alignCenter">
+                <div class="widthFull flexColumn">
+                    <p class="text2">닉네임 님의 댓글</p>
+                    <p class="text1">내용</p>
+                </div>
+                <p class="text1 textCenter date">2026.01.01. 00:00</p>
+            </a>
+            <a class="row widthFull flex alignCenter">
+                <div class="widthFull flexColumn">
+                    <p class="text2 lightText">닉네임 님의 댓글</p>
+                    <p class="text1 lightText">내용</p>
+                </div>
+                <p class="text1 textCenter date">2026.01.01. 00:00</p>
+            </a>
+            <a class="row widthFull flex alignCenter">
+                <div class="widthFull flexColumn">
+                    <p class="text2 lightText">닉네임 님의 댓글</p>
+                    <p class="text1 lightText">내용</p>
+                </div>
+                <p class="text1 textCenter date">2026.01.01. 00:00</p>
+            </a>
+            <a class="row widthFull flex alignCenter">
+                <div class="widthFull flexColumn">
+                    <p class="text2 lightText">닉네임 님의 댓글</p>
+                    <p class="text1 lightText">내용</p>
+                </div>
+                <p class="text1 textCenter date">2026.01.01. 00:00</p>
+            </a>
+            <a class="row widthFull flex alignCenter">
+                <div class="widthFull flexColumn">
+                    <p class="text2 lightText">닉네임 님의 댓글</p>
+                    <p class="text1 lightText">내용</p>
+                </div>
+                <p class="text1 textCenter date">2026.01.01. 00:00</p>
+            </a>
+            <a class="row widthFull flex alignCenter">
+                <div class="widthFull flexColumn">
+                    <p class="text2 lightText">닉네임 님의 댓글</p>
+                    <p class="text1 lightText">내용</p>
+                </div>
+                <p class="text1 textCenter date">2026.01.01. 00:00</p>
+            </a>
+            <a class="row widthFull flex alignCenter">
+                <div class="widthFull flexColumn">
+                    <p class="text2 lightText">닉네임 님의 댓글</p>
+                    <p class="text1 lightText">내용</p>
+                </div>
+                <p class="text1 textCenter date">2026.01.01. 00:00</p>
+            </a>
+            <a class="row widthFull flex alignCenter">
+                <div class="widthFull flexColumn">
+                    <p class="text2 lightText">닉네임 님의 댓글</p>
+                    <p class="text1 lightText">내용</p>
+                </div>
+                <p class="text1 textCenter date">2026.01.01. 00:00</p>
+            </a>
+            <a class="row widthFull flex alignCenter">
+                <div class="widthFull flexColumn">
+                    <p class="text2 lightText">닉네임 님의 댓글</p>
+                    <p class="text1 lightText">내용</p>
+                </div>
+                <p class="text1 textCenter date">2026.01.01. 00:00</p>
+            </a>
+            <a class="row widthFull flex alignCenter">
+                <div class="widthFull flexColumn">
+                    <p class="text2 lightText">닉네임 님의 댓글</p>
+                    <p class="text1 lightText">내용</p>
+                </div>
+                <p class="text1 textCenter date">2026.01.01. 00:00</p>
+            </a>
+        </div>
+
+        <!-- 페이지 -->
+        <div class="pages flex justifyCenter gapXs">
+            <a class="page"> < </a>
+            <a class="page now"> 1 </a>
+            <a class="page"> 2 </a>
+            <a class="page"> 3 </a>
+            <a class="page"> 4 </a>
+            <a class="page"> 5 </a>
+            <a class="page"> > </a>
+        </div>
+    </section>
+
+    <!-- 스크롤 내비게이션 -->
+    <div th:replace="commons :: scrollNav"></div>
+
+    <!-- 푸터 -->
+    <div th:replace="commons :: footer"></div>
+
+    <!-- 모달 -->
+    <div th:replace="commons :: modal"></div>
+
+    <script type="module" th:src="@{/js/script.js}"></script>
+</body>
+</html>

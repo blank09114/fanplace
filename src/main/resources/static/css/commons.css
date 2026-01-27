@@ -1,0 +1,239 @@
+/* 헤더 */
+header { height: auto; background-color: var(--main-background-color-1); }
+.textBtn { width: auto; border: none; background: none; cursor: pointer; }
+
+/* 헤더 상단 */
+.headerTop { height: 20px; z-index: 2; }
+.headerTop .text3 { width: auto; }
+
+/* 헤더 중앙 */
+.toMian
+{
+    width: 200px;
+    height: 50px;
+    background-image: url("/img/PF_Logo.png");
+}
+.toMian:hover { background-image: url("/img/PF_Logo_Hover.png"); }
+.searchForm { flex-wrap: nowrap; }
+input[name="keyword"] { width: 400px !important; }
+.searchForm .btn, .searchForm select { flex-shrink: 0; }
+
+/* 헤더 하단 */
+.headerBottom { position: relative; }
+.subMenuWrap
+{
+    height: 0;
+    z-index: 999;
+
+    position: absolute;
+    top: 100%;
+    overflow: hidden;
+}
+.subMenu
+{
+    transform: translateY(-100%);
+    background-color: rgba(var(--sub-bg-rgb), 0.8);
+}
+.subMenu .text1
+{
+    color: var(--main-background-color-1);
+    text-decoration: none !important;
+}
+.subMenu .text1:hover { color: var(--main-hover-color); }
+.headerBottom:hover .subMenuWrap { height: 160px; }
+.headerBottom:hover .subMenu { transform: translateY(0); }
+
+/* 모바일 메뉴 비활성 */
+.hamburger, .drawer { display: none; }
+
+
+
+/* 토스트 */
+.toastWarp
+{
+    width: 300px;
+
+    position: fixed;
+    top: 50px;
+    right: 50px;
+    z-index: 9999;
+
+    overflow: hidden;
+    pointer-events: none;
+}
+.toast { background-color: var(--point-color); transform: translateX(100%); pointer-events: auto; }
+
+/* 내용 */
+.toastContent
+{
+    width: 100%;
+    padding: 5px;
+    position: relative;
+}
+.toastContent * { color: #F7F8FA; }
+
+/* 버튼 */
+.toastContent .textBtn
+{
+    width: 30px;
+    height: 30px;
+
+    font-size: 16px;
+    line-height: 30px;
+}
+.toastContent .textBtn:hover { background-color: var(--point-hover-color); }
+
+/* 잔여 시간 */
+.progress
+{
+    width: 100%;
+    height: 4px;
+
+    position: absolute;
+    left: 0;
+    bottom: 0;
+}
+.progressBar { height: 100%; background-color: #F7F8FA80; }
+
+
+
+/* 스크롤 내비게이션 */
+.scrollNav
+{
+    width: 32px;
+
+    position: fixed;
+    bottom: 50px;
+    right: 50px;
+
+    border: 1px solid var(--main-color);
+}
+.scrollBtn
+{
+    width: 30px;
+    height: 30px;
+    
+    border-bottom: 1px solid var(--main-color);
+
+    font-size: 20px;
+    color: var(--main-color);
+}
+.scrollBtn:last-child { border: none; }
+.scrollBtn:hover { background-color: var(--main-color); color: #F7F8FA; }
+
+/* 푸터 */
+footer { background-color: #2F343A; }
+footer .text1 { color: #F7F8FA; }
+.footerMenu { flex-wrap: wrap; }
+.footerMenu .text1 { width: auto; }
+
+
+
+/* 모달 */
+.modalOveray
+{
+    display: none;
+
+    height: 100%;
+
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    z-index: 9999;
+
+    background-color: #2F343A1A;
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+}
+.modal
+{   
+    width: 600px;
+    max-width: 90%;
+
+    background-color: var(--main-background-color-1);
+    position: relative;
+}
+#logoutModal, #blockModal, #deletedReasonModal, #deletedModal, #adminDeletedModal { display: none; }
+.modal .textBtn
+{
+    width: 30px;
+    height: 30px;
+
+    position: absolute;
+    top: 5px;
+    right: 5px;
+
+    font-size: 16px;
+    color: var(--typo-color-2);
+}
+.modal .textBtn:hover { background-color: var(--main-background-color-2); }
+.modal .btn { width: 80px; }
+
+
+
+/* 모바일 */
+@media(max-width: 768px)
+{
+    /* 헤더 */
+    .headerTop, .headerBottom { display: none !important; }
+    .headerMiddle { align-items: center !important; gap: 5px; }
+    .searchForm { width: 100%; }
+    input[name="keyword"] { width: 100%; }
+    input[name="keyword"] { width: 100% !important; }
+
+    /* 햄버거 메뉴 */
+    .hamburger
+    {
+        display: block;
+
+        width: 50px;
+        height: 50px;
+        transform: rotate(0deg);
+
+        position: fixed;
+        top: 0;
+        right: 0;
+        z-index: 9999;
+
+        border: none;
+        background: none;
+
+        font-size: 30px;
+        color: var(--main-color);
+    }
+    .hamburger.open { transform: rotate(360deg); color: #F7F8FA; }
+
+    /* 드로어 */
+    .drawer
+    {
+        display: block;
+
+        width: 100%;
+        height: 100%;
+        padding-top: 10px;
+
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 999;
+        transform: translateX(100%);
+
+        background-color: #2F343A;
+    }
+    .drawer * { color: #F7F8FA; }
+    .drawer .title1Text { padding-left: 10px; }
+    .drawerMenu
+    {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+
+        background-color: #1F2328;
+    }
+    .drawer.open { transform: translateX(0); }
+
+    /* 토스트 */
+    .toastWarp { top: 10px; right: 50%; transform: translateX(50%); }
+
+    /* 스크롤 내비게이션 */
+    .scrollNav { right: 30px; bottom: 30px; }
+}

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fan Place - 계정 찾기</title>
+    <link rel="icon" th:href="@{/img/PF_Icon.png}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="flexColumn">
+    <!-- 토스트 -->
+    <div th:replace="commons :: toast"></div>
+
+    <!-- 헤더 -->
+    <div th:replace="commons :: header"></div>
+
+    <!-- 섹션 -->
+    <section class="flexColumn justifyCenter alignCenter gapSm">
+        <!-- 계정 찾기 폼 -->
+        <form name="findAccountForm" class="authForm">
+            <p class="formHeader widthFull textCenter">계정 찾기</p>
+            <!-- 폼 요소 -->
+            <div class="formContent widthFull pdMd flexColumn gapSm">
+                <!-- 메일 -->
+                <input name="mail" type="text" placeholder="메일 주소 입력">
+                <button type="button" class="btn teal" onclick="findAccount()">계정 찾기</button>
+            </div>
+        </form>
+    </section>
+
+    <!-- 푸터 -->
+    <div th:replace="commons :: footer"></div>
+
+    <!-- 모달 -->
+    <div th:replace="commons :: modal"></div>
+
+    <script type="module" th:src="@{/js/script.js}"></script>
+</body>
+</html>

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fan Place - 관리자 - 대시보드</title>
+    <link rel="icon" th:href="@{/img/PF_Icon.png}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="flexColumn">
+    <!-- 토스트 -->
+    <div th:replace="commons :: toast"></div>
+
+    <!-- 헤더 -->
+    <div th:replace="commons :: adminHaeder"></div>
+
+    <!-- 섹션 -->
+    <section class="flexColumn gapSm">
+        <!-- 날짜 -->
+        <div class="flex gapSm justifyCenter alignCenter">
+            <button class="dateBtn" onclick="changeWeek('prev')"> < </button>
+            <span class="title1Text bold" id="week"></span>
+            <button class="dateBtn" onclick="changeWeek('next')"> > </button>
+        </div>
+
+        <!-- 활동 추이 -->
+        <div class="flexColumn gapXs">
+            <p class="title2Text bold">활동 추이</p>
+
+            <!-- 최근 7일 추이 -->
+            <div class="grayCard pdSm flexColumnMov gapXs">
+                <p class="title2Text textCenter">
+                    <span class="bold">최근 7일 추이</span> <br>
+                    글 <span class="bold pointColorText">100</span> | 
+                    댓글 <span class="bold pointColorText">1000</span> | 
+                    활성 유저 <span class="bold pointColorText">50</span>
+                </p>
+                <p class="title2Text textCenter">
+                    <span class="bold">전주 대비</span> <br>
+                    글 <span class="bold pointColorText">+100%</span> | 
+                    댓글 <span class="bold pointColorText">+40%</span> | 
+                    활성 유저 <span class="bold pointColorText">+80%</span>
+                </p>
+            </div>
+
+            <!-- 카드 -->
+            <div class="card pdSm flexColumn gapXs">
+                <div class="flex gapXs">
+                    <span class="text1 textCenter">날짜</span>
+                    <span class="text1 textCenter">글</span>
+                    <span class="text1 textCenter">댓글</span>
+                    <span class="text1 textCenter">활성 유저</span>
+                </div>
+                <div class="flex gapXs">
+                    <span class="text1 textCenter">2026.01.01.</span>
+                    <span class="text1 textCenter">100</span>
+                    <span class="text1 textCenter">1000</span>
+                    <span class="text1 textCenter">10</span>
+                </div>
+                <div class="flex gapXs">
+                    <span class="text1 textCenter">2026.01.01.</span>
+                    <span class="text1 textCenter">100</span>
+                    <span class="text1 textCenter">1000</span>
+                    <span class="text1 textCenter">10</span>
+                </div>
+                <div class="flex gapXs">
+                    <span class="text1 textCenter">2026.01.01.</span>
+                    <span class="text1 textCenter">100</span>
+                    <span class="text1 textCenter">1000</span>
+                    <span class="text1 textCenter">10</span>
+                </div>
+                <div class="flex gapXs">
+                    <span class="text1 textCenter">2026.01.01.</span>
+                    <span class="text1 textCenter">100</span>
+                    <span class="text1 textCenter">1000</span>
+                    <span class="text1 textCenter">10</span>
+                </div>
+                <div class="flex gapXs">
+                    <span class="text1 textCenter">2026.01.01.</span>
+                    <span class="text1 textCenter">100</span>
+                    <span class="text1 textCenter">1000</span>
+                    <span class="text1 textCenter">10</span>
+                </div>
+                <div class="flex gapXs">
+                    <span class="text1 textCenter">2026.01.01.</span>
+                    <span class="text1 textCenter">100</span>
+                    <span class="text1 textCenter">1000</span>
+                    <span class="text1 textCenter">10</span>
+                </div>
+                <div class="flex gapXs">
+                    <span class="text1 textCenter">2026.01.01.</span>
+                    <span class="text1 textCenter">100</span>
+                    <span class="text1 textCenter">1000</span>
+                    <span class="text1 textCenter">10</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 상태 -->
+        <div class="widthFull flexColumnMov gapXs">
+            <!-- 게시판 상태 -->
+            <div class="widthFull flexColumn gapXs">
+                <p class="title2Text bold">게시판 상태</p>
+
+                <!-- 카드 -->
+                <div class="card pdSm flexColumn gapXs">
+                    <div class="flex gapXs">
+                        <span class="text1 textCenter">게시판</span>
+                        <span class="text1 textCenter">글</span>
+                        <span class="text1 textCenter">댓글</span>
+                        <span class="text1 textCenter">댓글/글</span>
+                    </div>
+                    <div class="flex gapXs">
+                        <span class="text1 textCenter">야구</span>
+                        <span class="text1 textCenter">100</span>
+                        <span class="text1 textCenter">1000</span>
+                        <span class="text1 textCenter">10</span>
+                    </div>
+                    <div class="flex gapXs">
+                        <span class="text1 textCenter">축구</span>
+                        <span class="text1 textCenter">100</span>
+                        <span class="text1 textCenter">1000</span>
+                        <span class="text1 textCenter">10</span>
+                    </div>
+                    <div class="flex gapXs">
+                        <span class="text1 textCenter">농구</span>
+                        <span class="text1 textCenter">100</span>
+                        <span class="text1 textCenter">1000</span>
+                        <span class="text1 textCenter">10</span>
+                    </div>
+                    <div class="flex gapXs">
+                        <span class="text1 textCenter">배구</span>
+                        <span class="text1 textCenter">100</span>
+                        <span class="text1 textCenter">1000</span>
+                        <span class="text1 textCenter">10</span>
+                    </div>
+                    <div class="flex gapXs">
+                        <span class="text1 textCenter">E스포츠</span>
+                        <span class="text1 textCenter">100</span>
+                        <span class="text1 textCenter">1000</span>
+                        <span class="text1 textCenter">10</span>
+                    </div>
+                    <div class="flex gapXs">
+                        <span class="text1 textCenter">기타 스포츠</span>
+                        <span class="text1 textCenter">100</span>
+                        <span class="text1 textCenter">1000</span>
+                        <span class="text1 textCenter">10</span>
+                    </div>
+                    <div class="flex gapXs">
+                        <span class="text1 textCenter">창작물</span>
+                        <span class="text1 textCenter">100</span>
+                        <span class="text1 textCenter">1000</span>
+                        <span class="text1 textCenter">10</span>
+                    </div>
+                    <div class="flex gapXs">
+                        <span class="text1 textCenter">게임</span>
+                        <span class="text1 textCenter">100</span>
+                        <span class="text1 textCenter">1000</span>
+                        <span class="text1 textCenter">10</span>
+                    </div>
+                    <div class="flex gapXs">
+                        <span class="text1 textCenter">예능/방송</span>
+                        <span class="text1 textCenter">100</span>
+                        <span class="text1 textCenter">1000</span>
+                        <span class="text1 textCenter">10</span>
+                    </div>
+                    <div class="flex gapXs">
+                        <span class="text1 textCenter">공지사항</span>
+                        <span class="text1 textCenter">100</span>
+                        <span class="text1 textCenter">1000</span>
+                        <span class="text1 textCenter">10</span>
+                    </div>
+                    <div class="flex gapXs">
+                        <span class="text1 textCenter">밴 건의</span>
+                        <span class="text1 textCenter">100</span>
+                        <span class="text1 textCenter">1000</span>
+                        <span class="text1 textCenter">10</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 대화 품질 -->
+            <div class="widthFull flexColumn gapXs">
+                <p class="title2Text bold">대화 품질</p>
+
+                <!-- 카드 -->
+                <div class="card pdSm flexColumn gapXs">
+                    <div class="flex gapXs">
+                        <span class="text1 textCenter">게시판</span>
+                        <span class="text1 textCenter">댓글 없는 글</span>
+                        <span class="text1 textCenter">1인 댓글</span>
+                        <span class="text1 textCenter">평균 참여 유저/글</span>
+                    </div>
+                    <div class="flex gapXs">
+                        <span class="text1 textCenter">야구</span>
+                        <span class="text1 textCenter">100</span>
+                        <span class="text1 textCenter">1000</span>
+                        <span class="text1 textCenter">10</span>
+                    </div>
+                    <div class="flex gapXs">
+                        <span class="text1 textCenter">축구</span>
+                        <span class="text1 textCenter">100</span>
+                        <span class="text1 textCenter">1000</span>
+                        <span class="text1 textCenter">10</span>
+                    </div>
+                    <div class="flex gapXs">
+                        <span class="text1 textCenter">농구</span>
+                        <span class="text1 textCenter">100</span>
+                        <span class="text1 textCenter">1000</span>
+                        <span class="text1 textCenter">10</span>
+                    </div>
+                    <div class="flex gapXs">
+                        <span class="text1 textCenter">배구</span>
+                        <span class="text1 textCenter">100</span>
+                        <span class="text1 textCenter">1000</span>
+                        <span class="text1 textCenter">10</span>
+                    </div>
+                    <div class="flex gapXs">
+                        <span class="text1 textCenter">E스포츠</span>
+                        <span class="text1 textCenter">100</span>
+                        <span class="text1 textCenter">1000</span>
+                        <span class="text1 textCenter">10</span>
+                    </div>
+                    <div class="flex gapXs">
+                        <span class="text1 textCenter">기타 스포츠</span>
+                        <span class="text1 textCenter">100</span>
+                        <span class="text1 textCenter">1000</span>
+                        <span class="text1 textCenter">10</span>
+                    </div>
+                    <div class="flex gapXs">
+                        <span class="text1 textCenter">창작물</span>
+                        <span class="text1 textCenter">100</span>
+                        <span class="text1 textCenter">1000</span>
+                        <span class="text1 textCenter">10</span>
+                    </div>
+                    <div class="flex gapXs">
+                        <span class="text1 textCenter">게임</span>
+                        <span class="text1 textCenter">100</span>
+                        <span class="text1 textCenter">1000</span>
+                        <span class="text1 textCenter">10</span>
+                    </div>
+                    <div class="flex gapXs">
+                        <span class="text1 textCenter">예능/방송</span>
+                        <span class="text1 textCenter">100</span>
+                        <span class="text1 textCenter">1000</span>
+                        <span class="text1 textCenter">10</span>
+                    </div>
+                    <div class="flex gapXs">
+                        <span class="text1 textCenter">공지사항</span>
+                        <span class="text1 textCenter">100</span>
+                        <span class="text1 textCenter">1000</span>
+                        <span class="text1 textCenter">10</span>
+                    </div>
+                    <div class="flex gapXs">
+                        <span class="text1 textCenter">밴 건의</span>
+                        <span class="text1 textCenter">100</span>
+                        <span class="text1 textCenter">1000</span>
+                        <span class="text1 textCenter">10</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 유저 행동 이상 -->
+        <div class="widthFull flexColumn gapXs">
+            <p class="title2Text bold">유저 행동 이상</p>
+
+            <!-- 카드 -->
+            <div class="card pdSm flexColumn gapXs">
+                <p class="text1">일 10회 이상 글 작성 유저 <span class="bold pointColorText">10명</span></p>
+                <p class="text1">일 50회 이상 댓글 작성 유저 <span class="bold pointColorText">2명</span></p>
+                <p class="text1">상위 1% 활동 점유율 <span class="bold pointColorText">10%</span></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 모달 -->
+    <div th:replace="commons :: modal"></div>
+
+    <script type="module" th:src="@{/js/script.js}"></script>
+</body>
+</html>

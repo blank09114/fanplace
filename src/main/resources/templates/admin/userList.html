@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fan Place - 관리자 - 회원 목록</title>
+    <link rel="icon" th:href="@{/img/PF_Icon.png}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="flexColumn">
+    <!-- 토스트 -->
+    <div th:replace="commons :: toast"></div>
+
+    <!-- 헤더 -->
+    <div th:replace="commons :: adminHaeder"></div>
+
+    <!-- 섹션 -->
+    <section class="flexColumn gapSm">
+        <!-- 목록 -->
+        <div class="flexColumn gapSm">
+            <div class="card widthFull flexColumn gapSm pdMd">
+                <button class="btn teal" onclick="openModal('blockModal')">차단</button>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">ID</p>
+                    <p class="title2Text">ID</p>
+                </div>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">닉네임</p>
+                    <p class="title2Text">닉네임</p>
+                </div>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">메일</p>
+                    <p class="title2Text">user@naver.com</p>
+                </div>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">가입일</p>
+                    <p class="title2Text">2026.01.01.</p>
+                </div>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">상태</p>
+                    <p class="title2Text">차단됨</p>
+                </div>
+            </div>
+            <div class="card widthFull flexColumn gapSm pdMd">
+                <button class="btn teal" onclick="openModal('blockModal')">차단</button>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">ID</p>
+                    <p class="title2Text">ID</p>
+                </div>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">닉네임</p>
+                    <p class="title2Text">닉네임</p>
+                </div>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">메일</p>
+                    <p class="title2Text">user@naver.com</p>
+                </div>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">가입일</p>
+                    <p class="title2Text">2026.01.01.</p>
+                </div>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">상태</p>
+                    <p class="title2Text">차단됨</p>
+                </div>
+            </div>
+            <div class="card widthFull flexColumn gapSm pdMd">
+                <button class="btn teal" onclick="openModal('blockModal')">차단</button>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">ID</p>
+                    <p class="title2Text">ID</p>
+                </div>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">닉네임</p>
+                    <p class="title2Text">닉네임</p>
+                </div>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">메일</p>
+                    <p class="title2Text">user@naver.com</p>
+                </div>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">가입일</p>
+                    <p class="title2Text">2026.01.01.</p>
+                </div>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">상태</p>
+                    <p class="title2Text">차단됨</p>
+                </div>
+            </div>
+            <div class="card widthFull flexColumn gapSm pdMd">
+                <button class="btn teal" onclick="openModal('blockModal')">차단</button>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">ID</p>
+                    <p class="title2Text">ID</p>
+                </div>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">닉네임</p>
+                    <p class="title2Text">닉네임</p>
+                </div>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">메일</p>
+                    <p class="title2Text">user@naver.com</p>
+                </div>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">가입일</p>
+                    <p class="title2Text">2026.01.01.</p>
+                </div>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">상태</p>
+                    <p class="title2Text">차단됨</p>
+                </div>
+            </div>
+            <div class="card widthFull flexColumn gapSm pdMd">
+                <button class="btn teal" onclick="openModal('blockModal')">차단</button>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">ID</p>
+                    <p class="title2Text">ID</p>
+                </div>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">닉네임</p>
+                    <p class="title2Text">닉네임</p>
+                </div>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">메일</p>
+                    <p class="title2Text">user@naver.com</p>
+                </div>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">가입일</p>
+                    <p class="title2Text">2026.01.01.</p>
+                </div>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">상태</p>
+                    <p class="title2Text">차단됨</p>
+                </div>
+            </div>
+            <div class="card widthFull flexColumn gapSm pdMd">
+                <button class="btn teal" onclick="openModal('blockModal')">차단</button>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">ID</p>
+                    <p class="title2Text">ID</p>
+                </div>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">닉네임</p>
+                    <p class="title2Text">닉네임</p>
+                </div>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">메일</p>
+                    <p class="title2Text">user@naver.com</p>
+                </div>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">가입일</p>
+                    <p class="title2Text">2026.01.01.</p>
+                </div>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">상태</p>
+                    <p class="title2Text">차단됨</p>
+                </div>
+            </div>
+            <div class="card widthFull flexColumn gapSm pdMd">
+                <button class="btn teal" onclick="openModal('blockModal')">차단</button>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">ID</p>
+                    <p class="title2Text">ID</p>
+                </div>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">닉네임</p>
+                    <p class="title2Text">닉네임</p>
+                </div>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">메일</p>
+                    <p class="title2Text">user@naver.com</p>
+                </div>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">가입일</p>
+                    <p class="title2Text">2026.01.01.</p>
+                </div>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">상태</p>
+                    <p class="title2Text">차단됨</p>
+                </div>
+            </div>
+            <div class="card widthFull flexColumn gapSm pdMd">
+                <button class="btn teal" onclick="openModal('blockModal')">차단</button>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">ID</p>
+                    <p class="title2Text">ID</p>
+                </div>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">닉네임</p>
+                    <p class="title2Text">닉네임</p>
+                </div>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">메일</p>
+                    <p class="title2Text">user@naver.com</p>
+                </div>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">가입일</p>
+                    <p class="title2Text">2026.01.01.</p>
+                </div>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">상태</p>
+                    <p class="title2Text">차단됨</p>
+                </div>
+            </div>
+            <div class="card widthFull flexColumn gapSm pdMd">
+                <button class="btn teal" onclick="openModal('blockModal')">차단</button>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">ID</p>
+                    <p class="title2Text">ID</p>
+                </div>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">닉네임</p>
+                    <p class="title2Text">닉네임</p>
+                </div>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">메일</p>
+                    <p class="title2Text">user@naver.com</p>
+                </div>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">가입일</p>
+                    <p class="title2Text">2026.01.01.</p>
+                </div>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">상태</p>
+                    <p class="title2Text">차단됨</p>
+                </div>
+            </div>
+            <div class="card widthFull flexColumn gapSm pdMd">
+                <button class="btn teal" onclick="openModal('blockModal')">차단</button>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">ID</p>
+                    <p class="title2Text">ID</p>
+                </div>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">닉네임</p>
+                    <p class="title2Text">닉네임</p>
+                </div>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">메일</p>
+                    <p class="title2Text">user@naver.com</p>
+                </div>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">가입일</p>
+                    <p class="title2Text">2026.01.01.</p>
+                </div>
+                <div class="cardItem flexColumnMov gapXs">
+                    <p class="title2Text bold">상태</p>
+                    <p class="title2Text">차단됨</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 페이지 -->
+        <div class="pages flex justifyCenter gapXs">
+            <a class="page"> < </a>
+            <a class="page now"> 1 </a>
+            <a class="page"> 2 </a>
+            <a class="page"> 3 </a>
+            <a class="page"> 4 </a>
+            <a class="page"> 5 </a>
+            <a class="page"> > </a>
+        </div>
+    </section>
+
+    <!-- 스크롤 내비게이션 -->
+    <div th:replace="commons :: scrollNav"></div>
+
+    <!-- 모달 -->
+    <div th:replace="commons :: modal"></div>
+
+    <script type="module" th:src="@{/js/script.js}"></script>
+</body>
+</html>

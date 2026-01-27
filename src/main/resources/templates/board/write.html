@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fan Place - 게시글 작성</title>
+    <link rel="icon" th:href="@{/img/PF_Icon.png}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="flexColumn">
+    <!-- 토스트 -->
+    <div th:replace="commons :: toast"></div>
+
+    <!-- 헤더 -->
+    <div th:replace="commons :: header"></div>
+
+    <!-- 섹션 -->
+    <section class="flexColumn gapSm">
+        <!-- 게시판 이름 -->
+        <p class="title1Text bold textCenter">게시판 이름</p>
+
+        <!-- 작성 폼 -->
+        <form name="writeForm" class="writeForm flexColumn alignEnd gapXs pdSm">
+            <div class="flexColumnMov gapXs widthFull">
+                <select name="tab">
+                    <option>탭</option>
+                    <option>탭</option>
+                    <option>탭</option>
+                    <option>탭</option>
+                </select>
+                <input class="widthFull" type="text" name="title" placeholder="제목">
+            </div>
+            <textarea name="content" placeholder="본문"></textarea>
+            <button type="button" class="btn teal" onclick="writePost()">등록</button>
+        </form>
+    </section>
+
+    <!-- 푸터 -->
+    <div th:replace="commons :: footer"></div>
+
+    <!-- 모달 -->
+    <div th:replace="commons :: modal"></div>
+
+    <script type="module" th:src="@{/js/script.js}"></script>
+</body>
+</html>
