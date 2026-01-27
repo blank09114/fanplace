@@ -1,20 +1,22 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <!-- 헤더 -->
-<header th:fragment="header" class="header widthFull">
+<header th:fragment="mainHeader" class="header widthFull">
     <!-- 컨테이너 -->
     <div class="container flexColumn gapSm">
         <!-- 상단 -->
         <div class="headerTop widthFull flex justifyEnd alignCenter gapSm">
-            <a class="text3 lightText">로그인</a>
-            <a class="text3 lightText">회원가입</a>
-            <a class="text3 lightText">계정 찾기</a>
+            <a class="text3 lightText" th:href="@{/auth/login}">로그인</a>
+            <a class="text3 lightText" th:href="@{/auth/join}">회원가입</a>
+            <a class="text3 lightText" th:href="@{/auth/find-account}">계정 찾기</a>
+            <a class="text3 lightText" th:href="@{/auth/change-pw}">비밀번호 변경</a>
+            <a class="text3 lightText" th:href="@{/auth/withdraw}">회원 탈퇴</a>
             <button class="textBtn text3 lightText" onclick="openModal('logoutModal')">로그아웃</button>
             <button class="textBtn text3 lightText" onclick="toggleUi()">다크 모드</button>
         </div>
         <!-- 중앙 -->
         <div class="headerMiddle widthFull flexColumnMov justifyBetween alignEnd">
-            <a class="toMian background"></a>
+            <a class="toMian background" th:href="@{/}"></a>
             <form name="univSearch" class="searchForm flex gapXs">
                 <input type="text" name="keyword" placeholder="통합 검색">
                 <button type="button" class="btn teal" onclick="searchUniv()">검색</button>
@@ -55,9 +57,11 @@
     <div class="drawer">
         <a class="title1Text">사용자 메뉴</a>
         <div class="drawerMenu widthFull pdMd gapXs">
-            <a class="text1">로그인</a>
-            <a class="text1">회원가입</a>
-            <a class="text1">계정 찾기</a>
+            <a class="text1" th:href="@{/auth/login}">로그인</a>
+            <a class="text1" th:href="@{/auth/join}">회원가입</a>
+            <a class="text1" th:href="@{/auth/find-account}">계정 찾기</a>
+            <a class="text1" th:href="@{/auth/change-pw}">비밀번호 변경</a>
+            <a class="text1" th:href="@{/auth/withdraw}">회원 탈퇴</a>
             <button class="textBtn text1 textLeft" onclick="openModal('logoutModal')">로그아웃</button>
             <button class="textBtn text1 textLeft" onclick="toggleUi()">다크모드</button>
         </div>
@@ -93,7 +97,7 @@
             <a class="btn navy widthFull">회원 목록</a>
             <a class="btn navy widthFull">삭제된 글</a>
             <a class="btn navy widthFull">삭제된 댓글</a>
-            <a class="btn teal widthFull">관리자 나가기</a>
+            <a class="btn teal widthFull" th:href="@{/}">관리자 나가기</a>
         </div>
     </div>
 </header>
