@@ -89,4 +89,18 @@ document.addEventListener('DOMContentLoaded', () =>
         commons.showToast("비밀번호가 변경됐습니다. 다시 로그인해주세요.");
         history.replaceState({}, "", window.location.pathname);
     }
+
+    // 회원 탈퇴 토스트 처리
+    const withdraw = params.get("withdraw");
+
+    if (withdraw === "done")
+    {
+        commons.showToast("회원 탈퇴가 완료되었습니다.");
+        history.replaceState({}, "", window.location.pathname);
+    }
+    if (withdraw === "expired")
+    {
+        commons.showToast("링크가 만료됐거나 유효하지 않습니다.");
+        history.replaceState({}, "", window.location.pathname);
+    }
 });

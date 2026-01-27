@@ -29,9 +29,26 @@ public class SecurityConfig
         .httpBasic(b -> b.disable())
         .authorizeHttpRequests(auth -> auth
             // 비로그인 사용자만 허용
-
+            .requestMatchers(
+                "/login",
+                "/join",
+                "/find-account"
+            ).anonymous()
+            .requestMatchers(
+                "/api/auth/login",
+                "/api/auth/join/**",
+                "/api/auth/reset/**"
+            ).anonymous()
 
             // 로그인 사용자만 허용
+            .requestMatchers(
+                "/change-pw",
+                "/withdraw"
+            ).authenticated()
+            .requestMatchers(
+                "/api/auth/pw/**",
+                "/api/auth/withdraw/**"
+            ).authenticated()
 
             // 관리자만 허용
 

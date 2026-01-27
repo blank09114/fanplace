@@ -11,7 +11,7 @@
 <body style="margin:0;padding:0;background:#EEF1F5;">
 <!-- preheader -->
 <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">
-  팬 플레이스 이메일 인증을 완료하고 로그인하세요. (유효시간: {{expiresMinutes}}분)
+  팬 플레이스 이메일 인증을 완료하고 로그인하세요.
 </div>
 
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#EEF1F5;border-collapse:collapse;">
@@ -46,15 +46,35 @@
             <!-- spacer 10 -->
             <div style="height:10px;line-height:10px;font-size:0;">&nbsp;</div>
 
-            <!-- button (table button for email compatibility) -->
-            <table role="presentation" align="center" cellspacing="0" cellpadding="0" border="0" style="border-collapse:separate;">
+            <!-- CTA button -->
+            <table role="presentation" cellspacing="0" cellpadding="0" border="0"
+            align="center" style="border-collapse:separate;margin:0 auto;">
               <tr>
-                <td align="center" bgcolor="#26A69A" style="background:#26A69A;border-radius:6px;">
-                  <a href="{{verifyUrl}}" style="display:inline-block;
+                <td align="center" bgcolor="#26A69A"
+                    style="background:#26A69A; text-align:center;">
+                  <a href="{{verifyUrl}}"
+                  style="display:block;
                   font-family:Pretendard,Apple SD Gothic Neo,Malgun Gothic,Segoe UI,Arial,sans-serif;
-                  font-size:16px;line-height:1.2;font-weight:700; color:#F7F8FA;text-decoration:none; padding:10px 20px;">
+                  font-size:16px; color:#F7F8FA;text-decoration:none; padding:5px 20px;">
                     이메일 인증하기
                   </a>
+                </td>
+              </tr>
+            </table>
+
+            <!-- spacer 5 -->
+            <div style="height:5px;line-height:5px;font-size:0;">&nbsp;</div>
+
+            <!-- badge -->
+            <table role="presentation" cellspacing="0" cellpadding="0" border="0"
+                   align="center" style="border-collapse:separate;margin:0 auto;">
+              <tr>
+                <td align="center"
+                    style="padding: 5px 10px;
+                font-family:Pretendard,Apple SD Gothic Neo,Malgun Gothic,Segoe UI,Arial,sans-serif;
+                font-size:12px;line-height:16px;color:#0D47A1; background:rgba(13,71,161,0.08);
+                border:1px solid rgba(13,71,161,0.18); border-radius:999px;text-align:center;">
+                  링크 유효시간: <b>{{expiresMinutes}}분</b>
                 </td>
               </tr>
             </table>
@@ -75,20 +95,6 @@
             background:#EEF1F5;border:1px solid #CCC;padding:10px;color:#1F2328;">
               {{verifyUrl}}
             </div>
-
-            <!-- spacer 5 -->
-            <div style="height:5px;line-height:5px;font-size:0;">&nbsp;</div>
-
-            <!-- badge -->
-            <table role="presentation" align="center" cellspacing="0" cellpadding="0" border="0" style="border-collapse:separate;">
-              <tr>
-                <td style="padding:10px; font-family:Pretendard,Apple SD Gothic Neo,Malgun Gothic,Segoe UI,Arial,sans-serif;
-                font-size:12px;line-height:1;color:#0D47A1; background:rgba(13,71,161,0.08);
-                border:1px solid rgba(13,71,161,0.18); border-radius:999px;text-align:center;">
-                  유효시간: <b>{{expiresMinutes}}분</b>
-                </td>
-              </tr>
-            </table>
 
             <!-- spacer 10 -->
             <div style="height:10px;line-height:10px;font-size:0;">&nbsp;</div>

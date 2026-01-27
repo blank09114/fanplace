@@ -124,4 +124,13 @@ public class AuthReqs
         @Size(max = 255)
         private String newPw;
     }
+
+    // 회원 탈퇴 요청
+    @Getter @Setter
+    public static class WithdrawRequest
+    {
+        @NotBlank
+        @Size(max = 255)
+        private String pw;
+    }
 }

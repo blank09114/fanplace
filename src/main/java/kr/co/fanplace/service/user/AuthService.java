@@ -49,6 +49,9 @@ public class AuthService
     @Value("${app.reset-token-minutes:30}")
     private long resetTokenMinutes;
 
+    @Value("${app.withdraw-token-minutes:30}")
+    private long withdrawTokenMinutes;
+
     // 로그인
     @Transactional
     public void login(AuthReqs.LoginRequest req, HttpServletRequest request)
@@ -284,6 +287,64 @@ public class AuthService
         changePassword(user, encoded);
 
         logout(request);
+    }
+
+    // 회원 탈퇴 요청
+    @Transactional
+    public void requestWithdraw(AuthReqs.WithdrawRequest req, org.springframework.security.core.Authentication authentication, HttpServletRequest request)
+    {
+        if (authentication == null || authentication.getPrincipal() == null || "anonymousUser".equals(authentication.getPrincipal()))
+            throw new IllegalArgumentException("로그인이 필요합니다.");
+
+        String userId = authentication.getName();
+        User user = userRepository.findById(userId)
+        .orElseThrow(() -> new IllegalArgumentException("사용자 정보를 찾을 수 없습니다."));
+
+        String pw = req.getPw() == null ? "" : req.getPw().trim();
+        if (pw.isEmpty()) throw new IllegalArgumentException("비밀번호를 입력해주세요.");
+
+        if (!passwordEncoder.matches(pw, user.getPassword()))
+            throw new IllegalArgumentException("비밀번호가 올바르지 않습니다.");
+
+        tokenRepository.expireActiveWithdrawTokens(user.getId(), LocalDateTime.now());
+
+        String rawToken = TokenUtil.generateToken(48);
+        String tokenHash = TokenUtil.sha256Hex(rawToken);
+
+        Token token = Token.builder()
+        .user(user).type(Token.TokenType.WITHDRAW).hash(tokenHash)
+        .expiresAt(LocalDateTime.now().plusMinutes(withdrawTokenMinutes)).usedAt(null).build();
+
+        tokenRepository.save(token);
+
+        String encoded = URLEncoder.encode(rawToken, StandardCharsets.UTF_8);
+        String withdrawUrl = baseUrl + "/api/auth/withdraw/apply?token=" + encoded;
+
+        var mail = mailComposer.withdrawConfirm(user.getMail(), user.getName(), withdrawUrl, withdrawTokenMinutes);
+        mailService.sendHtml(mail.getTo(), mail.getSubject(), mail.getHtml());
+    }
+
+    // 회원 탈퇴
+    @Transactional
+    public void applyWithdraw(String rawToken, HttpServletRequest request)
+    {
+        if (rawToken == null || rawToken.isBlank()) throw new IllegalArgumentException("토큰이 비어있습니다.");
+
+        String hash = TokenUtil.sha256Hex(rawToken);
+
+        Token token = tokenRepository.findWithdrawByHash(hash)
+        .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 토큰입니다."));
+
+        LocalDateTime now = LocalDateTime.now();
+        if (token.isUsed()) throw new IllegalArgumentException("이미 사용된 토큰입니다.");
+        if (token.isExpired(now)) throw new IllegalArgumentException("만료된 토큰입니다.");
+
+        // 탈퇴 적용
+        token.getUser().markWithdraw(now);
+        token.markUsed(now);
+
+        // 현재 로그인 세션이 있다면 정리(선택)
+        if (request != null) logout(request);
     }
 
     // 메일

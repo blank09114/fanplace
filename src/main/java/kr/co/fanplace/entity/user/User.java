@@ -51,6 +51,9 @@ public class User
     @Builder.Default
     private boolean withdraw = false;
 
+    @Column(name = "user_withdraw_at")
+    private LocalDateTime withdrawAt;
+
     @PrePersist
     void prePersist()
     {
@@ -62,11 +65,21 @@ public class User
 
     public void enable() { this.enabled = true; }
 
-    public void cancelWithdraw() { this.withdraw = false; }
+    public void cancelWithdraw()
+    {
+        this.withdraw = false;
+        this.withdrawAt = null;
+    }
 
     public void changePassword(String encodedPw, LocalDateTime now)
     {
         this.password = encodedPw;
         this.passwordChangedAt = now;
+    }
+
+    public void markWithdraw(LocalDateTime now)
+    {
+        this.withdraw = true;
+        this.withdrawAt = now;
     }
 }

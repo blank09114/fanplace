@@ -44,6 +44,21 @@ public class MailComposer
         return new ComposedMail(to, subject, html);
     }
 
+    // 회원 탈퇴 메일 발송
+    public ComposedMail withdrawConfirm(String to, String userName, String withdrawUrl, long expiresMinutes)
+    {
+        String subject = "[FANPLACE] 회원 탈퇴 확인 메일";
+        String html = templateRenderer.render(
+            "templates/mail/withdraw.html",
+            Map.of(
+                "{{userName}}", safe(userName),
+                "{{withdrawUrl}}", safe(withdrawUrl),
+                "{{expiresMinutes}}", String.valueOf(expiresMinutes)
+            )
+        );
+        return new ComposedMail(to, subject, html);
+    }
+
     private String safe(String s) { return s == null ? "" : s; }
 
     @Getter

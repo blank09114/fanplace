@@ -111,4 +111,27 @@ public class AuthAPI
         authService.changePw(req, authentication, request);
         return ResponseEntity.ok(ApiOk.ok());
     }
+
+    // 회원 탈퇴 요청
+    @PostMapping("/withdraw/request")
+    public ResponseEntity<ApiOk> requestWithdraw(
+        @RequestBody @Valid AuthReqs.WithdrawRequest req,
+        Authentication authentication, HttpServletRequest request
+    )
+    {
+        authService.requestWithdraw(req, authentication, request);
+        return ResponseEntity.ok(ApiOk.ok());
+    }
+
+    // 회원 탈퇴
+    @GetMapping("/withdraw/apply")
+    public void applyWithdraw(@RequestParam("token") String token, HttpServletRequest request, HttpServletResponse response) throws IOException
+    {
+        try
+        {
+            authService.applyWithdraw(token, request);
+            response.sendRedirect("/?withdraw=done");
+        }
+        catch (IllegalArgumentException e) { response.sendRedirect("/?withdraw=expired"); }
+    }
 }

@@ -11,11 +11,11 @@ import java.util.Optional;
 
 public interface TokenRepository extends JpaRepository<Token, Long>
 {
-    // 토큰 조회
+    // 인증 토큰 조회
     @Query("select t from Token t join fetch t.user where t.type = kr.co.fanplace.entity.user.Token$TokenType.JOIN and t.hash = :hash")
     Optional<Token> findJoinByHash(@Param("hash") String hash);
 
-    // 기존 JOIN 토큰 만료
+    // 기존 토큰 만료
     @Modifying
     @Query("""
         update Token t set t.expiresAt = :now
@@ -26,7 +26,7 @@ public interface TokenRepository extends JpaRepository<Token, Long>
     """)
     int expireActiveJoinTokens(@Param("userId") String userId, @Param("now") LocalDateTime now);
 
-    // RESET 토큰 조회
+    // 복구 토큰 조회
     @Query("""
         select t from Token t join fetch t.user u
         where t.type = kr.co.fanplace.entity.user.Token$TokenType.RESET
@@ -34,7 +34,7 @@ public interface TokenRepository extends JpaRepository<Token, Long>
     """)
     Optional<Token> findResetByHash(@Param("hash") String hash);
 
-    // 기존 RESET 토큰 만료
+    // 기존 토큰 만료
     @Modifying
     @Query("""
         update Token t set t.expiresAt = :now
@@ -44,4 +44,23 @@ public interface TokenRepository extends JpaRepository<Token, Long>
             and t.expiresAt > :now
     """)
     int expireActiveResetTokens(@Param("userId") String userId, @Param("now") LocalDateTime now);
+
+    // 탈퇴 토큰 조회
+    @Query("""
+        select t from Token t join fetch t.user u
+        where t.type = kr.co.fanplace.entity.user.Token$TokenType.WITHDRAW and t.hash = :hash
+    """)
+    Optional<Token> findWithdrawByHash(@Param("hash") String hash);
+
+    // 기존 토큰 만료
+    @Modifying
+    @Query("""
+        update Token t
+        set t.expiresAt = :now
+        where t.user.id = :userId
+            and t.type = kr.co.fanplace.entity.user.Token$TokenType.WITHDRAW
+            and t.usedAt is null
+            and t.expiresAt > :now
+    """)
+    int expireActiveWithdrawTokens(@Param("userId") String userId, @Param("now") LocalDateTime now);
 }

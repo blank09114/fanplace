@@ -82,9 +82,16 @@ async function join(commons)
     if (!commons.validate(f.pw, '비밀번호', REGEX.pw, MSG.pw, 8, 40)) return;
     if (!commons.validate(f.mail, '메일 주소', REGEX.mail, MSG.mail)) return;
 
-    const checks = f.querySelectorAll("input[type='checkbox']");
+    const checks = f.querySelectorAll("input[type='checkbox'].required");
     for (const c of checks)
-    { if (!c.checked) { commons.showToast('필수 항목에 모두 동의하세요.'); c.focus?.(); return; } }
+    {
+        if (!c.checked)
+        {
+            commons.showToast('필수 항목에 모두 동의하세요.');
+            c.focus?.();
+            return;
+        }
+    }
 
     const body =
     {
@@ -193,7 +200,6 @@ async function changePw(commons)
         newPw: commons.getValueEl(f.newPw)
     };
 
-    commons.showToast('비밀번호 변경 중…');
     const res = await commons.postJson("/api/auth/pw/change", body, { parseJson: true });
     if (!res) return;
 
@@ -201,16 +207,32 @@ async function changePw(commons)
 }
 
 // 회원 탈퇴
-function withdraw(commons)
+async function withdraw(commons)
 {
     const f = document.forms.withdrawForm;
     if (!f) return;
 
     if (!commons.validate(f.pw, '비밀번호', REGEX.pw, MSG.pw, 8, 40)) return;
 
-    commons.showToast('회원 탈퇴 메일을 발송했습니다.');
-}
+    const body =
+    {
+        pw: commons.getValueEl(f.pw)
+    };
 
+    commons.showToast("메일 발송 중….");
+    const res = await commons.postJson(
+        "/api/auth/withdraw/request",
+        body,
+        {
+            toastOnSuccess: "회원 탈퇴 확인 메일을 발송했습니다.",
+            parseJson: true
+        }
+    );
+
+    if (!res) return;
+
+    f.pw.value = "";
+}
 
 // 함수 등록
 export function bindAuth(commons)
