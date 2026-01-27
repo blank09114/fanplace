@@ -258,6 +258,34 @@ public class AuthService
         token.markUsed(changedAt);
     }
 
+    // 비밀번호 변경
+    @Transactional
+    public void changePw(AuthReqs.ChangePwRequest req, org.springframework.security.core.Authentication authentication, HttpServletRequest request)
+    {
+        if (authentication == null || authentication.getPrincipal() == null || "anonymousUser".equals(authentication.getPrincipal()))
+            throw new IllegalArgumentException("로그인이 필요합니다.");
+
+        String userId = authentication.getName();
+        User user = userRepository.findById(userId)
+        .orElseThrow(() -> new IllegalArgumentException("사용자 정보를 찾을 수 없습니다."));
+
+        String oldPw = req.getOldPw() == null ? "" : req.getOldPw().trim();
+        String newPw = req.getNewPw() == null ? "" : req.getNewPw().trim();
+
+        if (oldPw.isEmpty()) throw new IllegalArgumentException("기존 비밀번호를 입력해주세요.");
+        if (newPw.isEmpty()) throw new IllegalArgumentException("새 비밀번호를 입력해주세요.");
+        if (newPw.length() > 255) throw new IllegalArgumentException("비밀번호가 너무 깁니다.");
+        if (!passwordEncoder.matches(oldPw, user.getPassword()))
+            throw new IllegalArgumentException("기존 비밀번호가 올바르지 않습니다.");
+        if (passwordEncoder.matches(newPw, user.getPassword()))
+            throw new IllegalArgumentException("새 비밀번호가 기존 비밀번호와 같습니다.");
+
+        String encoded = passwordEncoder.encode(newPw);
+        changePassword(user, encoded);
+
+        logout(request);
+    }
+
     // 메일
     private void issueJoinTokenAndSendMail(User user)
     {

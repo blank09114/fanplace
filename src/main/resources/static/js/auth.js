@@ -179,7 +179,7 @@ async function logout(commons)
 }
 
 // 비밀번호 변경
-function changePw(commons)
+async function changePw(commons)
 {
     const f = document.forms.changePwForm;
     if (!f) return;
@@ -187,7 +187,17 @@ function changePw(commons)
     if (!commons.validate(f.oldPw, '기존 비밀번호', REGEX.pw, MSG.pw, 8, 40)) return;
     if (!commons.validate(f.newPw, '새 비밀번호', REGEX.pw, MSG.pw, 8, 40)) return;
 
-    commons.showToast('비밀번호 변경 유효성 검사 통과!');
+    const body =
+    {
+        oldPw: commons.getValueEl(f.oldPw),
+        newPw: commons.getValueEl(f.newPw)
+    };
+
+    commons.showToast('비밀번호 변경 중…');
+    const res = await commons.postJson("/api/auth/pw/change", body, { parseJson: true });
+    if (!res) return;
+
+    location.href = "/?pw=changed";
 }
 
 // 회원 탈퇴

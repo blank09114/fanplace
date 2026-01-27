@@ -100,4 +100,15 @@ public class AuthAPI
         }
         catch (IllegalArgumentException e) { response.sendRedirect("/?reset=expired"); }
     }
+
+    // 비밀번호 변경
+    @PostMapping("/pw/change")
+    public ResponseEntity<ApiOk> changePw(
+        @RequestBody @Valid AuthReqs.ChangePwRequest req, Authentication authentication,
+        HttpServletRequest request
+    )
+    {
+        authService.changePw(req, authentication, request);
+        return ResponseEntity.ok(ApiOk.ok());
+    }
 }

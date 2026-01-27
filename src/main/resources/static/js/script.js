@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () =>
         history.replaceState({}, "", window.location.pathname);
     }
 
-    // 비밀번호 재설정
+    // 계정 복구 토스트 처리
     const reset = params.get("reset");
 
     if (reset === "done")
@@ -78,6 +78,15 @@ document.addEventListener('DOMContentLoaded', () =>
     if (reset === "expired")
     {
         commons.showToast("링크가 만료됐거나 유효하지 않습니다.");
+        history.replaceState({}, "", window.location.pathname);
+    }
+
+    // 비밀번호 변경 토스트 처리
+    const pw = params.get("pw");
+
+    if (pw === "changed")
+    {
+        commons.showToast("비밀번호가 변경됐습니다. 다시 로그인해주세요.");
         history.replaceState({}, "", window.location.pathname);
     }
 });

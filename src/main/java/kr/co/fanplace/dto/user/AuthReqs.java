@@ -111,4 +111,17 @@ public class AuthReqs
         @Size(max = 255)
         private String userMail;
     }
+
+    // 비밀번호 변경 요청
+    @Getter @Setter
+    public static class ChangePwRequest
+    {
+        @NotBlank
+        @Size(max = 255)
+        private String oldPw;
+
+        @NotBlank
+        @Size(max = 255)
+        private String newPw;
+    }
 }
