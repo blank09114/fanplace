@@ -1,23 +1,26 @@
 package kr.co.fanplace.entity.user;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 @Entity
-@Table(name = "user_tbl")
+@Table(
+    name = "user_tbl",
+    uniqueConstraints = @UniqueConstraint(name = "uq_user_mail", columnNames = "user_mail")
+)
 public class User
 {
     @Id
     @Column(name = "user_id", length = 20, nullable = false)
     private String id;
 
-    @Column(name = "user_mail", length = 255, nullable = false, unique = true)
+    @Column(name = "user_mail", length = 255, nullable = false)
     private String mail;
 
     @Column(name = "user_name", length = 10, nullable = false)
@@ -31,6 +34,7 @@ public class User
 
     @Enumerated(EnumType.STRING)
     @Column(name = "user_role", length = 5, nullable = false)
+    @Builder.Default
     private UserRole role = UserRole.USER;
 
     @Column(name = "user_date", nullable = false)
@@ -40,8 +44,21 @@ public class User
     private String ip;
 
     @Column(name = "user_is_enabled", nullable = false)
-    private boolean enabled;
+    @Builder.Default
+    private boolean enabled = false;
 
     @Column(name = "user_is_withdraw", nullable = false)
-    private boolean withdraw;
+    @Builder.Default
+    private boolean withdraw = false;
+
+    @PrePersist
+    void prePersist()
+    {
+        if (createdAt == null) createdAt = LocalDateTime.now();
+        if (role == null) role = UserRole.USER;
+    }
+
+    public enum UserRole { USER, ADMIN }
+
+    public void enable() { this.enabled = true; }
 }

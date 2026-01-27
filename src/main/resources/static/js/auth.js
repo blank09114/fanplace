@@ -27,7 +27,7 @@ function resetIdCheck()
 }
 
 // ID 중복 검사
-function usingCheck(commons)
+async function usingCheck(commons)
 {
     const f = document.forms.joinForm;
     const idEl = f?.id;
@@ -39,13 +39,16 @@ function usingCheck(commons)
     const ok = document.getElementById('ok');
     const no = document.getElementById('no');
 
-    const isDup = (id === 'test1234');
+    const data = await commons.postJson("/api/auth/join/check-id", { userId: id });
+    if (!data) return;
 
-    if (ok) ok.style.display = isDup ? 'none' : 'block';
-    if (no) no.style.display = isDup ? 'block' : 'none';
+    const available = !!data.available;
 
-    commons.showToast(isDup ? '이미 사용 중인 ID입니다.' : '사용 가능한 ID입니다.');
-    checkedId = isDup ? '' : id;
+    if (ok) ok.style.display = available ? 'block' : 'none';
+    if (no) no.style.display = available ? 'none' : 'block';
+
+    commons.showToast(available ? '사용 가능한 ID입니다.' : '이미 사용 중인 ID입니다.');
+    checkedId = available ? id : '';
 }
 
 // ID 중복 검사 여부 확인
@@ -68,7 +71,7 @@ function togglePw(formName, checkboxEl)
 }
 
 // 회원가입
-function join(commons)
+async function join(commons)
 {
     const f = document.forms.joinForm;
     if (!f) return;
@@ -83,18 +86,42 @@ function join(commons)
     for (const c of checks)
     { if (!c.checked) { commons.showToast('필수 항목에 모두 동의하세요.'); c.focus?.(); return; } }
 
-    commons.showToast('회원가입 메일을 발송했습니다.');
+    const body =
+    {
+        userId: commons.getValueEl(f.id),
+        userName: commons.getValueEl(f.name),
+        userPw: commons.getValueEl(f.pw),
+        userMail: commons.getValueEl(f.mail),
+    };
+
+    commons.showToast("메일 발송 중….");
+    const res = await commons.postJson("/api/auth/join/request", body,
+    {
+        toastOnSuccess: "회원가입 인증 메일을 발송했습니다.",
+        parseJson: true
+    });
+
+    if (!res) return;
 }
 
 // 토큰 재발급
-function token(commons)
+async function token(commons)
 {
     const f = document.forms.tokenForm;
     if (!f) return;
 
     if (!commons.validate(f.mail, '메일 주소', REGEX.mail, MSG.mail)) return;
 
-    commons.showToast('회원가입 메일을 재발송했습니다.');
+    const body = { userMail: commons.getValueEl(f.mail) };
+
+    commons.showToast("메일 발송 중….");
+    const res = await commons.postJson("/api/auth/join/resend", body,
+    {
+        toastOnSuccess: "회원가입 인증 메일을 재발송했습니다.",
+        parseJson: true
+    });
+
+    if (!res) return;
 }
 
 // 계정 찾기

@@ -1,32 +1,42 @@
 package kr.co.fanplace.entity.user;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 @Entity
-@Table(name = "token_tbl")
-public class Token
-{
+@Table(
+        name = "token_tbl",
+        uniqueConstraints = @UniqueConstraint(name = "uq_token_hash", columnNames = "token_hash"),
+        indexes = @Index(name = "token_user_lookup", columnList = "user_id, token_expires_at, token_used_at")
+)
+public class Token {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "token_id", nullable = false)
+    @Column(name = "token_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(
+            name = "user_id",
+            nullable = false,
+            foreignKey = @ForeignKey(name = "fk_token_user")
+    )
     private User user;
 
+    // ⚠️ DB 스키마의 token_type VARCHAR(5) 는 MAILCHANGE를 못 담음.
+    // 추천: DB도 VARCHAR(10) 이상으로 변경.
     @Enumerated(EnumType.STRING)
     @Column(name = "token_type", length = 10, nullable = false)
     private TokenType type;
 
-    @Column(name = "token_hash", length = 64, nullable = false, unique = true)
+    @Column(name = "token_hash", length = 64, nullable = false)
     private String hash;
 
     @Column(name = "token_expires_at", nullable = false)
@@ -37,4 +47,17 @@ public class Token
 
     @Column(name = "token_created_at", nullable = false)
     private LocalDateTime createdAt;
+
+    @PrePersist
+    void prePersist() {
+        if (createdAt == null) createdAt = LocalDateTime.now();
+    }
+
+    public boolean isUsed() { return usedAt != null; }
+
+    public boolean isExpired(LocalDateTime now) { return !expiresAt.isAfter(now); }
+
+    public enum TokenType { JOIN, RESET, MAILCHANGE, WITHDRAW }
+
+    public void markUsed(LocalDateTime at) { this.usedAt = at; }
 }

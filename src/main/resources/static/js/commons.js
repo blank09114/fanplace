@@ -199,6 +199,51 @@ export const commons =
         return true;
     },
 
+    // API 응답 실패
+    async handleApiError(res, defaultMessage = "요청 처리 중 문제가 발생했습니다.")
+    {
+        if (res.status === 429) { this.showToast("잠시 후 다시 시도해주세요."); return; }
+        try
+        {
+            const data = await res.json();
+            if (data && data.message) { this.showToast(data.message); return; }
+        }
+        catch (_) { }
+
+        this.showToast(defaultMessage);
+    },
+
+    // JSON API 래퍼
+    async fetchJson(url, options = {}, {
+        defaultErrorMessage = "요청 처리 중 문제가 발생했습니다.",
+        toastOnSuccess = null, parseJson = true
+    } = {})
+    {
+        const opts = { credentials: "include", ...options };
+        if (opts.body && typeof opts.body === "string")
+        { opts.headers = { "Content-Type": "application/json", ...(opts.headers || {}) }; }
+        try
+        {
+            const res = await fetch(url, opts);
+
+            if (!res.ok) { await this.handleApiError(res, defaultErrorMessage); return null; }
+
+            if (toastOnSuccess) this.showToast(toastOnSuccess);
+
+            if (!parseJson) return { ok: true };
+
+            const ct = (res.headers.get("content-type") || "").toLowerCase();
+            if (!ct.includes("application/json")) return { ok: true };
+
+            try { return await res.json(); } catch (_) { return { ok: true }; }
+        }
+        catch (_) { this.showToast("네트워크 오류가 발생했습니다."); return null; }
+    },
+
+    // POST JSON 편의 함수
+    postJson(url, bodyObj, opts = {})
+    { return this.fetchJson(url, { method: "POST", body: JSON.stringify(bodyObj) }, opts); },
+
     // 통합 검색
     searchUniv()
     {
@@ -211,5 +256,5 @@ export const commons =
         const keyword = this.getValueEl(keywordEl);
 
         this.showToast(`"${keyword}" 검색`);
-    }
+    },
 };

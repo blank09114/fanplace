@@ -30,4 +30,19 @@ document.addEventListener('DOMContentLoaded', () =>
     bindAuth(commons);
     bindUser(commons);
     admin.changeWeek(commons, 'current');
+
+    // 인증/리다이렉트 토스트 처리
+    const params = new URLSearchParams(window.location.search);
+    const joined = params.get("joined");
+
+    if (joined === "1")
+    {
+        commons.showToast("회원가입이 완료됐습니다.");
+        history.replaceState({}, "", window.location.pathname);
+    }
+    if (joined === "expired")
+    {
+        commons.showToast("링크가 만료됐거나 유효하지 않습니다. 다시 시도해주세요.");
+        history.replaceState({}, "", window.location.pathname);
+    }
 });
