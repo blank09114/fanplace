@@ -27,7 +27,7 @@ function resetIdCheck()
 }
 
 // ID 중복 검사
-function usingCheck(commons)
+async function usingCheck(commons)
 {
     const f = document.forms.joinForm;
     const idEl = f?.id;
@@ -39,13 +39,16 @@ function usingCheck(commons)
     const ok = document.getElementById('ok');
     const no = document.getElementById('no');
 
-    const isDup = (id === 'test1234');
+    const data = await commons.postJson("/api/auth/join/check-id", { userId: id });
+    if (!data) return;
 
-    if (ok) ok.style.display = isDup ? 'none' : 'block';
-    if (no) no.style.display = isDup ? 'block' : 'none';
+    const available = !!data.available;
 
-    commons.showToast(isDup ? '이미 사용 중인 ID입니다.' : '사용 가능한 ID입니다.');
-    checkedId = isDup ? '' : id;
+    if (ok) ok.style.display = available ? 'block' : 'none';
+    if (no) no.style.display = available ? 'none' : 'block';
+
+    commons.showToast(available ? '사용 가능한 ID입니다.' : '이미 사용 중인 ID입니다.');
+    checkedId = available ? id : '';
 }
 
 // ID 중복 검사 여부 확인
@@ -68,7 +71,7 @@ function togglePw(formName, checkboxEl)
 }
 
 // 회원가입
-function join(commons)
+async function join(commons)
 {
     const f = document.forms.joinForm;
     if (!f) return;
@@ -79,37 +82,79 @@ function join(commons)
     if (!commons.validate(f.pw, '비밀번호', REGEX.pw, MSG.pw, 8, 40)) return;
     if (!commons.validate(f.mail, '메일 주소', REGEX.mail, MSG.mail)) return;
 
-    const checks = f.querySelectorAll("input[type='checkbox']");
+    const checks = f.querySelectorAll("input[type='checkbox'].required");
     for (const c of checks)
-    { if (!c.checked) { commons.showToast('필수 항목에 모두 동의하세요.'); c.focus?.(); return; } }
+    {
+        if (!c.checked)
+        {
+            commons.showToast('필수 항목에 모두 동의하세요.');
+            c.focus?.();
+            return;
+        }
+    }
 
-    commons.showToast('회원가입 메일을 발송했습니다.');
+    const body =
+    {
+        userId: commons.getValueEl(f.id),
+        userName: commons.getValueEl(f.name),
+        userPw: commons.getValueEl(f.pw),
+        userMail: commons.getValueEl(f.mail),
+    };
+
+    commons.showToast("메일 발송 중….");
+    const res = await commons.postJson("/api/auth/join/request", body,
+    {
+        toastOnSuccess: "회원가입 인증 메일을 발송했습니다.",
+        parseJson: true
+    });
+
+    if (!res) return;
 }
 
 // 토큰 재발급
-function token(commons)
+async function token(commons)
 {
     const f = document.forms.tokenForm;
     if (!f) return;
 
     if (!commons.validate(f.mail, '메일 주소', REGEX.mail, MSG.mail)) return;
 
-    commons.showToast('회원가입 메일을 재발송했습니다.');
+    const body = { userMail: commons.getValueEl(f.mail) };
+
+    commons.showToast("메일 발송 중….");
+    const res = await commons.postJson("/api/auth/join/resend", body,
+    {
+        toastOnSuccess: "회원가입 인증 메일을 재발송했습니다.",
+        parseJson: true
+    });
+
+    if (!res) return;
 }
 
 // 계정 찾기
-function findAccount(commons)
+async function findAccount(commons)
 {
     const f = document.forms.findAccountForm;
     if (!f) return;
 
     if (!commons.validate(f.mail, '메일 주소', REGEX.mail, MSG.mail)) return;
 
-    commons.showToast('메일을 발송했습니다.');
+    const body = { userMail: commons.getValueEl(f.mail) };
+
+    commons.showToast("메일 발송 중….");
+    const res = await commons.postJson("/api/auth/reset/request", body,
+    {
+        toastOnSuccess: "계정 찾기 메일을 발송했습니다.",
+        parseJson: true
+    });
+
+    if (!res) return;
+
+    f.mail.value = "";
 }
 
 // 로그인
-function login(commons)
+async function login(commons)
 {
     const f = document.forms.loginForm;
     if (!f) return;
@@ -117,11 +162,31 @@ function login(commons)
     if (!commons.validate(f.id, 'ID', REGEX.id, MSG.id, 6, 20)) return;
     if (!commons.validate(f.pw, '비밀번호', REGEX.pw, MSG.pw, 8, 40)) return;
 
-    commons.showToast('유효성 검사 통과!');
+    const body =
+    {
+        userId: commons.getValueEl(f.id),
+        userPw: commons.getValueEl(f.pw),
+    };
+
+    const res = await commons.postJson("/api/auth/login", body, { parseJson: true });
+
+    if (!res) return;
+
+    // 메인으로 리다이렉트 + 메인에서 ?login=1 처리
+    location.href = "/?login=1";
+}
+
+// 로그아웃
+async function logout(commons)
+{
+    const res = await commons.postJson("/api/auth/logout", {}, { parseJson: true });
+    if (!res) return;
+
+    location.href = "/?logout=1";
 }
 
 // 비밀번호 변경
-function changePw(commons)
+async function changePw(commons)
 {
     const f = document.forms.changePwForm;
     if (!f) return;
@@ -129,20 +194,45 @@ function changePw(commons)
     if (!commons.validate(f.oldPw, '기존 비밀번호', REGEX.pw, MSG.pw, 8, 40)) return;
     if (!commons.validate(f.newPw, '새 비밀번호', REGEX.pw, MSG.pw, 8, 40)) return;
 
-    commons.showToast('비밀번호 변경 유효성 검사 통과!');
+    const body =
+    {
+        oldPw: commons.getValueEl(f.oldPw),
+        newPw: commons.getValueEl(f.newPw)
+    };
+
+    const res = await commons.postJson("/api/auth/pw/change", body, { parseJson: true });
+    if (!res) return;
+
+    location.href = "/?pw=changed";
 }
 
 // 회원 탈퇴
-function withdraw(commons)
+async function withdraw(commons)
 {
     const f = document.forms.withdrawForm;
     if (!f) return;
 
     if (!commons.validate(f.pw, '비밀번호', REGEX.pw, MSG.pw, 8, 40)) return;
 
-    commons.showToast('회원 탈퇴 메일을 발송했습니다.');
-}
+    const body =
+    {
+        pw: commons.getValueEl(f.pw)
+    };
 
+    commons.showToast("메일 발송 중….");
+    const res = await commons.postJson(
+        "/api/auth/withdraw/request",
+        body,
+        {
+            toastOnSuccess: "회원 탈퇴 확인 메일을 발송했습니다.",
+            parseJson: true
+        }
+    );
+
+    if (!res) return;
+
+    f.pw.value = "";
+}
 
 // 함수 등록
 export function bindAuth(commons)
@@ -155,6 +245,7 @@ export function bindAuth(commons)
     window.join = () => join(commons);
     window.token = () => token(commons);
     window.login = () => login(commons);
+    window.logout = () => logout(commons);
     window.findAccount = () => findAccount(commons);
     window.changePw = () => changePw(commons);
     window.withdraw = () => withdraw(commons);

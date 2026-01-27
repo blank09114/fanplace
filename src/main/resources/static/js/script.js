@@ -30,4 +30,77 @@ document.addEventListener('DOMContentLoaded', () =>
     bindAuth(commons);
     bindUser(commons);
     admin.changeWeek(commons, 'current');
+
+    // 인증/리다이렉트 토스트 처리
+    const params = new URLSearchParams(window.location.search);
+    const joined = params.get("joined");
+
+    if (joined === "1")
+    {
+        commons.showToast("회원가입이 완료됐습니다.");
+        history.replaceState({}, "", window.location.pathname);
+    }
+    if (joined === "expired")
+    {
+        commons.showToast("링크가 만료됐거나 유효하지 않습니다. 다시 시도해주세요.");
+        history.replaceState({}, "", window.location.pathname);
+    }
+
+    // 로그인/로그아웃 토스트 처리
+    const login = params.get("login");
+    const logout = params.get("logout");
+
+    if (login === "1")
+    {
+        commons.fetchJson("/api/auth/me", { method: "GET" }, { parseJson: true })
+            .then(data =>
+            {
+                if (data && data.userName) commons.showToast(`${data.userName}님, 환영합니다.`);
+                else commons.showToast("로그인 되었습니다.");
+            })
+            .finally(() =>
+            { history.replaceState({}, "", window.location.pathname); });
+    }
+    if (logout === "1")
+    {
+        commons.showToast("로그아웃 됐습니다.");
+        history.replaceState({}, "", window.location.pathname);
+    }
+
+    // 계정 복구 토스트 처리
+    const reset = params.get("reset");
+
+    if (reset === "done")
+    {
+        commons.showToast("임시 비밀번호가 적용됐습니다.");
+        history.replaceState({}, "", window.location.pathname);
+    }
+    if (reset === "expired")
+    {
+        commons.showToast("링크가 만료됐거나 유효하지 않습니다.");
+        history.replaceState({}, "", window.location.pathname);
+    }
+
+    // 비밀번호 변경 토스트 처리
+    const pw = params.get("pw");
+
+    if (pw === "changed")
+    {
+        commons.showToast("비밀번호가 변경됐습니다. 다시 로그인해주세요.");
+        history.replaceState({}, "", window.location.pathname);
+    }
+
+    // 회원 탈퇴 토스트 처리
+    const withdraw = params.get("withdraw");
+
+    if (withdraw === "done")
+    {
+        commons.showToast("회원 탈퇴가 완료되었습니다.");
+        history.replaceState({}, "", window.location.pathname);
+    }
+    if (withdraw === "expired")
+    {
+        commons.showToast("링크가 만료됐거나 유효하지 않습니다.");
+        history.replaceState({}, "", window.location.pathname);
+    }
 });

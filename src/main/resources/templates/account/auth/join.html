@@ -12,7 +12,7 @@
     <div th:replace="commons :: toast"></div>
 
     <!-- 헤더 -->
-    <div th:replace="commons :: header"></div>
+    <div th:replace="commons :: mainHeader"></div>
 
     <!-- 섹션 -->
     <section class="flexColumn justifyCenter alignCenter gapSm">
@@ -48,9 +48,15 @@
                     <input name="mail" type="text" placeholder="naver.com 주소로만 가입 가능">
                 </div>
                 <div class="inputWrap flexColumn gapXs">
-                    <label class="checkbox flex alignCenter gapXs"> <input type="checkbox"> <a>이용약관↗</a>에 동의합니다. </label>
-                    <label class="checkbox flex alignCenter gapXs"> <input type="checkbox"> <a>개인정보 처리방침↗</a>에 동의합니다. </label>
-                    <label class="checkbox flex alignCenter gapXs"> <input type="checkbox"> 만 14세 이상입니다. </label>
+                    <label class="checkbox flex alignCenter gapXs">
+                        <input type="checkbox" class="required"> <a>이용약관↗</a>에 동의합니다.
+                    </label>
+                    <label class="checkbox flex alignCenter gapXs">
+                        <input type="checkbox" class="required"> <a>개인정보 처리방침↗</a>에 동의합니다.
+                    </label>
+                    <label class="checkbox flex alignCenter gapXs">
+                        <input type="checkbox" class="required"> 만 14세 이상입니다.
+                    </label>
                 </div>
                 <button type="button" class="btn teal" onclick="join()">회원가입</button>
             </div>
