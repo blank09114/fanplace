@@ -86,10 +86,18 @@ public class AuthService
     public void logout(HttpServletRequest request)
     {
         HttpSession session = request.getSession(false);
-        loginLogService.markLogout(session);
+        String sessionId = (session != null) ? session.getId() : null;
 
-        if (session != null) session.invalidate();
-        SecurityContextHolder.clearContext();
+        try { if (sessionId != null) { loginLogService.markLogoutBySessionId(sessionId); } }
+        finally
+        {
+            if (session != null)
+            {
+                try { session.invalidate(); }
+                catch (IllegalStateException ignored) { }
+            }
+            SecurityContextHolder.clearContext();
+        }
     }
 
     // 로그인 정보

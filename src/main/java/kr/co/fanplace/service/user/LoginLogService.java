@@ -35,12 +35,21 @@ public class LoginLogService
 
     // 로그아웃 시각 기록
     @Transactional
-    public void markLogout(HttpSession session)
+    public void markLogoutBySessionId(String sessionId)
     {
-        if (session == null) return;
+        if (sessionId == null || sessionId.isBlank()) return;
 
-        String tokenHash = TokenUtil.sha256Hex(session.getId());
-
+        String tokenHash = TokenUtil.sha256Hex(sessionId);
         loginLogRepository.findOpenByTokenHash(tokenHash).ifPresent(l -> l.markLogout(LocalDateTime.now()));
     }
+
+    // 서버 시작 시 일괄 로그아웃 처리
+    @Transactional
+    public int forceLogoutAllActive(LocalDateTime now)
+    { return loginLogRepository.forceLogoutAllActive(now); }
+
+    // 로그인 기록 삭제
+    @Transactional
+    public int deleteLogsLoggedOutBefore(LocalDateTime cutoff)
+    { return loginLogRepository.deleteByLogoutAtBeforeOrEqual(cutoff); }
 }
