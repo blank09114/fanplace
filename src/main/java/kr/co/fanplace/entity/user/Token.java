@@ -11,9 +11,8 @@ import java.time.LocalDateTime;
 @Builder
 @Entity
 @Table(
-        name = "token_tbl",
-        uniqueConstraints = @UniqueConstraint(name = "uq_token_hash", columnNames = "token_hash"),
-        indexes = @Index(name = "token_user_lookup", columnList = "user_id, token_expires_at, token_used_at")
+    name = "token_tbl", uniqueConstraints = @UniqueConstraint(name = "uq_token_hash", columnNames = "token_hash"),
+    indexes = @Index(name = "token_user_lookup", columnList = "user_id, token_expires_at, token_used_at")
 )
 public class Token {
 
@@ -23,15 +22,9 @@ public class Token {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(
-            name = "user_id",
-            nullable = false,
-            foreignKey = @ForeignKey(name = "fk_token_user")
-    )
+    @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_token_user"))
     private User user;
 
-    // ⚠️ DB 스키마의 token_type VARCHAR(5) 는 MAILCHANGE를 못 담음.
-    // 추천: DB도 VARCHAR(10) 이상으로 변경.
     @Enumerated(EnumType.STRING)
     @Column(name = "token_type", length = 10, nullable = false)
     private TokenType type;

@@ -6,12 +6,25 @@
     <div class="container flexColumn gapSm">
         <!-- 상단 -->
         <div class="headerTop widthFull flex justifyEnd alignCenter gapSm">
-            <a class="text3 lightText" th:href="@{/auth/login}">로그인</a>
-            <a class="text3 lightText" th:href="@{/auth/join}">회원가입</a>
-            <a class="text3 lightText" th:href="@{/auth/find-account}">계정 찾기</a>
-            <a class="text3 lightText" th:href="@{/auth/change-pw}">비밀번호 변경</a>
-            <a class="text3 lightText" th:href="@{/auth/withdraw}">회원 탈퇴</a>
-            <button class="textBtn text3 lightText" onclick="openModal('logoutModal')">로그아웃</button>
+            <!-- 비로그인 메뉴 -->
+            <th:block sec:authorize="isAnonymous()">
+                <a class="text3 lightText" th:href="@{/auth/login}">로그인</a>
+                <a class="text3 lightText" th:href="@{/auth/join}">회원가입</a>
+                <a class="text3 lightText" th:href="@{/auth/find-account}">계정 찾기</a>
+            </th:block>
+
+            <!-- 관리자 메뉴 -->
+            <th:block sec:authorize="hasRole('ADMIN')"> <a class="text3 lightText">관리자</a> </th:block>
+
+            <!-- 비로그인 메뉴 -->
+            <th:block sec:authorize="isAuthenticated()">
+                <a class="text3 lightText">내 정보</a>
+                <a class="text3 lightText">알람</a>
+                <a class="text3 lightText" th:href="@{/auth/change-pw}">비밀번호 변경</a>
+                <a class="text3 lightText" th:href="@{/auth/withdraw}">회원 탈퇴</a>
+                <button class="textBtn text3 lightText" onclick="openModal('logoutModal')">로그아웃</button>
+            </th:block>
+
             <button class="textBtn text3 lightText" onclick="toggleUi()">다크 모드</button>
         </div>
         <!-- 중앙 -->
@@ -57,12 +70,25 @@
     <div class="drawer">
         <a class="title1Text">사용자 메뉴</a>
         <div class="drawerMenu widthFull pdMd gapXs">
-            <a class="text1" th:href="@{/auth/login}">로그인</a>
-            <a class="text1" th:href="@{/auth/join}">회원가입</a>
-            <a class="text1" th:href="@{/auth/find-account}">계정 찾기</a>
-            <a class="text1" th:href="@{/auth/change-pw}">비밀번호 변경</a>
-            <a class="text1" th:href="@{/auth/withdraw}">회원 탈퇴</a>
-            <button class="textBtn text1 textLeft" onclick="openModal('logoutModal')">로그아웃</button>
+            <!-- 비로그인 메뉴 -->
+            <th:block sec:authorize="isAnonymous()">
+                <a class="text1" th:href="@{/auth/login}">로그인</a>
+                <a class="text1" th:href="@{/auth/join}">회원가입</a>
+                <a class="text1" th:href="@{/auth/find-account}">계정 찾기</a>
+            </th:block>
+
+            <!-- 관리자 메뉴 -->
+            <th:block sec:authorize="hasRole('ADMIN')"> <a class="text1">관리자</a> </th:block>
+
+            <!-- 로그인 메뉴 -->
+            <th:block sec:authorize="isAuthenticated()">
+                <a class="text1">내 정보</a>
+                <a class="text1">알람</a>
+                <a class="text1" th:href="@{/auth/change-pw}">비밀번호 변경</a>
+                <a class="text1" th:href="@{/auth/withdraw}">회원 탈퇴</a>
+                <button class="textBtn text1 textLeft" onclick="openModal('logoutModal')">로그아웃</button>
+            </th:block>
+
             <button class="textBtn text1 textLeft" onclick="toggleUi()">다크모드</button>
         </div>
         <a class="title1Text">스포츠</a>
@@ -144,7 +170,7 @@
     <div class="modal pdMd flexColumn alignEnd gapXs" id="logoutModal">
         <button class="textBtn" onclick="closeModal('logoutModal')">X</button>
         <p class="text1">로그아웃하시겠습니까?</p>
-        <button class="btn teal">예</button>
+        <button class="btn teal" onclick="logout();">예</button>
     </div>
 
     <!-- 차단 모달 -->

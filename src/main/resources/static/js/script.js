@@ -45,4 +45,25 @@ document.addEventListener('DOMContentLoaded', () =>
         commons.showToast("링크가 만료됐거나 유효하지 않습니다. 다시 시도해주세요.");
         history.replaceState({}, "", window.location.pathname);
     }
+
+    // 로그인/로그아웃 토스트 처리
+    const login = params.get("login");
+    const logout = params.get("logout");
+
+    if (login === "1")
+    {
+        commons.fetchJson("/api/auth/me", { method: "GET" }, { parseJson: true })
+            .then(data =>
+            {
+                if (data && data.userName) commons.showToast(`${data.userName}님, 환영합니다.`);
+                else commons.showToast("로그인 되었습니다.");
+            })
+            .finally(() =>
+            { history.replaceState({}, "", window.location.pathname); });
+    }
+    if (logout === "1")
+    {
+        commons.showToast("로그아웃 됐습니다.");
+        history.replaceState({}, "", window.location.pathname);
+    }
 });

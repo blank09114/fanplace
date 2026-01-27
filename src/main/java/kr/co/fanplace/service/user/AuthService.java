@@ -1,6 +1,8 @@
 package kr.co.fanplace.service.user;
 
-import kr.co.fanplace.dto.user.auth.AuthReqs;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+import kr.co.fanplace.dto.user.AuthReqs;
 import kr.co.fanplace.entity.user.Token;
 import kr.co.fanplace.entity.user.User;
 import kr.co.fanplace.repository.user.TokenRepository;
@@ -11,13 +13,18 @@ import kr.co.fanplace.setting.geoip.GeoIpService;
 import kr.co.fanplace.setting.security.TokenUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -30,12 +37,75 @@ public class AuthService
     private final MailComposer mailComposer;
     private final MailService mailService;
     private final GeoIpService geoIpService;
+    private final LoginLogService loginLogService;
 
     @Value("${app.base-url}")
     private String baseUrl;
 
     @Value("${app.join-token-minutes:30}")
     private long joinTokenMinutes;
+
+    // 로그인
+    @Transactional
+    public void login(AuthReqs.LoginRequest req, HttpServletRequest request)
+    {
+        String userId = req.getUserId() == null ? "" : req.getUserId().trim();
+        String userPw = req.getUserPw() == null ? "" : req.getUserPw().trim();
+
+        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("아이디 또는 비밀번호가 올바르지 않습니다."));
+
+        // 미인증 계정 로그인 불가
+        if (!user.isEnabled()) throw new IllegalArgumentException("이메일 인증이 완료되지 않았습니다.");
+
+        // 비밀번호 검증
+        if (!passwordEncoder.matches(userPw, user.getPassword())) throw new IllegalArgumentException("아이디 또는 비밀번호가 올바르지 않습니다.");
+
+        // 탈퇴 계정이면 로그인 시 탈퇴 취소
+        if (user.isWithdraw())  { user.cancelWithdraw(); }
+
+        // 권한
+        String role = "ROLE_" + user.getRole().name(); // USER/ADMIN
+        var auth = new UsernamePasswordAuthenticationToken(
+            user.getId(), null, List.of(new SimpleGrantedAuthority(role))
+        );
+
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        HttpSession session = request.getSession(true);
+        session.setAttribute(
+            HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+            SecurityContextHolder.getContext()
+        );
+
+        // 로그인 기록
+        loginLogService.recordLogin(user, session, request);
+    }
+
+    // 로그아웃
+    @Transactional
+    public void logout(HttpServletRequest request)
+    {
+        HttpSession session = request.getSession(false);
+        loginLogService.markLogout(session);
+
+        if (session != null) session.invalidate();
+        SecurityContextHolder.clearContext();
+    }
+
+    // 로그인 정보
+    @Transactional(readOnly = true)
+    public AuthReqs.MeResponse me(org.springframework.security.core.Authentication authentication)
+    {
+        if (authentication == null) return AuthReqs.MeResponse.empty();
+        Object principal = authentication.getPrincipal();
+        if (principal == null || "anonymousUser".equals(principal)) return AuthReqs.MeResponse.empty();
+
+        String userId = authentication.getName();
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) return AuthReqs.MeResponse.empty();
+
+        return AuthReqs.MeResponse.of(user.getId(), user.getName());
+    }
 
     // ID 중복 검사
     @Transactional(readOnly = true)

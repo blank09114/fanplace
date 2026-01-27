@@ -136,7 +136,7 @@ function findAccount(commons)
 }
 
 // 로그인
-function login(commons)
+async function login(commons)
 {
     const f = document.forms.loginForm;
     if (!f) return;
@@ -144,7 +144,27 @@ function login(commons)
     if (!commons.validate(f.id, 'ID', REGEX.id, MSG.id, 6, 20)) return;
     if (!commons.validate(f.pw, '비밀번호', REGEX.pw, MSG.pw, 8, 40)) return;
 
-    commons.showToast('유효성 검사 통과!');
+    const body =
+    {
+        userId: commons.getValueEl(f.id),
+        userPw: commons.getValueEl(f.pw),
+    };
+
+    const res = await commons.postJson("/api/auth/login", body, { parseJson: true });
+
+    if (!res) return;
+
+    // 메인으로 리다이렉트 + 메인에서 ?login=1 처리
+    location.href = "/?login=1";
+}
+
+// 로그아웃
+async function logout(commons)
+{
+    const res = await commons.postJson("/api/auth/logout", {}, { parseJson: true });
+    if (!res) return;
+
+    location.href = "/?logout=1";
 }
 
 // 비밀번호 변경
@@ -182,6 +202,7 @@ export function bindAuth(commons)
     window.join = () => join(commons);
     window.token = () => token(commons);
     window.login = () => login(commons);
+    window.logout = () => logout(commons);
     window.findAccount = () => findAccount(commons);
     window.changePw = () => changePw(commons);
     window.withdraw = () => withdraw(commons);

@@ -61,4 +61,6 @@ public class User
     public enum UserRole { USER, ADMIN }
 
     public void enable() { this.enabled = true; }
+
+    public void cancelWithdraw() { this.withdraw = false; }
 }

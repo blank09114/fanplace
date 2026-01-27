@@ -1,4 +1,4 @@
-package kr.co.fanplace.dto.user.auth;
+package kr.co.fanplace.dto.user;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -8,6 +8,37 @@ import lombok.Setter;
 
 public class AuthReqs
 {
+    // 로그인 요청
+    @Getter @Setter
+    public static class LoginRequest
+    {
+        @NotBlank
+        @Size(max = 20)
+        private String userId;
+
+        @NotBlank
+        @Size(max = 255)
+        private String userPw;
+    }
+
+    // 로그인 응답
+    @Getter @Setter
+    public static class MeResponse
+    {
+        private String userId;
+        private String userName;
+
+        public static MeResponse of(String userId, String userName)
+        {
+            MeResponse res = new MeResponse();
+            res.setUserId(userId);
+            res.setUserName(userName);
+            return res;
+        }
+
+        public static MeResponse empty() { return of(null, null); }
+    }
+
     // 회원가입 요청
     @Getter @Setter
     public static class JoinRequest

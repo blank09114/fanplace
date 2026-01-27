@@ -1,14 +1,14 @@
 package kr.co.fanplace.entity.user;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 @Entity
 @Table(name = "login_log_tbl")
 public class LoginLog
@@ -20,7 +20,7 @@ public class LoginLog
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user; // ON DELETE CASCADE
+    private User user;
 
     @Column(name = "token_hash", length = 64, nullable = false)
     private String tokenHash;
@@ -33,4 +33,6 @@ public class LoginLog
 
     @Column(name = "logout_date")
     private LocalDateTime logoutAt;
+
+    public void markLogout(LocalDateTime at) { this.logoutAt = at; }
 }

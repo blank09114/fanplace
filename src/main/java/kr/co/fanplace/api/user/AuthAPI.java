@@ -4,11 +4,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import kr.co.fanplace.dto.ApiOk;
-import kr.co.fanplace.dto.user.auth.AuthReqs;
+import kr.co.fanplace.dto.user.AuthReqs;
 import kr.co.fanplace.service.user.AuthService;
 import kr.co.fanplace.setting.security.IpUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -19,6 +20,27 @@ import java.io.IOException;
 public class AuthAPI
 {
     private final AuthService authService;
+
+    // 로그인
+    @PostMapping("/login")
+    public ResponseEntity<ApiOk> login(@RequestBody @Valid AuthReqs.LoginRequest req, HttpServletRequest request)
+    {
+        authService.login(req, request);
+        return ResponseEntity.ok(ApiOk.ok());
+    }
+
+    // 로그아웃
+    @PostMapping("/logout")
+    public ResponseEntity<ApiOk> logout(HttpServletRequest request)
+    {
+        authService.logout(request);
+        return ResponseEntity.ok(ApiOk.ok());
+    }
+
+    // 내 정보
+    @GetMapping("/me")
+    public ResponseEntity<AuthReqs.MeResponse> me(Authentication authentication)
+    { return ResponseEntity.ok(authService.me(authentication)); }
 
     // ID 중복 검사
     @PostMapping("/join/check-id")
