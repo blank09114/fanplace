@@ -9,7 +9,7 @@ import kr.co.fanplace.repository.user.TokenRepository;
 import kr.co.fanplace.repository.user.UserRepository;
 import kr.co.fanplace.service.user.mail.MailComposer;
 import kr.co.fanplace.service.user.mail.MailService;
-import kr.co.fanplace.setting.geoip.GeoIpService;
+import kr.co.fanplace.setting.ip.GeoIpService;
 import kr.co.fanplace.setting.security.AuthSessionKeys;
 import kr.co.fanplace.setting.security.TokenUtil;
 import lombok.RequiredArgsConstructor;

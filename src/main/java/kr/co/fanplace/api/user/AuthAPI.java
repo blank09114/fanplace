@@ -6,7 +6,7 @@ import jakarta.validation.Valid;
 import kr.co.fanplace.dto.ApiOk;
 import kr.co.fanplace.dto.user.AuthReqs;
 import kr.co.fanplace.service.user.AuthService;
-import kr.co.fanplace.setting.security.IpUtil;
+import kr.co.fanplace.setting.ip.IpUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;

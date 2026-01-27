@@ -1,4 +1,4 @@
-package kr.co.fanplace.setting.security;
+package kr.co.fanplace.setting.ip;
 
 import jakarta.servlet.http.HttpServletRequest;
 

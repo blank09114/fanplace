@@ -1,4 +1,4 @@
-package kr.co.fanplace.setting.security;
+package kr.co.fanplace.setting.scheduler;
 
 import kr.co.fanplace.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;

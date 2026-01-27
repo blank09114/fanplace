@@ -37,28 +37,28 @@
         </div>
         <!-- 하단 -->
         <div class="headerBottom widthFull flex">
-            <a class="btn navy widthFull">스포츠</a>
-            <a class="btn navy widthFull">미디어</a>
-            <a class="btn navy widthFull">커뮤니티</a>
+            <a class="btn navy widthFull" th:href="@{/baseball}">스포츠</a>
+            <a class="btn navy widthFull" th:href="@{/creation}">미디어</a>
+            <a class="btn navy widthFull" th:href="@{/notice}">커뮤니티</a>
             <!-- 서브 메뉴 -->
             <div class="subMenuWrap widthFull">
                 <div class="subMenu widthFull flex">
                     <div class="widthFull pdMd">
-                        <a class="text1">야구</a>
-                        <a class="text1">축구</a>
-                        <a class="text1">농구</a>
-                        <a class="text1">E스포츠</a>
-                        <a class="text1">기타 스포츠</a>
+                        <a class="text1" th:href="@{/baseball}">야구</a>
+                        <a class="text1" th:href="@{/soccer}">축구</a>
+                        <a class="text1" th:href="@{/basketball}">농구</a>
+                        <a class="text1" th:href="@{/esports}">E스포츠</a>
+                        <a class="text1" th:href="@{/others}">기타 스포츠</a>
                     </div>
                     <div class="widthFull pdMd">
-                        <a class="text1">창작물</a>
-                        <a class="text1">게임</a>
-                        <a class="text1">예능/방송</a>
+                        <a class="text1" th:href="@{/creation}">창작물</a>
+                        <a class="text1" th:href="@{/game}">게임</a>
+                        <a class="text1" th:href="@{/show}">예능/방송</a>
                     </div>
                     <div class="widthFull pdMd">
-                        <a class="text1">공지사항</a>
-                        <a class="text1">문의/건의</a>
-                        <a class="text1">자유</a>
+                        <a class="text1" th:href="@{/notice}">공지사항</a>
+                        <a class="text1" th:href="@{/inquiry}">문의/건의</a>
+                        <a class="text1" th:href="@{/free}">자유</a>
                     </div>
                 </div>
             </div>
@@ -91,26 +91,26 @@
 
             <button class="textBtn text1 textLeft" onclick="toggleUi()">다크모드</button>
         </div>
-        <a class="title1Text">스포츠</a>
+        <a class="title1Text" th:href="@{/baseball}">스포츠</a>
         <div class="drawerMenu widthFull pdMd gapXs">
-            <a class="text1">야구</a>
-            <a class="text1">축구</a>
-            <a class="text1">농구</a>
-            <a class="text1">배구</a>
-            <a class="text1">E스포츠</a>
-            <a class="text1">기타 스포츠</a>
+            <a class="text1" th:href="@{/baseball}">야구</a>
+            <a class="text1" th:href="@{/soccer}">축구</a>
+            <a class="text1" th:href="@{/basketball}">농구</a>
+            <a class="text1" th:href="@{/volleyball}">배구</a>
+            <a class="text1" th:href="@{/esports}">E스포츠</a>
+            <a class="text1" th:href="@{/others}">기타 스포츠</a>
         </div>
-        <a class="title1Text">미디어</a>
+        <a class="title1Text" th:href="@{/creation}">미디어</a>
         <div class="drawerMenu widthFull pdMd gapXs">
-            <a class="text1">창작물</a>
-            <a class="text1">게임</a>
-            <a class="text1">예능/방송</a>
+            <a class="text1" th:href="@{/creation}">창작물</a>
+            <a class="text1" th:href="@{/game}">게임</a>
+            <a class="text1" th:href="@{/show}">예능/방송</a>
         </div>
-        <a class="title1Text">커뮤니티</a>
+        <a class="title1Text" th:href="@{/notice}">커뮤니티</a>
         <div class="drawerMenu widthFull pdMd gapXs">
-            <a class="text1">공지사항</a>
-            <a class="text1">문의/건의</a>
-            <a class="text1">자유</a>
+            <a class="text1" th:href="@{/notice}">공지사항</a>
+            <a class="text1" th:href="@{/inquiry}">문의/건의</a>
+            <a class="text1" th:href="@{/free}">자유</a>
         </div>
     </div>
 </header>

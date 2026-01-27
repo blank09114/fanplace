@@ -1,4 +1,4 @@
-package kr.co.fanplace.setting.geoip;
+package kr.co.fanplace.setting.ip;
 
 import com.maxmind.geoip2.DatabaseReader;
 import com.maxmind.geoip2.model.CityResponse;

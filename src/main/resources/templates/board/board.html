@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fan Place - 게시판 이름</title>
+    <title th:text="'Fan Place - ' + ${header.boardName}"></title>
     <link rel="icon" th:href="@{/img/PF_Icon.png}">
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
@@ -17,23 +17,19 @@
     <!-- 섹션 -->
     <section class="flexColumn gapLg">
         <!-- 게시판 이름 -->
-        <p class="title1Text bold textCenter">게시판 이름</p>
+        <p class="title1Text bold textCenter" th:text="${header.boardName}"></p>
 
-        <!-- 탭 -->
-        <div class="tabs widthFull flex alignCenter gapSm">
-            <a class="tab now text1">전체</a>
-            <a class="tab text1">인기글</a>
-            <a class="tab text1">탭</a>
-            <a class="tab text1">탭</a>
-            <a class="tab text1">탭</a>
-            <a class="tab text1">탭</a>
-            <a class="tab text1">탭</a>
-            <a class="tab text1">탭</a>
-            <a class="tab text1">탭</a>
-            <a class="tab text1">탭</a>
-            <a class="tab text1">탭</a>
-            <a class="tab text1">탭</a>
-            <a class="tab text1">탭</a>
+        <!-- 카테고리 -->
+        <div class="tabs widthFull flex alignCenter gapSm" th:attr="data-board-id=${header.boardId}">
+            <!-- 고정 영역 -->
+            <a class="tab now text1" data-tab-type="all">전체</a>
+            <a class="tab text1" data-tab-type="hot">인기글</a>
+
+            <!-- 카테고리 목록 -->
+            <a class="tab text1"
+            th:each="cat : ${header.categories}"
+            th:text="${cat.categoryName}"
+            th:attr="data-tab-type='category', data-category-id=${cat.categoryId}"></a>
         </div>
 
         <!-- 게시글 목록 -->
