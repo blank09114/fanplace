@@ -1,5 +1,212 @@
 export const board =
 {
+    // 상태 모듈
+    state:
+    {
+        boardId: null,
+        page: 0,
+        categoryId: null,
+        hot: false,
+        q: null,
+        mode: null,
+        univ: false,
+    },
+
+    // 초기화
+    initBoardPage(commons)
+    {
+        const listEl = document.getElementById('postList');
+        const pagerEl = document.getElementById('pagination');
+        if (!listEl || !pagerEl) return;
+
+        // 통합검색 여부)
+        const section = document.querySelector('section');
+        this.state.univ = (section?.dataset?.univSearch === 'true');
+
+        // 통합 검색 페이지
+        if (this.state.univ)
+        {
+            const params = new URLSearchParams(location.search);
+            const q = (params.get('q') || '').trim();
+            this.state.q = q || null;
+
+            this.loadPage(commons, 0);
+            return;
+        }
+
+        // 일반 게시판 페이지
+        const tabs = document.querySelector('.tabs');
+        if (!tabs) return;
+
+        const boardId = tabs.dataset?.boardId;
+        if (!boardId) return;
+        this.state.boardId = boardId;
+
+        // 탭 클릭 이벤트
+        tabs.addEventListener('click', (e) =>
+        {
+            const tab = e.target.closest('.tab');
+            if (!tab) return;
+
+            tabs.querySelectorAll('.tab').forEach(t => t.classList.remove('now'));
+            tab.classList.add('now');
+
+            const type = tab.dataset.tabType;
+
+            if (type === 'all')
+            {
+                this.state.hot = false;
+                this.state.categoryId = null;
+            }
+            else if (type === 'hot')
+            {
+                this.state.hot = true;
+                this.state.categoryId = null;
+            }
+            else if (type === 'category')
+            {
+                this.state.hot = false;
+                this.state.categoryId = tab.dataset.categoryId || null;
+            }
+
+            this.loadPage(commons, 0);
+        });
+
+        // 초기 로딩
+        const nowTab = tabs.querySelector('.tab.now') || tabs.querySelector('.tab[data-tab-type="all"]');
+        if (nowTab)
+        {
+            const type = nowTab.dataset.tabType;
+            this.state.hot = (type === 'hot');
+            this.state.categoryId = (type === 'category') ? (nowTab.dataset.categoryId || null) : null;
+        }
+
+        this.loadPage(commons, 0);
+    },
+
+    // 페이지 로드
+    async loadPage(commons, page)
+    {
+        const listEl = document.getElementById('postList');
+        const pagerEl = document.getElementById('pagination');
+        if (!listEl || !pagerEl) return;
+
+        const safePage = Math.max(0, page | 0);
+        this.state.page = safePage;
+
+        let url;
+
+        if (this.state.univ)
+        {
+            const params = new URLSearchParams();
+            params.set('page', String(safePage));
+            if (this.state.q) params.set('q', this.state.q);
+
+            url = `/api/board/search/posts?${params.toString()}`;
+        }
+        else
+        {
+            const boardId = this.state.boardId;
+            if (!boardId) return;
+
+            const params = new URLSearchParams();
+            params.set('page', String(safePage));
+            if (this.state.categoryId) params.set('categoryId', this.state.categoryId);
+            if (this.state.hot) params.set('hot', 'true');
+
+            if (this.state.q)
+            {
+                params.set('q', this.state.q);
+                url = `/api/board/${encodeURIComponent(boardId)}/posts/search?${params.toString()}`;
+            }
+            else { url = `/api/board/${encodeURIComponent(boardId)}/posts?${params.toString()}`; }
+        }
+
+        const data = await commons.fetchJson(url, { method: "GET" }, { parseJson: true });
+        if (!data) return;
+
+        const items = Array.isArray(data.content) ? data.content : [];
+        const totalPages = Number.isFinite(data.totalPages) ? data.totalPages : 0;
+        const currentPage = Number.isFinite(data.number) ? data.number : safePage;
+
+        this.renderList(commons, listEl, this.state.boardId, items);
+        this.renderPager(commons, pagerEl, currentPage, totalPages);
+    },
+
+    // 렌더링
+    renderList(commons, listEl, boardId, items)
+    {
+        listEl.innerHTML = '';
+
+        if (!items.length)
+        {
+            const empty = document.createElement('div');
+            empty.className = 'pdSm lightText textCenter';
+            empty.textContent = '게시글이 없습니다.';
+            listEl.appendChild(empty);
+            return;
+        }
+
+        for (const it of items)
+        {
+            const postId = it.postId;
+            const title = it.title ?? '';
+            const categoryName = it.categoryName ?? '';
+            const itemBoardId = it.boardId ?? boardId;
+            const itemBoardName = it.boardName ?? '';
+            const authorName = it.authorName ?? '';
+            const createdAt = it.createdAt ?? '';
+            const viewCount = it.viewCount ?? 0;
+            const likeCount = it.likeCount ?? 0;
+            const commentCount = it.commentCount ?? 0;
+
+            const postUrl = `/${encodeURIComponent(itemBoardId)}/post/${postId}`;
+
+            const postDiv = document.createElement('div');
+            postDiv.className = 'post widthFull pdSm';
+
+            const topRow = document.createElement('div');
+            topRow.className = 'flex alignCenter gapXs';
+
+            const tabSpan = document.createElement('span');
+            tabSpan.className = 'postTab textCenter';
+            tabSpan.textContent = this.state.univ
+            ? (itemBoardName || '게시판'): (categoryName || (this.state.hot ? '인기' : '전체'));
+
+            const titleA = document.createElement('a');
+            titleA.className = 'text1';
+            titleA.href = postUrl;
+            titleA.textContent = title;
+
+            topRow.appendChild(tabSpan);
+            topRow.appendChild(titleA);
+
+            const writerA = document.createElement('a');
+            writerA.className = 'text1 writer';
+            writerA.textContent = authorName;
+
+            const metaP = document.createElement('p');
+            metaP.className = 'text1 lightText';
+
+            const dt = (commons.formatDateTime ? commons.formatDateTime(createdAt) : createdAt);
+
+            metaP.textContent = `${dt} · 조회 ${viewCount} · 좋아요 ${likeCount} · 댓글 ${commentCount}`;
+
+            postDiv.appendChild(topRow);
+            postDiv.appendChild(writerA);
+            postDiv.appendChild(metaP);
+
+            listEl.appendChild(postDiv);
+        }
+    },
+
+    // 페이지네이션
+    renderPager(commons, pagerEl, currentPage, totalPages)
+    {
+        commons.renderPagination(pagerEl, currentPage, totalPages, (p) =>
+        { this.loadPage(commons, p); });
+    },
+
     // 게시판 내 검색
     searchBoard(commons)
     {
@@ -7,273 +214,14 @@ export const board =
         if (!f) { commons.showToast('검색 폼을 찾을 수 없습니다.'); return; }
 
         const keywordEl = f.keyword;
-        const selectEl = f.querySelector('select');
-
         if (!keywordEl) { commons.showToast('검색 입력창을 찾을 수 없습니다.'); return; }
         if (!commons.validate(keywordEl, '검색어')) return;
 
         const keyword = commons.getValueEl(keywordEl);
-        const typeText = selectEl?.value ?? '제목';
 
-        // 매핑
-        const typeMap = { '제목': 'title', '제목+내용': 'titleContent', '내용': 'content' };
-        const type = typeMap[typeText] ?? 'title';
+        this.state.q = keyword;
+        this.state.mode = null;
 
-        // TODO: 실제 검색 동작
-        commons.showToast(`"${keyword}" (${typeText}) 검색`);
-    },
-
-    // 게시글 등록/수정
-    writePost(commons)
-    {
-        const f = document.forms?.writeForm;
-        if (!f) { commons.showToast('폼을 찾을 수 없습니다.'); return; }
-
-        const categoryEl = f.categoryId;
-        const titleEl = f.title;
-        const contentEl = f.content;
-
-        if (!categoryEl || !titleEl || !contentEl)
-        { commons.showToast('폼 입력 요소가 누락되었습니다.'); return; }
-
-        if (window.tinymce) { window.tinymce.triggerSave(); }
-        if (!commons.validate(titleEl, '제목', null, '', 1, 100)) return;
-        if (!commons.validate(contentEl, '본문', null, '', 1, 0)) return;
-
-        f.submit();
-    },
-
-    // 게시글 삭제
-    initPostDelete(commons)
-    {
-        // 일반 삭제 confirm 버튼
-        const delModal = document.getElementById('deletedModal');
-        const delForm = document.getElementById('postDeleteForm');
-        const delConfirmBtn = delModal?.querySelector('button.btn.teal');
-
-        if (delModal && delForm && delConfirmBtn)
-        { delConfirmBtn.onclick = () => { delForm.submit(); }; }
-
-        // 관리자 삭제 confirm 버튼
-        const adminModal = document.getElementById('adminDeletedModal');
-        const adminForm = document.getElementById('postAdminDeleteForm');
-        const adminConfirmBtn = adminModal?.querySelector('button.btn.teal');
-        const adminReasonInput = adminModal?.querySelector('input[name="reason"]');
-        const adminHiddenReason = adminForm?.querySelector('input[name="reason"]');
-
-        if (adminModal && adminForm && adminConfirmBtn && adminReasonInput && adminHiddenReason)
-        {
-            adminConfirmBtn.onclick = () =>
-            {
-                const reason = commons.getValueEl(adminReasonInput);
-                if (!commons.validate(adminReasonInput, '삭제 사유')) return;
-
-                adminHiddenReason.value = reason;
-                adminForm.submit();
-            };
-        }
-    },
-
-    // 삭제 사유 변경
-    initDeletedReasonChange(commons)
-    {
-        const modal = document.getElementById('deletedReasonModal');
-        const form = document.getElementById('postDeletedReasonForm');
-        const confirmBtn = modal?.querySelector('button.btn.teal');
-        const reasonInput = modal?.querySelector('input[name="reason"]');
-        const hiddenReason = form?.querySelector('input[name="reason"]');
-
-        if (!modal || !form || !confirmBtn || !reasonInput || !hiddenReason) return;
-
-        confirmBtn.onclick = () =>
-        {
-            const reason = commons.getValueEl(reasonInput);
-            if (!commons.validate(reasonInput, '삭제 사유')) return;
-
-            hiddenReason.value = reason;
-            form.submit();
-        };
-    },
-
-    // 좋아요 초기 세팅
-    async initLike(commons)
-    {
-        const btnEl = document.querySelector('button.btn.like[data-post-id]');
-        if (!btnEl) return;
-
-        const postId = btnEl.dataset.postId;
-        if (!postId) return;
-
-        const data = await commons.fetchJson(`/api/post/${postId}/like`, { method: "GET" },
-        {
-            defaultErrorMessage: "좋아요 상태를 불러오지 못했습니다.",
-            parseJson: true
-        });
-
-        if (!data) return;
-
-        btnEl.textContent = data.liked ? '♥' : '♡';
-    },
-
-    // 좋아요 토글
-    async like(commons, btnEl)
-    {
-        if (!btnEl) return;
-
-        const postId = btnEl.dataset.postId;
-        if (!postId) { commons.showToast('게시글 정보가 없습니다.'); return; }
-
-        const isLiked = btnEl.textContent.trim() === '♥';
-        const method = isLiked ? "DELETE" : "POST";
-
-        const data = await commons.fetchJson(`/api/post/${postId}/like`, { method },
-        {
-            defaultErrorMessage: "좋아요 처리에 실패했습니다.",
-            parseJson: true
-        });
-
-        if (!data) return;
-
-        btnEl.textContent = data.liked ? '♥' : '♡';
-        commons.showToast(data.liked ? "좋아요!" : "좋아요를 취소했습니다.");
-    },
-
-    // 댓글 등록
-    subComment(commons)
-    {
-        const f = document.forms?.commentForm;
-        if (!f) { commons.showToast('댓글 폼을 찾을 수 없습니다.'); return; }
-
-        const contentEl = f.content;
-        if (!contentEl) { commons.showToast('댓글 입력창을 찾을 수 없습니다.'); return; }
-        if (!commons.validate(contentEl, '내용', null, '', 1, 500)) return;
-
-        const content = commons.getValueEl(contentEl);
-
-        // TODO: 실제 등록 처리
-        commons.showToast('댓글이 등록됐습니다.');
-    },
-    
-    // 대댓글 폼 토글
-    toggleRecommentForm(commons, btnEl)
-    {
-        const commentEl = btnEl?.closest?.('.comment');
-        if (!commentEl) { commons.showToast('댓글 영역을 찾을 수 없습니다.'); return; }
-
-        const formEl = commentEl.querySelector('form[name="recommentForm"]');
-        if (!formEl) { commons.showToast('대댓글 폼을 찾을 수 없습니다.'); return; }
-
-        const isOpen = (getComputedStyle(formEl).display !== 'none');
-
-        formEl.style.display = isOpen ? 'none' : 'flex';
-        btnEl.textContent = isOpen ? '답글' : '닫기';
-
-        if (!isOpen)
-        { const textarea = formEl.querySelector('textarea[name="content"]'); textarea?.focus(); }
-    },
-
-    // 대댓글 등록
-    subRecomment(commons, btnEl)
-    {
-        const formEl = btnEl?.closest?.('form.commentForm');
-        if (!formEl) { commons.showToast('대댓글 폼을 찾을 수 없습니다.'); return; }
-
-        const contentEl = formEl.querySelector('textarea[name="content"]');
-        if (!contentEl) { commons.showToast('대댓글 입력창을 찾을 수 없습니다.'); return; }
-        if (!commons.validate(contentEl, '대댓글', null, '', 1, 500)) return;
-
-        const content = commons.getValueEl(contentEl);
-
-        // TODO: 실제 등록 처리
-        commons.showToast('대댓글이 등록됐습니다.');
-
-        contentEl.value = '';
-        formEl.style.display = 'none';
-        const commentEl = formEl.closest('.comment');
-        const toggleBtn = commentEl?.querySelector('.commentMenu button[onclick^="toggleForm"]');
-        if (toggleBtn) toggleBtn.textContent = '답글';
-    }
-};
-
-// 에디터 초기화
-export const richEditor =
-{
-    initPostEditor()
-    {
-        const textarea = document.querySelector('textarea[data-tinymce="post"]');
-        if (!textarea || !window.tinymce) return;
-
-        const id = textarea.id || (textarea.id = `editor_${Math.random().toString(36).slice(2, 10)}`);
-        const height = parseInt(textarea.dataset.editorHeight || "600", 10);
-
-        window.tinymce.init(this._options(`#${id}`, height));
-    },
-
-    _options(selector, height)
-    {
-        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-
-        return {
-            selector,
-            height,
-
-            menubar: false,
-            branding: false,
-            promotion: false,
-            license_key: "gpl",
-
-            base_url: "/vendor/tinymce",
-            suffix: ".min",
-
-            language: "ko_KR",
-
-            skin: isDark ? "oxide-dark" : "oxide",
-            content_css: isDark ? "dark" : "default",
-
-            plugins: "lists link image table code codesample",
-            toolbar: [
-                "fontsize | bold italic underline strikethrough | superscript subscript | forecolor backcolor | alignleft aligncenter alignright alignjustify",
-                "bullist numlist | hr | table | link image | removeformat | code"
-            ].join(" | "),
-
-            font_size_formats: "24px 20px 18px 16px 14px 12px",
-            fontsize_default: "16px",
-            content_style: "body { font-size: 16px; }",
-
-            images_upload_handler: this._uploadImage,
-
-            convert_urls: false,
-            relative_urls: false,
-            remove_script_host: false,
-        };
-    },
-
-    _uploadImage(blobInfo, progress)
-    {
-        return new Promise((resolve, reject) =>
-        {
-            const form = document.forms?.writeForm;
-
-            const xhr = new XMLHttpRequest();
-            xhr.open("POST", "/api/upload");
-            xhr.responseType = "json";
-            xhr.withCredentials = true;
-
-            xhr.upload.onprogress = (e) => { if (e.lengthComputable) progress((e.loaded / e.total) * 100); };
-
-            xhr.onload = () =>
-            {
-                const res = xhr.response;
-                if (xhr.status !== 200) return reject(res?.message || "이미지 업로드에 실패했습니다.");
-                if (!res?.url) return reject("업로드 응답에 url이 없습니다.");
-                resolve(res.url);
-            };
-
-            xhr.onerror = () => reject("네트워크 오류가 발생했습니다.");
-
-            const fd = new FormData();
-            fd.append("file", blobInfo.blob(), blobInfo.filename());
-            xhr.send(fd);
-        });
+        this.loadPage(commons, 0);
     }
 };

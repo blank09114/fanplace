@@ -1,6 +1,7 @@
 package kr.co.fanplace.controller;
 
 import jakarta.validation.Valid;
+import kr.co.fanplace.dto.board.BoardDTO;
 import kr.co.fanplace.dto.board.PostDTO;
 import kr.co.fanplace.service.board.BoardService;
 import kr.co.fanplace.service.board.PostService;
@@ -8,10 +9,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -94,7 +94,7 @@ public class BoardController
         model.addAttribute("postId", postId);
 
         model.addAttribute("mode", "edit");
-        model.addAttribute("form", postService.getEditForm(boardId, postId)); // CreateForm으로 반환해도 됨
+        model.addAttribute("form", postService.getEditForm(boardId, postId));
 
         return "board/write";
     }
@@ -137,5 +137,17 @@ public class BoardController
     ) {
         postService.changeDeletedReason(boardId, postId, reason);
         return "redirect:/" + boardId + "/post/" + postId;
+    }
+
+    // 통합 검색 결과
+    @GetMapping("/search")
+    public String univSearchPage(@RequestParam(required = false) String q, Model model)
+    {
+        var header = new BoardDTO.Header("univ", "통합 검색 결과", List.of());
+        model.addAttribute("header", header);
+        model.addAttribute("boardId", "univ");
+        model.addAttribute("univSearch", true);
+
+        return "board/board";
     }
 }

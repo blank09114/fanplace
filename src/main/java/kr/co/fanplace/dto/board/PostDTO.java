@@ -10,6 +10,30 @@ import java.time.LocalDateTime;
 
 public class PostDTO
 {
+    // 게시글 목록
+    @Getter
+    @AllArgsConstructor
+    public static class ListItem
+    {
+        private final Long postId;
+
+        private final String categoryId;
+        private final String categoryName;
+
+        // 작성자 표시
+        private final String authorName;
+
+        private final LocalDateTime createdAt;
+
+        // 최신 로그 기준
+        private final String title;
+
+        // 수치
+        private final long viewCount;
+        private final long likeCount;
+        private final long commentCount;
+    }
+
     // 게시글 상세 정보
     @Getter
     @AllArgsConstructor
@@ -88,5 +112,24 @@ public class PostDTO
 
         @NotBlank(message = "내용을 입력하세요.")
         private String content;
+    }
+
+    // 통합 검색 결과
+    @Getter
+    @AllArgsConstructor
+    public static class UnivListItem
+    {
+        private final Long postId;
+
+        private final String boardId;
+        private final String boardName;
+
+        private final String authorName;
+        private final LocalDateTime createdAt;
+        private final String title;
+
+        private final long viewCount;
+        private final long likeCount;
+        private final long commentCount;
     }
 }

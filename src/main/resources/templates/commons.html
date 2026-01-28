@@ -30,7 +30,7 @@
         <!-- 중앙 -->
         <div class="headerMiddle widthFull flexColumnMov justifyBetween alignEnd">
             <a class="toMian background" th:href="@{/}"></a>
-            <form name="univSearch" class="searchForm flex gapXs">
+            <form name="univSearch" class="searchForm flex gapXs" th:action="@{/search}" method="get">
                 <input type="text" name="keyword" placeholder="통합 검색">
                 <button type="button" class="btn teal" onclick="searchUniv()">검색</button>
             </form>
