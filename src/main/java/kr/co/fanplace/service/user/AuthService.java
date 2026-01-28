@@ -2,7 +2,7 @@ package kr.co.fanplace.service.user;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import kr.co.fanplace.dto.user.AuthReqs;
+import kr.co.fanplace.dto.user.AuthReq;
 import kr.co.fanplace.entity.user.Token;
 import kr.co.fanplace.entity.user.User;
 import kr.co.fanplace.repository.user.TokenRepository;
@@ -54,7 +54,7 @@ public class AuthService
 
     // 로그인
     @Transactional
-    public void login(AuthReqs.LoginRequest req, HttpServletRequest request)
+    public void login(AuthReq.LoginRequest req, HttpServletRequest request)
     {
         String userId = req.getUserId() == null ? "" : req.getUserId().trim();
         String userPw = req.getUserPw() == null ? "" : req.getUserPw().trim();
@@ -114,17 +114,17 @@ public class AuthService
 
     // 로그인 정보
     @Transactional(readOnly = true)
-    public AuthReqs.MeResponse me(org.springframework.security.core.Authentication authentication)
+    public AuthReq.MeResponse me(org.springframework.security.core.Authentication authentication)
     {
-        if (authentication == null) return AuthReqs.MeResponse.empty();
+        if (authentication == null) return AuthReq.MeResponse.empty();
         Object principal = authentication.getPrincipal();
-        if (principal == null || "anonymousUser".equals(principal)) return AuthReqs.MeResponse.empty();
+        if (principal == null || "anonymousUser".equals(principal)) return AuthReq.MeResponse.empty();
 
         String userId = authentication.getName();
         User user = userRepository.findById(userId).orElse(null);
-        if (user == null) return AuthReqs.MeResponse.empty();
+        if (user == null) return AuthReq.MeResponse.empty();
 
-        return AuthReqs.MeResponse.of(user.getId(), user.getName());
+        return AuthReq.MeResponse.of(user.getId(), user.getName());
     }
 
     // ID 중복 검사
@@ -138,7 +138,7 @@ public class AuthService
 
     // 회원가입 요청
     @Transactional
-    public void requestJoin(AuthReqs.JoinRequest req, String clientIp)
+    public void requestJoin(AuthReq.JoinRequest req, String clientIp)
     {
         String userId = trim(req.getUserId());
         String userName = trim(req.getUserName());
@@ -202,7 +202,7 @@ public class AuthService
 
     // 계정 복구 요청
     @Transactional
-    public void requestReset(AuthReqs.ResetRequest req, String clientIp)
+    public void requestReset(AuthReq.ResetRequest req, String clientIp)
     {
         String userMail = lower(trim(req.getUserMail()));
         validateNaverOnly(userMail);
@@ -263,7 +263,7 @@ public class AuthService
 
     // 비밀번호 변경
     @Transactional
-    public void changePw(AuthReqs.ChangePwRequest req, org.springframework.security.core.Authentication authentication, HttpServletRequest request)
+    public void changePw(AuthReq.ChangePwRequest req, org.springframework.security.core.Authentication authentication, HttpServletRequest request)
     {
         if (authentication == null || authentication.getPrincipal() == null || "anonymousUser".equals(authentication.getPrincipal()))
             throw new IllegalArgumentException("로그인이 필요합니다.");
@@ -291,7 +291,7 @@ public class AuthService
 
     // 회원 탈퇴 요청
     @Transactional
-    public void requestWithdraw(AuthReqs.WithdrawRequest req, org.springframework.security.core.Authentication authentication, HttpServletRequest request)
+    public void requestWithdraw(AuthReq.WithdrawRequest req, org.springframework.security.core.Authentication authentication, HttpServletRequest request)
     {
         if (authentication == null || authentication.getPrincipal() == null || "anonymousUser".equals(authentication.getPrincipal()))
             throw new IllegalArgumentException("로그인이 필요합니다.");

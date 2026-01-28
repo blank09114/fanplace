@@ -4,14 +4,14 @@ import jakarta.persistence.*;
 import kr.co.fanplace.entity.board.Board;
 import kr.co.fanplace.entity.board.Category;
 import kr.co.fanplace.entity.user.User;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 @Entity
 @Table(name = "post_tbl")
 public class Post
@@ -40,11 +40,21 @@ public class Post
     private String ip;
 
     @Column(name = "post_is_deleted", nullable = false)
-    private boolean deleted;
+    @Builder.Default
+    private boolean deleted = false;
 
     @Column(name = "post_deleted_reason", length = 100)
     private String deletedReason;
 
     @Column(name = "post_deleted_at")
     private LocalDateTime deletedAt;
+
+    @PrePersist
+    void prePersist() { if (createdAt == null) createdAt = LocalDateTime.now(); }
+
+    public static Post create(Board board, Category category, User userOrNull, String ip, LocalDateTime now)
+    {
+        return Post.builder().board(board).category(category).user(userOrNull).ip(ip)
+        .createdAt(now).deleted(false).build();
+    }
 }

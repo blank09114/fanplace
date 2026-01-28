@@ -20,16 +20,17 @@
         <p class="title1Text bold textCenter" th:text="${header.boardName}"></p>
 
         <!-- 작성 폼 -->
-        <form name="writeForm" class="writeForm flexColumn alignEnd gapXs pdSm">
+        <form name="writeForm" class="writeForm flexColumn alignEnd gapXs pdSm"
+        th:action="@{/{boardId}/write(boardId=${boardId})}" method="post">
             <div class="flexColumnMov gapXs widthFull">
-                <select name="category" class="widthFull">
-                    <option th:each="cat : ${header.categories}" th:value="${cat.categoryId}"
-                    th:text="${cat.categoryName}"></option>
+                <select name="categoryId" class="widthFull">
+                    <option th:each="cat : ${header.categories}"
+                    th:value="${cat.categoryId}" th:text="${cat.categoryName}"></option>
                 </select>
                 <input class="widthFull" type="text" name="title" placeholder="제목">
             </div>
             <textarea class="widthFull" name="content" data-tinymce="post" data-editor-height="600"></textarea>
-            <button type="button" class="btn teal" onclick="writePost()">등록</button>
+            <button type="submit" class="btn teal" onclick="board.writePost(commons)">등록</button>
         </form>
     </section>
 

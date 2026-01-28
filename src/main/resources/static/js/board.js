@@ -23,28 +23,24 @@ export const board =
         commons.showToast(`"${keyword}" (${typeText}) 검색`);
     },
 
-    // 게시글 등록
+    // 게시글 등록/수정
     writePost(commons)
     {
         const f = document.forms?.writeForm;
-        if (!f) { commons.showToast('작성 폼을 찾을 수 없습니다.'); return; }
+        if (!f) { commons.showToast('폼을 찾을 수 없습니다.'); return; }
 
-        const tabEl = f.tab;
+        const categoryEl = f.categoryId;
         const titleEl = f.title;
         const contentEl = f.content;
 
-        if (!tabEl || !titleEl || !contentEl)
-        { commons.showToast('작성 폼 입력 요소를 찾을 수 없습니다.'); return; }
+        if (!categoryEl || !titleEl || !contentEl)
+        { commons.showToast('폼 입력 요소가 누락되었습니다.'); return; }
 
-        if (!commons.validate(titleEl, '제목', null, '', 0, 100)) return;
-        if (!commons.validate(contentEl, '본문', null, '', 0, 0)) return;
+        if (window.tinymce) { window.tinymce.triggerSave(); }
+        if (!commons.validate(titleEl, '제목', null, '', 1, 100)) return;
+        if (!commons.validate(contentEl, '본문', null, '', 1, 0)) return;
 
-        const title = commons.getValueEl(titleEl);
-        const content = commons.getValueEl(contentEl);
-
-        // TODO: 실제 등록
-
-        commons.showToast('게시글이 등록됐습니다.');
+        f.submit();
     },
 
     // 댓글 등록

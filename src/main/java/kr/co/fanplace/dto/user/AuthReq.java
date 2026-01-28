@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
-public class AuthReqs
+public class AuthReq
 {
     // 로그인 요청
     @Getter @Setter

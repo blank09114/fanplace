@@ -1,14 +1,14 @@
 package kr.co.fanplace.entity.board.post;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 @Entity
 @Table(name = "post_log_tbl")
 public class PostLog
@@ -31,4 +31,10 @@ public class PostLog
 
     @Column(name = "post_update_date", nullable = false)
     private LocalDateTime updatedAt;
+
+    @PrePersist
+    void prePersist() { if (updatedAt == null) updatedAt = LocalDateTime.now(); }
+
+    public static PostLog create(Post post, String title, String content, LocalDateTime now)
+    { return PostLog.builder().post(post).title(title).content(content).updatedAt(now).build(); }
 }
