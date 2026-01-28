@@ -32,6 +32,9 @@
             th:attr="data-tab-type='category', data-category-id=${cat.categoryId}"></a>
         </div>
 
+        <a class="widthFull btn teal" sec:authorize="isAuthenticated()"
+        th:href="@{/{boardId}/write(boardId=${header.boardId})}">글쓰기</a>
+
         <!-- 게시글 목록 -->
         <div class="postListMenu widthFull flexColumn gapSm alignCenter">
             <!-- 게시글 목록 -->
@@ -138,7 +141,12 @@
     </section>
 
     <!-- 스크롤 내비게이션 -->
-    <div th:replace="commons :: scrollNav"></div>
+    <nav class="scrollNav flexColumn">
+        <button class="scrollBtn textBtn background" onclick="scrollCtr('top')">▲</button>
+        <a sec:authorize="isAuthenticated()" class="scrollBtn writeBtn textBtn background"
+        th:href="@{/{boardId}/write(boardId=${header.boardId})}"></a>
+        <button class="scrollBtn textBtn background" onclick="scrollCtr('bottom')">▼</button>
+    </nav>
 
     <!-- 푸터 -->
     <div th:replace="commons :: footer"></div>

@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 @Component
 @RequiredArgsConstructor
-public class WithdrawCleanupScheduler
+public class WithdrawScheduler
 {
     private final UserRepository userRepository;
 

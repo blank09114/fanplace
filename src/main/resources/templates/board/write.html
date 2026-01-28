@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fan Place - 게시글 작성</title>
+    <title th:text="'Fan Place - ' + ${header.boardName} + ' 글쓰기'"></title>
     <link rel="icon" th:href="@{/img/PF_Icon.png}">
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
@@ -17,20 +17,18 @@
     <!-- 섹션 -->
     <section class="flexColumn gapSm">
         <!-- 게시판 이름 -->
-        <p class="title1Text bold textCenter">게시판 이름</p>
+        <p class="title1Text bold textCenter" th:text="${header.boardName}"></p>
 
         <!-- 작성 폼 -->
         <form name="writeForm" class="writeForm flexColumn alignEnd gapXs pdSm">
             <div class="flexColumnMov gapXs widthFull">
-                <select name="tab">
-                    <option>탭</option>
-                    <option>탭</option>
-                    <option>탭</option>
-                    <option>탭</option>
+                <select name="category" class="widthFull">
+                    <option th:each="cat : ${header.categories}" th:value="${cat.categoryId}"
+                    th:text="${cat.categoryName}"></option>
                 </select>
                 <input class="widthFull" type="text" name="title" placeholder="제목">
             </div>
-            <textarea name="content" placeholder="본문"></textarea>
+            <textarea class="widthFull" name="content" data-tinymce="post" data-editor-height="600"></textarea>
             <button type="button" class="btn teal" onclick="writePost()">등록</button>
         </form>
     </section>
@@ -41,6 +39,7 @@
     <!-- 모달 -->
     <div th:replace="commons :: modal"></div>
 
+    <script th:src="@{/vendor/tinymce/tinymce.min.js}"></script>
     <script type="module" th:src="@{/js/script.js}"></script>
 </body>
 </html>

@@ -1,7 +1,7 @@
 package kr.co.fanplace.setting.config;
 
 import kr.co.fanplace.repository.user.UserRepository;
-import kr.co.fanplace.setting.security.PasswordChangedSessionFilter;
+import kr.co.fanplace.setting.security.PWChangedSessionFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -55,7 +55,7 @@ public class SecurityConfig
             // 나머지는 전부 허용
             .anyRequest().permitAll()
         );
-        http.addFilterBefore(new PasswordChangedSessionFilter(userRepository),
+        http.addFilterBefore(new PWChangedSessionFilter(userRepository),
         org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }

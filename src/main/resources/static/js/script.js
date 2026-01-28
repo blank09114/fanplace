@@ -1,7 +1,7 @@
 import { commons } from '/js/commons.js';
 import { bindAuth } from '/js/auth.js';
 import { bindUser } from '/js/user.js';
-import { board } from '/js/board.js';
+import { board, richEditor } from '/js/board.js';
 import { admin } from '/js/admin.js';
 
 // 전역 함수 등록
@@ -29,7 +29,8 @@ document.addEventListener('DOMContentLoaded', () =>
     commons.applyTheme();
     bindAuth(commons);
     bindUser(commons);
-    admin.changeWeek(commons, 'current');
+    if (document.querySelector('textarea[data-tinymce="post"]')) { richEditor.initPostEditor(); }
+    if (document.querySelector('[data-admin-page="1"]')) { admin.changeWeek(commons, 'current'); }
 
     // 인증/리다이렉트 토스트 처리
     const params = new URLSearchParams(window.location.search);

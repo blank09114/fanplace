@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.time.ZoneId;
 
 @RequiredArgsConstructor
-public class PasswordChangedSessionFilter extends OncePerRequestFilter
+public class PWChangedSessionFilter extends OncePerRequestFilter
 {
     private final UserRepository userRepository;
 

@@ -93,7 +93,7 @@ export const board =
 
         const content = commons.getValueEl(contentEl);
 
-        // TODO: 실제 등록 처리(fetch/ajax 등)
+        // TODO: 실제 등록 처리
         commons.showToast('대댓글이 등록됐습니다.');
 
         contentEl.value = '';
@@ -101,5 +101,88 @@ export const board =
         const commentEl = formEl.closest('.comment');
         const toggleBtn = commentEl?.querySelector('.commentMenu button[onclick^="toggleForm"]');
         if (toggleBtn) toggleBtn.textContent = '답글';
+    }
+};
+
+// 에디터 초기화
+export const richEditor =
+{
+    initPostEditor()
+    {
+        const textarea = document.querySelector('textarea[data-tinymce="post"]');
+        if (!textarea || !window.tinymce) return;
+
+        const id = textarea.id || (textarea.id = `editor_${Math.random().toString(36).slice(2, 10)}`);
+        const height = parseInt(textarea.dataset.editorHeight || "600", 10);
+
+        window.tinymce.init(this._options(`#${id}`, height));
+    },
+
+    _options(selector, height)
+    {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+
+        return {
+            selector,
+            height,
+
+            menubar: false,
+            branding: false,
+            promotion: false,
+            license_key: "gpl",
+
+            base_url: "/vendor/tinymce",
+            suffix: ".min",
+
+            language: "ko_KR",
+
+            skin: isDark ? "oxide-dark" : "oxide",
+            content_css: isDark ? "dark" : "default",
+
+            plugins: "lists link image table code codesample",
+            toolbar: [
+                "fontsize | bold italic underline strikethrough | superscript subscript | forecolor backcolor | alignleft aligncenter alignright alignjustify",
+                "bullist numlist | hr | table | link image | removeformat | code"
+            ].join(" | "),
+
+            font_size_formats: "24px 20px 18px 16px 14px 12px",
+            fontsize_default: "16px",
+            content_style: "body { font-size: 16px; }",
+
+            images_upload_handler: this._uploadImage,
+
+            convert_urls: false,
+            relative_urls: false,
+            remove_script_host: false,
+        };
+    },
+
+    _uploadImage(blobInfo, progress)
+    {
+        return new Promise((resolve, reject) =>
+        {
+            const form = document.forms?.writeForm;
+
+            const xhr = new XMLHttpRequest();
+            xhr.open("POST", "/api/upload");
+            xhr.responseType = "json";
+            xhr.withCredentials = true;
+
+            xhr.upload.onprogress = (e) => { if (e.lengthComputable) progress((e.loaded / e.total) * 100); };
+
+            xhr.onload = () =>
+            {
+                const res = xhr.response;
+                if (xhr.status !== 200) return reject(res?.message || "이미지 업로드에 실패했습니다.");
+                if (!res?.url) return reject("업로드 응답에 url이 없습니다.");
+                resolve(res.url);
+            };
+
+            xhr.onerror = () => reject("네트워크 오류가 발생했습니다.");
+
+            const fd = new FormData();
+            fd.append("file", blobInfo.blob(), blobInfo.filename());
+            xhr.send(fd);
+        });
     }
 };

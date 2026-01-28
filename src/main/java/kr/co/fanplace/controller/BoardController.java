@@ -29,6 +29,15 @@ public class BoardController
     }
 
     // 게시글
+    @GetMapping("/{boardId}/write")
+    public String writePage(@PathVariable String boardId, Model model)
+    {
+        var header = boardService.getBoardHeader(boardId);
+        model.addAttribute("header", header);
+        model.addAttribute("boardId", boardId);
+
+        return "board/write";
+    }
 
     // 게시글 작성
 

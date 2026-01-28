@@ -1,3 +1,7 @@
+/* 글쓰기 */
+.writeBtn{ background-image: url("/img/icon/Icon6.png"); }
+.writeBtn:hover { background-image: url("/img/icon/Icon6_Hover.png"); }
+
 /* 탭 */
 .tabs
 {
@@ -81,8 +85,9 @@ form[name="recommentForm"] { display: none; }
 
 /* 작성 폼 */
 .writeForm { background-color: var(--main-background-color-1); border: 1px solid var(--line-color); }
-select[name="tab"] { width: 200px; }
+select[name="category"] { width: 200px; }
 textarea[name="content"] { height: 600px; }
+.tox-tinymce { width: 100%; }
 
 /* 모바일 */
 @media(max-width: 768px)
@@ -91,6 +96,6 @@ textarea[name="content"] { height: 600px; }
     .recommentLine { width: 20px; }
 
     /* 작성 폼 */
-    select[name="tab"] { width: 100%; }
+    select[name="category"] { width: 100%; }
     textarea[name="content"] { height: 300px; }
 }
