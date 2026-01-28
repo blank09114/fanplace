@@ -32,4 +32,16 @@ public class PostView
 
     @Column(name = "post_view_date", nullable = false)
     private LocalDateTime viewedAt;
+
+    @PrePersist
+    void prePersist() { if (viewedAt == null) viewedAt = LocalDateTime.now(); }
+
+    public static PostView create(Post postRef, User userRefOrNull, String ip)
+    {
+        PostView v = new PostView();
+        v.post = postRef;
+        v.user = userRefOrNull;
+        v.userIp = ip;
+        return v;
+    }
 }

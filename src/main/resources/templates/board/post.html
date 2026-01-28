@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fan Place - 게시글 이름</title>
-    <link rel="icon" href="/img/PF_Icon.png">
-    <link rel="stylesheet" href="/css/style.css">
+    <title th:text="'Fan Place - ' + (${post.deleted} ? '[삭제된 글]' : ${post.title})"></title>
+    <link rel="icon" th:href="@{/img/PF_Icon.png}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body class="flexColumn">
     <!-- 토스트 -->
@@ -17,11 +17,16 @@
     <!-- 섹션 -->
     <section class="flexColumn gapLg">
         <!-- 게시판 이름 -->
-        <p class="title1Text bold textCenter">게시판 이름</p>
+        <p class="title1Text bold textCenter" th:text="${header.boardName}"></p>
 
         <!-- 삭제된 글 표시 -->
-        <div class="deletedCard widthFull flex alignCenter">
-            <p class="text1 textCenter">삭제된 글입니다.(사유: 본인 삭제/<button class="textBtn text1" onclick="openModal('deletedReasonModal')">삭제 사유 변경</button>)</p>
+        <div class="deletedCard widthFull flex alignCenter" th:if="${post.deleted}">
+            <p class="text1 textCenter">
+                삭제된 글입니다.(사유:
+                <span th:text="${post.deletedReasonDisplay}">본인 삭제</span>/
+                <button class="textBtn text1" th:if="${canChangeDeletedReason}"
+                onclick="openModal('deletedReasonModal')">삭제 사유 변경</button>)
+            </p>
         </div>
 
         <!-- 게시글 영역 -->
@@ -30,39 +35,65 @@
             <div class="card pdMd flexColumn gapXs">
                 <!-- 게시글 정보 -->
                 <div class="postInfo">
-                    <p class="text2">탭</p>
-                    <p class="title2Text">게시글 제목</p>
-                    <p class="text1"><a>작성자</a> · 1.234.567(대한민국, 서울, 서대문구)</p>
-                    <p class="text2 lightText">2026.01.01. 00:00 · 조회 999 · 좋아요 9 · 댓글 100</p>
+                    <p class="text2" th:text="${post.categoryName}"></p>
+                    <p class="title2Text" th:text="${post.title}"></p>
+                    <p class="text1">
+                        <a th:text="${post.authorName != null ? post.authorName : '익명'}">작성자</a>
+                        <span sec:authorize="hasRole('ADMIN')"> · </span>
+                        <span sec:authorize="hasRole('ADMIN')" th:if="${post.ip != null}" th:text="${post.ip}"></span>
+                        <span sec:authorize="hasRole('ADMIN')" th:text="${'(' + post.region + ')'}"></span>
+                    </p>
+
+                    <p class="text2 lightText">
+                        <span class="lightText"
+                        th:text="${#temporals.format(post.createdAt, 'yyyy.MM.dd. HH:mm')}"></span>
+                        · 조회 <span class="lightText" th:text="${post.viewCount}"></span>
+                        · 좋아요 <span class="lightText" th:text="${post.likeCount}"></span>
+                        · 댓글 <span class="lightText" th:text="${post.commentCount}"></span>
+                    </p>
                 </div>
 
                 <!-- 게시글 본문 -->
-                <div class="postContent"> 본문 </div>
+                <div class="postContent" th:utext="${post.content}"></div>
 
                 <!-- 게시글 관리 -->
                 <div class="flex justifyEnd gapXs">
-                    <button class="btn like">♡</button>
-                    <a class="btn teal">수정</a>
-                    <button class="btn teal" onclick="openModal('deletedModal')">삭제</button>
-                    <button class="btn teal" onclick="openModal('adminDeletedModal')">삭제(관리자)</button>
+                    <button class="btn like" th:if="${canLike}"
+                    th:attr="data-post-id=${post.postId}" onclick="like(this)">♡</button>
+                    <a class="btn teal" th:if="${canEdit}"
+                    th:href="@{/{boardId}/post/{postId}/edit(boardId=${boardId}, postId=${post.postId})}">수정</a>
+                    <button class="btn teal" th:if="${canDelete}"
+                    onclick="openModal('deletedModal')">삭제</button>
+                    <button class="btn teal" th:if="${canAdminDelete}"
+                    onclick="openModal('adminDeletedModal')">삭제(관리자)</button>
                 </div>
             </div>
 
             <!-- 게시글 핸들러 -->
             <div class="flex justifyBetween">
-                <a class="btn navy">이전 글</a>
-                <a class="btn navy">목록으로</a>
-                <a class="btn navy">다음 글</a>
+                <a class="btn navy" th:if="${prevPostId != null}"
+                th:href="@{/{boardId}/post/{postId}(boardId=${boardId}, postId=${prevPostId})}">
+                    이전 글
+                </a>
+                <span class="btn navy" th:if="${prevPostId == null}" style="opacity: 0.5; pointer-events: none;">첫 글</span>
+                <a class="btn navy" th:href="@{/{boardId}(boardId=${boardId})}">목록으로</a>
+                <a class="btn navy" th:if="${nextPostId != null}"
+                th:href="@{/{boardId}/post/{postId}(boardId=${boardId}, postId=${nextPostId})}">
+                    다음 글
+                </a>
+                <span class="btn navy" th:if="${nextPostId == null}" style="opacity: 0.5; pointer-events: none;">마지막 글</span>
             </div>
         </div>
 
         <!-- 댓글 영역 -->
         <div id="comment" class="flexColumn gapSm">
             <!-- 댓글 개수 -->
-            <p class="title2Text bold">댓글 <span class="pointColorText">100</span></p>
+            <p class="title2Text bold">
+                댓글 <span class="pointColorText" th:text="${post.commentCount}"></span>개
+            </p>
 
             <!-- 댓글 작성 폼 -->
-            <form name="commentForm" class="commentForm flexColumn gapXs">
+            <form th:if="${!post.deleted}" name="commentForm" class="commentForm flexColumn gapXs">
                 <!-- 폼 헤더 -->
                 <div class="sectionHeader flex justifyBetween">
                     <span class="title2Text bold">댓글 작성하기</span>
@@ -291,8 +322,32 @@
 
     <!-- 모달 -->
     <div th:replace="commons :: modal"></div>
-    
-    <script src="/js/import.js"></script>
-    <script type="module" src="/js/script.js"></script>
+
+    <!-- 일반 삭제 폼 -->
+    <form id="postDeleteForm"
+    th:action="@{/{boardId}/post/{postId}/delete(boardId=${boardId}, postId=${post.postId})}"
+    method="post" style="display:none;">
+        <input type="hidden" th:if="${_csrf != null}"
+        th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+    </form>
+
+    <!-- 관리자 삭제 폼 -->
+    <form id="postAdminDeleteForm"
+    th:action="@{/{boardId}/post/{postId}/delete(boardId=${boardId}, postId=${post.postId})}"
+    method="post" style="display:none;">
+        <input type="hidden" th:if="${_csrf != null}"
+        th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        <input type="hidden" name="reason" value="" />
+    </form>
+
+    <!-- 삭제 사유 변경 폼 -->
+    <form id="postDeletedReasonForm"
+    th:action="@{/{boardId}/post/{postId}/deleted-reason(boardId=${boardId}, postId=${post.postId})}"
+    method="post" style="display:none;">
+        <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        <input type="hidden" name="reason" value=""/>
+    </form>
+
+    <script type="module" th:src="@{/js/script.js}"></script>
 </body>
 </html>

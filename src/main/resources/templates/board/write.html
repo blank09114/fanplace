@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="'Fan Place - ' + ${header.boardName} + ' 글쓰기'"></title>
+    <title th:text="'Fan Place - ' + ${header.boardName} + ' ' + (${mode} == 'edit' ? '수정' : '글쓰기')"></title>
     <link rel="icon" th:href="@{/img/PF_Icon.png}">
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
@@ -21,16 +21,22 @@
 
         <!-- 작성 폼 -->
         <form name="writeForm" class="writeForm flexColumn alignEnd gapXs pdSm"
-        th:action="@{/{boardId}/write(boardId=${boardId})}" method="post">
-            <div class="flexColumnMov gapXs widthFull">
-                <select name="categoryId" class="widthFull">
-                    <option th:each="cat : ${header.categories}"
-                    th:value="${cat.categoryId}" th:text="${cat.categoryName}"></option>
-                </select>
-                <input class="widthFull" type="text" name="title" placeholder="제목">
+        th:object="${form}" th:action="${mode} == 'edit'
+        ? @{/{boardId}/post/{postId}/edit(boardId=${boardId}, postId=${postId})}
+        : @{/{boardId}/write(boardId=${boardId})}" method="post">
+        <div class="flexColumnMov gapXs widthFull">
+            <select name="categoryId" class="widthFull">
+                <option th:each="cat : ${header.categories}"
+                th:value="${cat.categoryId}" th:text="${cat.categoryName}"
+                th:selected="${cat.categoryId == form.categoryId}">
+                </option>
+            </select>
+            <input class="widthFull" type="text" name="title" placeholder="제목" th:value="*{title}">
             </div>
-            <textarea class="widthFull" name="content" data-tinymce="post" data-editor-height="600"></textarea>
-            <button type="submit" class="btn teal" onclick="board.writePost(commons)">등록</button>
+            <textarea class="widthFull" name="content"
+            data-tinymce="post" data-editor-height="600" th:text="*{content}"></textarea>
+            <button type="submit" class="btn teal" onclick="board.writePost(commons)"
+            th:text="${mode} == 'edit' ? '수정' : '등록'"></button>
         </form>
     </section>
 

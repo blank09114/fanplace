@@ -53,6 +53,7 @@
 /* 게시글 영역 */
 .postInfo { border-bottom: 1px solid var(--line-color); padding-bottom: 5px; }
 .postContent { min-height: 300px; }
+.postContent ul, .postContent ol { padding-left: 30px; }
 .btn.like
 {
     background: none;

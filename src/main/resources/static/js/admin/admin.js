@@ -1,4 +1,3 @@
-// /js/admin.js
 export const admin =
 {
     // 주차 변경

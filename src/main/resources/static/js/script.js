@@ -1,8 +1,8 @@
 import { commons } from '/js/commons.js';
-import { bindAuth } from '/js/auth.js';
-import { bindUser } from '/js/user.js';
-import { board, richEditor } from '/js/board.js';
-import { admin } from '/js/admin.js';
+import { bindAuth } from '/js/account/auth.js';
+import { bindUser } from '/js/account/user.js';
+import { board, richEditor } from '/js/board/board.js';
+import { admin } from '/js/admin/admin.js';
 
 // 전역 함수 등록
 window.toggleUi = commons.toggleUi;
@@ -22,6 +22,7 @@ window.subRecomment = (btnEl) => board.subRecomment(commons, btnEl);
 window.changeWeek = (direction) => admin.changeWeek(commons, direction);
 window.searchDeletedSearch = () => admin.searchDeletedPost(commons);
 window.searchDeletedComment = () => admin.searchDeletedComment(commons);
+window.like = (btnEl) => board.like(commons, btnEl);
 
 // 이벤트 바인딩
 document.addEventListener('DOMContentLoaded', () =>
@@ -30,6 +31,17 @@ document.addEventListener('DOMContentLoaded', () =>
     bindAuth(commons);
     bindUser(commons);
     if (document.querySelector('textarea[data-tinymce="post"]')) { richEditor.initPostEditor(); }
+    board.initLike(commons);
+
+    const hasPostDelete = document.getElementById('postDeleteForm')
+    || document.getElementById('postAdminDeleteForm')
+    || document.getElementById('postDeletedReasonForm');
+    if (hasPostDelete)
+    {
+        board.initPostDelete(commons);
+        board.initDeletedReasonChange(commons);
+    }
+
     if (document.querySelector('[data-admin-page="1"]')) { admin.changeWeek(commons, 'current'); }
 
     // 인증/리다이렉트 토스트 처리

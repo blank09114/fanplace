@@ -43,6 +43,101 @@ export const board =
         f.submit();
     },
 
+    // 게시글 삭제
+    initPostDelete(commons)
+    {
+        // 일반 삭제 confirm 버튼
+        const delModal = document.getElementById('deletedModal');
+        const delForm = document.getElementById('postDeleteForm');
+        const delConfirmBtn = delModal?.querySelector('button.btn.teal');
+
+        if (delModal && delForm && delConfirmBtn)
+        { delConfirmBtn.onclick = () => { delForm.submit(); }; }
+
+        // 관리자 삭제 confirm 버튼
+        const adminModal = document.getElementById('adminDeletedModal');
+        const adminForm = document.getElementById('postAdminDeleteForm');
+        const adminConfirmBtn = adminModal?.querySelector('button.btn.teal');
+        const adminReasonInput = adminModal?.querySelector('input[name="reason"]');
+        const adminHiddenReason = adminForm?.querySelector('input[name="reason"]');
+
+        if (adminModal && adminForm && adminConfirmBtn && adminReasonInput && adminHiddenReason)
+        {
+            adminConfirmBtn.onclick = () =>
+            {
+                const reason = commons.getValueEl(adminReasonInput);
+                if (!commons.validate(adminReasonInput, '삭제 사유')) return;
+
+                adminHiddenReason.value = reason;
+                adminForm.submit();
+            };
+        }
+    },
+
+    // 삭제 사유 변경
+    initDeletedReasonChange(commons)
+    {
+        const modal = document.getElementById('deletedReasonModal');
+        const form = document.getElementById('postDeletedReasonForm');
+        const confirmBtn = modal?.querySelector('button.btn.teal');
+        const reasonInput = modal?.querySelector('input[name="reason"]');
+        const hiddenReason = form?.querySelector('input[name="reason"]');
+
+        if (!modal || !form || !confirmBtn || !reasonInput || !hiddenReason) return;
+
+        confirmBtn.onclick = () =>
+        {
+            const reason = commons.getValueEl(reasonInput);
+            if (!commons.validate(reasonInput, '삭제 사유')) return;
+
+            hiddenReason.value = reason;
+            form.submit();
+        };
+    },
+
+    // 좋아요 초기 세팅
+    async initLike(commons)
+    {
+        const btnEl = document.querySelector('button.btn.like[data-post-id]');
+        if (!btnEl) return;
+
+        const postId = btnEl.dataset.postId;
+        if (!postId) return;
+
+        const data = await commons.fetchJson(`/api/post/${postId}/like`, { method: "GET" },
+        {
+            defaultErrorMessage: "좋아요 상태를 불러오지 못했습니다.",
+            parseJson: true
+        });
+
+        if (!data) return;
+
+        btnEl.textContent = data.liked ? '♥' : '♡';
+    },
+
+    // 좋아요 토글
+    async like(commons, btnEl)
+    {
+        if (!btnEl) return;
+
+        const postId = btnEl.dataset.postId;
+        if (!postId) { commons.showToast('게시글 정보가 없습니다.'); return; }
+
+        const isLiked = btnEl.textContent.trim() === '♥';
+        const method = isLiked ? "DELETE" : "POST";
+
+        const data = await commons.fetchJson(`/api/post/${postId}/like`, { method },
+        {
+            defaultErrorMessage: "좋아요 처리에 실패했습니다.",
+            parseJson: true
+        });
+
+        if (!data) return;
+
+        btnEl.textContent = data.liked ? '♥' : '♡';
+        commons.showToast(data.liked ? "좋아요!" : "좋아요를 취소했습니다.");
+    },
+
     // 댓글 등록
     subComment(commons)
     {

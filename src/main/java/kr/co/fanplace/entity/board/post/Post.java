@@ -9,6 +9,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
@@ -57,4 +58,15 @@ public class Post
         return Post.builder().board(board).category(category).user(userOrNull).ip(ip)
         .createdAt(now).deleted(false).build();
     }
+
+    public void changeCategory(Category category) { this.category = category; }
+
+    public void softDelete(String reasonOrNull, LocalDateTime now)
+    {
+        this.deleted = true;
+        this.deletedAt = now;
+        this.deletedReason = (reasonOrNull == null || reasonOrNull.isBlank()) ? null : reasonOrNull;
+    }
+
+    public void changeDeletedReason(String reason) { this.deletedReason = reason; }
 }
