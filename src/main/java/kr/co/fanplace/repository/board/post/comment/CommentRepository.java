@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface CommentRepository extends JpaRepository<Comment, Long>
@@ -21,6 +22,24 @@ public interface CommentRepository extends JpaRepository<Comment, Long>
     @Modifying
     @Query("delete from Comment c where c.post.id in :postIds")
     int deleteByPostIds(@Param("postIds") List<Long> postIds);
+
+    // purge 대상 id 조회
+    @Query("""
+        select c.id from Comment c
+        where c.deleted = true
+            and c.deletedAt is not null
+            and (
+                ( (c.deletedReason is null or trim(c.deletedReason) = '') and c.deletedAt < :cutoffNoReason )
+                or ( (c.deletedReason is not null and trim(c.deletedReason) <> '') and c.deletedAt < :cutoffWithReason )
+            )
+        order by c.id asc
+    """)
+    List<Long> findPurgeTargetIds(@Param("cutoffNoReason") LocalDateTime cutoffNoReason, @Param("cutoffWithReason") LocalDateTime cutoffWithReason, Pageable pageable);
+
+    // purge 대상 하드 삭제
+    @Modifying
+    @Query("delete from Comment c where c.id in :commentIds")
+    int deleteByIds(@Param("commentIds") List<Long> commentIds);
 
     // 댓글 조회
     @Query(value = """
@@ -48,6 +67,5 @@ public interface CommentRepository extends JpaRepository<Comment, Long>
         where c.post.id = :postId and (:admin = true or c.deleted = false)
     """)
     Page<CommentDTO.Item> findCommentPage
-    (@Param("postId") Long postId, @Param("admin") boolean admin,
-    @Param("loginUserId") String loginUserId, Pageable pageable);
+    (@Param("postId") Long postId, @Param("admin") boolean admin, @Param("loginUserId") String loginUserId, Pageable pageable);
 }

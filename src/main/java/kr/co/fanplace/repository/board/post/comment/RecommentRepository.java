@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import org.springframework.data.domain.Pageable;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -53,4 +54,22 @@ public interface RecommentRepository extends JpaRepository<Recomment, Long>
         where r.comment.id = :commentId and r.deleted = false
     """)
     int softDeleteByCommentId(@Param("commentId") Long commentId, @Param("now") LocalDateTime now, @Param("reason") String reason);
+
+    // purge 대상(삭제된 대댓글) id 조회
+    @Query("""
+        select r.id from Recomment r
+        where r.deleted = true
+            and r.deletedAt is not null
+            and (
+                ( (r.deletedReason is null or trim(r.deletedReason) = '') and r.deletedAt < :cutoffNoReason )
+                or ( (r.deletedReason is not null and trim(r.deletedReason) <> '') and r.deletedAt < :cutoffWithReason )
+            )
+        order by r.id asc
+    """)
+    List<Long> findPurgeTargetIds(@Param("cutoffNoReason") LocalDateTime cutoffNoReason, @Param("cutoffWithReason") LocalDateTime cutoffWithReason, Pageable pageable);
+
+    // purge 대상 하드 삭제
+    @Modifying
+    @Query("delete from Recomment r where r.id in :recommentIds")
+    int deleteByIds(@Param("recommentIds") List<Long> recommentIds);
 }

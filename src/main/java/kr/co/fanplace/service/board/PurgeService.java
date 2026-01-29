@@ -37,18 +37,15 @@ public class PurgeService
         LocalDateTime cutoffWithReason = now.minusDays(1);
 
         List<Long> postIds = postRepository.findPurgeTargetIds
-        (cutoffNoReason, cutoffWithReason, PageRequest.of(0, batchSize));
+                (cutoffNoReason, cutoffWithReason, PageRequest.of(0, batchSize));
 
         if (postIds.isEmpty()) return 0;
 
         // 댓글 id 수집
         List<Long> commentIds = commentRepository.findIdsByPostIds(postIds);
 
-        // 대댓글/알람(대댓글) 먼저 제거
-        if (!commentIds.isEmpty()) { }
-
         // 알람 삭제 후 대댓글 삭제
-        List<Long> recommentIds = recommentRepository.findIdsByCommentIds(commentIds);
+        List<Long> recommentIds = commentIds.isEmpty() ? List.of() : recommentRepository.findIdsByCommentIds(commentIds);
         if (!recommentIds.isEmpty()) alarmRepository.deleteByRecommentIds(recommentIds);
         if (!commentIds.isEmpty())  recommentRepository.deleteByCommentIds(commentIds);
 
@@ -65,5 +62,52 @@ public class PurgeService
         postRepository.deleteAllByIdInBatch(postIds);
 
         return postIds.size();
+    }
+
+    // 댓글 하드 삭제
+    @Transactional
+    public int purgeCommentsOnce(int batchSize)
+    {
+        LocalDateTime now = LocalDateTime.now();
+
+        LocalDateTime cutoffNoReason = now.minusDays(30);
+        LocalDateTime cutoffWithReason = now.minusYears(1);
+
+        List<Long> commentIds = commentRepository.findPurgeTargetIds
+        (cutoffNoReason, cutoffWithReason, PageRequest.of(0, batchSize));
+
+        if (commentIds.isEmpty()) return 0;
+
+        // 대댓글 알람 삭제 → 대댓글 삭제
+        List<Long> recommentIds = recommentRepository.findIdsByCommentIds(commentIds);
+        if (!recommentIds.isEmpty()) alarmRepository.deleteByRecommentIds(recommentIds);
+        recommentRepository.deleteByCommentIds(commentIds);
+
+        // 댓글 알람 삭제 → 댓글 삭제
+        alarmRepository.deleteByCommentIds(commentIds);
+        commentRepository.deleteByIds(commentIds);
+
+        return commentIds.size();
+    }
+
+    // 대댓글 하드 삭제
+    @Transactional
+    public int purgeRecommentsOnce(int batchSize)
+    {
+        LocalDateTime now = LocalDateTime.now();
+
+        LocalDateTime cutoffNoReason = now.minusDays(30);
+        LocalDateTime cutoffWithReason = now.minusYears(1);
+
+        List<Long> recommentIds = recommentRepository.findPurgeTargetIds
+        (cutoffNoReason, cutoffWithReason, PageRequest.of(0, batchSize));
+
+        if (recommentIds.isEmpty()) return 0;
+
+        // 대댓글 알람 삭제 → 대댓글 하드 삭제
+        alarmRepository.deleteByRecommentIds(recommentIds);
+        recommentRepository.deleteByIds(recommentIds);
+
+        return recommentIds.size();
     }
 }
