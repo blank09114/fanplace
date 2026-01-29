@@ -73,8 +73,16 @@ public class PurgeService
         LocalDateTime cutoffNoReason = now.minusDays(30);
         LocalDateTime cutoffWithReason = now.minusYears(1);
 
-        List<Long> commentIds = commentRepository.findPurgeTargetIds
-        (cutoffNoReason, cutoffWithReason, PageRequest.of(0, batchSize));
+        List<Long> commentIds = commentRepository.findPurgeTargetIdsNoReason
+        (cutoffNoReason, PageRequest.of(0, batchSize));
+
+        if (commentIds.size() < batchSize)
+        {
+            int remain = batchSize - commentIds.size();
+            List<Long> more = commentRepository.findPurgeTargetIdsWithReason
+            (cutoffWithReason, PageRequest.of(0, remain));
+            if (!more.isEmpty()) commentIds.addAll(more);
+        }
 
         if (commentIds.isEmpty()) return 0;
 

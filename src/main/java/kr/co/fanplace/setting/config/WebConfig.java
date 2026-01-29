@@ -20,7 +20,12 @@ public class WebConfig implements WebMvcConfigurer
             "/api/auth/join/request",
             "/api/auth/join/resend",
             "/api/auth/login",
-            "/api/auth/logout"
+            "/api/auth/logout",
+
+            // 글/댓글/대댓글 쓰기 쿨다운
+            "/*/write",
+            "/api/post/*/comment",
+            "/api/post/comment/*/recomment"
         );
     }
 }

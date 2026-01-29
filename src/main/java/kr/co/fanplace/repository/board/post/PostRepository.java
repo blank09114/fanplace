@@ -16,15 +16,23 @@ public interface PostRepository extends JpaRepository<Post, Long>
 {
     Optional<Post> findByIdAndBoard_Id(Long postId, String boardId);
 
-    @Query("select p.id from Post p " +
-    "where p.board.id = :boardId and p.deleted = false and p.id < :postId " +
-    "order by p.id desc")
-    List<Long> findPrevPostId(String boardId, Long postId, Pageable pageable);
+    @Query("""
+        select max(p.id)
+        from Post p
+        where p.board.id = :boardId
+            and (:admin = true or p.deleted = false)
+            and p.id < :postId
+    """)
+    Long findPrevPostId(@Param("boardId") String boardId, @Param("admin") boolean admin, @Param("postId") Long postId);
 
-    @Query("select p.id from Post p " +
-    "where p.board.id = :boardId and p.deleted = false and p.id > :postId " +
-    "order by p.id asc")
-    List<Long> findNextPostId(String boardId, Long postId, Pageable pageable);
+    @Query("""
+        select min(p.id)
+        from Post p
+        where p.board.id = :boardId
+            and (:admin = true or p.deleted = false)
+            and p.id > :postId
+    """)
+    Long findNextPostId(@Param("boardId") String boardId, @Param("admin") boolean admin, @Param("postId") Long postId);
 
     @Query("""
     select p.id from Post p

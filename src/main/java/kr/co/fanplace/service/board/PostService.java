@@ -20,7 +20,6 @@ import kr.co.fanplace.setting.ip.GeoIpService;
 import kr.co.fanplace.setting.ip.IpUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -82,10 +81,8 @@ public class PostService
             deletedReasonDisplay = (raw == null || raw.isBlank()) ? "본인 삭제" : raw;
         }
 
-        Long prevId = postRepository.findPrevPostId(boardId, postId, PageRequest.of(0, 1))
-        .stream().findFirst().orElse(null);
-        Long nextId = postRepository.findNextPostId(boardId, postId, PageRequest.of(0, 1))
-        .stream().findFirst().orElse(null);
+        Long prevId = postRepository.findPrevPostId(boardId, isAdmin, postId);
+        Long nextId = postRepository.findNextPostId(boardId, isAdmin, postId);
 
         String region = geoIpService.resolveRegion(post.getIp());
         String ipForView = isAdmin ? post.getIp() : null;

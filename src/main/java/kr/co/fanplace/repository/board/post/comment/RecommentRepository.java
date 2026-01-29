@@ -72,4 +72,24 @@ public interface RecommentRepository extends JpaRepository<Recomment, Long>
     @Modifying
     @Query("delete from Recomment r where r.id in :recommentIds")
     int deleteByIds(@Param("recommentIds") List<Long> recommentIds);
+
+    @Query("""
+        select r.id from Recomment r
+        where r.deleted = true
+            and r.deletedAt is not null
+            and (r.deletedReason is null or r.deletedReason = '')
+            and r.deletedAt < :cutoff
+        order by r.id asc
+    """)
+    List<Long> findPurgeTargetIdsNoReason(@Param("cutoff") LocalDateTime cutoff, Pageable pageable);
+
+    @Query("""
+    select r.id from Recomment r
+    where r.deleted = true
+        and r.deletedAt is not null
+        and (r.deletedReason is not null and r.deletedReason <> '')
+        and r.deletedAt < :cutoff
+    order by r.id asc
+    """)
+    List<Long> findPurgeTargetIdsWithReason(@Param("cutoff") LocalDateTime cutoff, Pageable pageable);
 }

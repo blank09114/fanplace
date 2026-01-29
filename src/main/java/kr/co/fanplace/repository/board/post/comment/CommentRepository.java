@@ -23,20 +23,6 @@ public interface CommentRepository extends JpaRepository<Comment, Long>
     @Query("delete from Comment c where c.post.id in :postIds")
     int deleteByPostIds(@Param("postIds") List<Long> postIds);
 
-    // purge 대상 id 조회
-    @Query("""
-        select c.id from Comment c
-        where c.deleted = true
-            and c.deletedAt is not null
-            and (
-                ( (c.deletedReason is null or trim(c.deletedReason) = '') and c.deletedAt < :cutoffNoReason )
-                or ( (c.deletedReason is not null and trim(c.deletedReason) <> '') and c.deletedAt < :cutoffWithReason )
-            )
-        order by c.id asc
-    """)
-    List<Long> findPurgeTargetIds(@Param("cutoffNoReason") LocalDateTime cutoffNoReason, @Param("cutoffWithReason") LocalDateTime cutoffWithReason, Pageable pageable);
-
-    // purge 대상 하드 삭제
     @Modifying
     @Query("delete from Comment c where c.id in :commentIds")
     int deleteByIds(@Param("commentIds") List<Long> commentIds);
@@ -68,4 +54,24 @@ public interface CommentRepository extends JpaRepository<Comment, Long>
     """)
     Page<CommentDTO.Item> findCommentPage
     (@Param("postId") Long postId, @Param("admin") boolean admin, @Param("loginUserId") String loginUserId, Pageable pageable);
+
+    @Query("""
+        select c.id from Comment c
+        where c.deleted = true
+            and c.deletedAt is not null
+            and (c.deletedReason is null or c.deletedReason = '')
+            and c.deletedAt < :cutoff
+        order by c.id asc
+    """)
+    List<Long> findPurgeTargetIdsNoReason(@Param("cutoff") LocalDateTime cutoff, Pageable pageable);
+
+    @Query("""
+    select c.id from Comment c
+    where c.deleted = true
+        and c.deletedAt is not null
+        and (c.deletedReason is not null and c.deletedReason <> '')
+        and c.deletedAt < :cutoff
+    order by c.id asc
+    """)
+    List<Long> findPurgeTargetIdsWithReason(@Param("cutoff") LocalDateTime cutoff, Pageable pageable);
 }
