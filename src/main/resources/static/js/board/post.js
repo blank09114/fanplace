@@ -23,32 +23,11 @@ export const post =
     // 게시글 삭제
     initPostDelete(commons)
     {
-        // 일반 삭제 confirm 버튼
         const delModal = document.getElementById('deletedModal');
-        const delForm = document.getElementById('postDeleteForm');
-        const delConfirmBtn = delModal?.querySelector('button.btn.teal');
-
-        if (delModal && delForm && delConfirmBtn)
-        { delConfirmBtn.onclick = () => { delForm.submit(); }; }
-
-        // 관리자 삭제 confirm 버튼
         const adminModal = document.getElementById('adminDeletedModal');
-        const adminForm = document.getElementById('postAdminDeleteForm');
-        const adminConfirmBtn = adminModal?.querySelector('button.btn.teal');
-        const adminReasonInput = adminModal?.querySelector('input[name="reason"]');
-        const adminHiddenReason = adminForm?.querySelector('input[name="reason"]');
 
-        if (adminModal && adminForm && adminConfirmBtn && adminReasonInput && adminHiddenReason)
-        {
-            adminConfirmBtn.onclick = () =>
-            {
-                const reason = commons.getValueEl(adminReasonInput);
-                if (!commons.validate(adminReasonInput, '삭제 사유')) return;
-
-                adminHiddenReason.value = reason;
-                adminForm.submit();
-            };
-        }
+        if (!delModal || !adminModal)
+        { commons.showToast?.('삭제 모달을 찾을 수 없습니다.'); }
     },
 
     // 삭제 사유 변경
@@ -113,10 +92,50 @@ export const post =
 
         btnEl.textContent = data.liked ? '♥' : '♡';
         commons.showToast(data.liked ? "좋아요!" : "좋아요를 취소했습니다.");
-    }
+    },
+
+    // 게시글 삭제 모달 열기
+    openPostDeleteModal(commons)
+    {
+        const delForm = document.getElementById('postDeleteForm');
+        if (!delForm) { commons.showToast('삭제 폼을 찾을 수 없습니다.'); return; }
+
+        // 공용 모달 confirm 교체 바인딩
+        commons.bindModalConfirm('deletedModal', () => { delForm.submit(); });
+
+        openModal('deletedModal');
+    },
+
+    // 게시글 관리자 삭제 모달 열기
+    openPostAdminDeleteModal(commons)
+    {
+        const modal = document.getElementById('adminDeletedModal');
+        const reasonInput = modal?.querySelector('input[name="reason"]');
+
+        const form = document.getElementById('postAdminDeleteForm');
+        const hiddenReason = form?.querySelector('input[name="reason"]');
+
+        if (!modal || !reasonInput || !form || !hiddenReason)
+        { commons.showToast('관리자 삭제 모달/폼을 찾을 수 없습니다.'); return; }
+
+        commons.resetAdminDeleteModal();
+        reasonInput.focus();
+
+        // 공용 모달 confirm 교체 바인딩
+        commons.bindModalConfirm('adminDeletedModal', () =>
+        {
+            const reason = commons.getValueEl(reasonInput);
+            if (!commons.validate(reasonInput, '삭제 사유')) return;
+
+            hiddenReason.value = reason;
+            form.submit();
+        });
+
+        openModal('adminDeletedModal');
+    },
 };
 
-// 에디터 초기화 (write.html에서 사용)
+// 에디터 초기화
 export const richEditor =
 {
     initPostEditor()

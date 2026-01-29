@@ -50,8 +50,10 @@ document.addEventListener('DOMContentLoaded', () =>
         post.initDeletedReasonChange(commons);
     }
     const f = document.forms?.univSearch;
-    if (f)
-    { f.addEventListener('submit', (e) => { e.preventDefault(); commons.searchUniv(); }); }
+    if (f) { f.addEventListener('submit', (e) => { e.preventDefault(); commons.searchUniv(); }); }
+    comment.initPostComment?.(commons);
+    window.openPostDeleteModal = () => post.openPostDeleteModal(commons);
+    window.openPostAdminDeleteModal = () => post.openPostAdminDeleteModal(commons);
 
     if (document.querySelector('[data-admin-page="1"]')) { admin.changeWeek(commons, 'current'); }
 

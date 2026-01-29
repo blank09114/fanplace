@@ -15,8 +15,10 @@
     <div th:replace="commons :: mainHeader"></div>
 
     <!-- 섹션 -->
-    <section class="flexColumn gapLg">
-        <!-- 게시판 이름 -->
+    <section class="flexColumn gapLg"
+    th:attr="data-auth=${#authorization.expression('isAuthenticated()')},
+    data-admin=${#authorization.expression('hasRole(''ADMIN'')')}">
+    <!-- 게시판 이름 -->
         <p class="title1Text bold textCenter" th:text="${header.boardName}"></p>
 
         <!-- 삭제된 글 표시 -->
@@ -58,14 +60,12 @@
 
                 <!-- 게시글 관리 -->
                 <div class="flex justifyEnd gapXs">
-                    <button class="btn like" th:if="${canLike}"
+                    <button sec:authorize="isAuthenticated()" class="btn like" th:if="${canLike}"
                     th:attr="data-post-id=${post.postId}" onclick="like(this)">♡</button>
                     <a class="btn teal" th:if="${canEdit}"
                     th:href="@{/{boardId}/post/{postId}/edit(boardId=${boardId}, postId=${post.postId})}">수정</a>
-                    <button class="btn teal" th:if="${canDelete}"
-                    onclick="openModal('deletedModal')">삭제</button>
-                    <button class="btn teal" th:if="${canAdminDelete}"
-                    onclick="openModal('adminDeletedModal')">삭제(관리자)</button>
+                    <button class="btn teal" th:if="${canDelete}" onclick="openPostDeleteModal()">삭제</button>
+                    <button class="btn teal" th:if="${canAdminDelete}" onclick="openPostAdminDeleteModal()">삭제(관리자)</button>
                 </div>
             </div>
 
@@ -93,7 +93,7 @@
             </p>
 
             <!-- 댓글 작성 폼 -->
-            <form th:if="${!post.deleted}" name="commentForm" class="commentForm flexColumn gapXs">
+            <form sec:authorize="isAuthenticated()" th:if="${!post.deleted}" name="commentForm" class="commentForm flexColumn gapXs">
                 <!-- 폼 헤더 -->
                 <div class="sectionHeader flex justifyBetween">
                     <span class="title2Text bold">댓글 작성하기</span>
@@ -104,209 +104,10 @@
             </form>
 
             <!-- 댓글 목록 -->
-            <div class="commentList flexColumn gapXs">
-                <div class="comment card pdXs">
-                    <a class="text1 bold">닉네임</a>
-                    <p class="text2 lightText">2026.01.01. 00:00</p>
-                    <div class="commentMenu flex justifyEnd gapXs">
-                        <button class="btn teal" onclick="toggleRecommentForm(this)">답글</button>
-                        <button class="btn teal" onclick="openModal('deletedModal')">삭제</button>
-                        <button class="btn teal" onclick="openModal('adminDeletedModal')">삭제(관리자)</button>
-                    </div>
-                    <p class="text1">내용</p>
-                    <form name="recommentForm" class="commentForm flexColumn gapXs">
-                        <div class="sectionHeader flex justifyBetween">
-                            <span class="title2Text bold">대댓글 작성하기</span>
-                            <button type="button" class="btn teal" onclick="subRecomment(this)">등록</button>
-                        </div>
-                        <textarea name="content" placeholder="500자 이내, 등록 후 수정이 불가합니다."></textarea>
-                    </form>
-                </div>
-                <div class="recomment flex gapXs">
-                    <div class="recommentLine"></div>
-                    <div class="comment widthFull card pdXs">
-                        <a class="text1 bold">닉네임</a>
-                        <p class="text2 lightText">2026.01.01. 00:00</p>
-                        <div class="commentMenu flex justifyEnd gapXs">
-                            <button class="btn teal" onclick="toggleRecommentForm(this)">언급</button>
-                            <button class="btn teal" onclick="openModal('deletedModal')">삭제</button>
-                            <button class="btn teal" onclick="openModal('adminDeletedModal')">삭제(관리자)</button>
-                        </div>
-                        <p class="text1">내용</p>
-                        <form name="recommentForm" class="commentForm flexColumn gapXs">
-                            <div class="sectionHeader flex justifyBetween">
-                                <span class="title2Text bold">대댓글 작성하기</span>
-                                <button type="button" class="btn teal" onclick="subRecomment(this)">등록</button>
-                            </div>
-                            <textarea name="content" placeholder="500자 이내, 등록 후 수정이 불가합니다."></textarea>
-                        </form>
-                    </div>
-                </div>
-                <div class="comment card pdXs">
-                    <a class="text1 bold">닉네임</a>
-                    <p class="text2 lightText">2026.01.01. 00:00</p>
-                    <div class="commentMenu flex justifyEnd gapXs">
-                        <button class="btn teal" onclick="toggleRecommentForm(this)">답글</button>
-                        <button class="btn teal" onclick="openModal('deletedModal')">삭제</button>
-                        <button class="btn teal" onclick="openModal('adminDeletedModal')">삭제(관리자)</button>
-                    </div>
-                    <p class="text1">내용</p>
-                    <form name="recommentForm" class="commentForm flexColumn gapXs">
-                        <div class="sectionHeader flex justifyBetween">
-                            <span class="title2Text bold">대댓글 작성하기</span>
-                            <button type="button" class="btn teal" onclick="subRecomment(this)">등록</button>
-                        </div>
-                        <textarea name="content" placeholder="500자 이내, 등록 후 수정이 불가합니다."></textarea>
-                    </form>
-                </div>
-                <div class="comment card pdXs">
-                    <a class="text1 bold">닉네임</a>
-                    <p class="text2 lightText">2026.01.01. 00:00</p>
-                    <div class="commentMenu flex justifyEnd gapXs">
-                        <button class="btn teal" onclick="toggleRecommentForm(this)">답글</button>
-                        <button class="btn teal" onclick="openModal('deletedModal')">삭제</button>
-                        <button class="btn teal" onclick="openModal('adminDeletedModal')">삭제(관리자)</button>
-                    </div>
-                    <p class="text1">내용</p>
-                    <form name="recommentForm" class="commentForm flexColumn gapXs">
-                        <div class="sectionHeader flex justifyBetween">
-                            <span class="title2Text bold">대댓글 작성하기</span>
-                            <button type="button" class="btn teal" onclick="subRecomment(this)">등록</button>
-                        </div>
-                        <textarea name="content" placeholder="500자 이내, 등록 후 수정이 불가합니다."></textarea>
-                    </form>
-                </div>
-                <div class="comment card pdXs">
-                    <a class="text1 bold">닉네임</a>
-                    <p class="text2 lightText">2026.01.01. 00:00</p>
-                    <div class="commentMenu flex justifyEnd gapXs">
-                        <button class="btn teal" onclick="toggleRecommentForm(this)">답글</button>
-                        <button class="btn teal" onclick="openModal('deletedModal')">삭제</button>
-                        <button class="btn teal" onclick="openModal('adminDeletedModal')">삭제(관리자)</button>
-                    </div>
-                    <p class="text1">내용</p>
-                    <form name="recommentForm" class="commentForm flexColumn gapXs">
-                        <div class="sectionHeader flex justifyBetween">
-                            <span class="title2Text bold">대댓글 작성하기</span>
-                            <button type="button" class="btn teal" onclick="subRecomment(this)">등록</button>
-                        </div>
-                        <textarea name="content" placeholder="500자 이내, 등록 후 수정이 불가합니다."></textarea>
-                    </form>
-                </div>
-                <div class="comment card pdXs">
-                    <a class="text1 bold">닉네임</a>
-                    <p class="text2 lightText">2026.01.01. 00:00</p>
-                    <div class="commentMenu flex justifyEnd gapXs">
-                        <button class="btn teal" onclick="toggleRecommentForm(this)">답글</button>
-                        <button class="btn teal" onclick="openModal('deletedModal')">삭제</button>
-                        <button class="btn teal" onclick="openModal('adminDeletedModal')">삭제(관리자)</button>
-                    </div>
-                    <p class="text1">내용</p>
-                    <form name="recommentForm" class="commentForm flexColumn gapXs">
-                        <div class="sectionHeader flex justifyBetween">
-                            <span class="title2Text bold">대댓글 작성하기</span>
-                            <button type="button" class="btn teal" onclick="subRecomment(this)">등록</button>
-                        </div>
-                        <textarea name="content" placeholder="500자 이내, 등록 후 수정이 불가합니다."></textarea>
-                    </form>
-                </div>
-                <div class="comment card pdXs">
-                    <a class="text1 bold">닉네임</a>
-                    <p class="text2 lightText">2026.01.01. 00:00</p>
-                    <div class="commentMenu flex justifyEnd gapXs">
-                        <button class="btn teal" onclick="toggleRecommentForm(this)">답글</button>
-                        <button class="btn teal" onclick="openModal('deletedModal')">삭제</button>
-                        <button class="btn teal" onclick="openModal('adminDeletedModal')">삭제(관리자)</button>
-                    </div>
-                    <p class="text1">내용</p>
-                    <form name="recommentForm" class="commentForm flexColumn gapXs">
-                        <div class="sectionHeader flex justifyBetween">
-                            <span class="title2Text bold">대댓글 작성하기</span>
-                            <button type="button" class="btn teal" onclick="subRecomment(this)">등록</button>
-                        </div>
-                        <textarea name="content" placeholder="500자 이내, 등록 후 수정이 불가합니다."></textarea>
-                    </form>
-                </div>
-                <div class="comment card pdXs">
-                    <a class="text1 bold">닉네임</a>
-                    <p class="text2 lightText">2026.01.01. 00:00</p>
-                    <div class="commentMenu flex justifyEnd gapXs">
-                        <button class="btn teal" onclick="toggleRecommentForm(this)">답글</button>
-                        <button class="btn teal" onclick="openModal('deletedModal')">삭제</button>
-                        <button class="btn teal" onclick="openModal('adminDeletedModal')">삭제(관리자)</button>
-                    </div>
-                    <p class="text1">내용</p>
-                    <form name="recommentForm" class="commentForm flexColumn gapXs">
-                        <div class="sectionHeader flex justifyBetween">
-                            <span class="title2Text bold">대댓글 작성하기</span>
-                            <button type="button" class="btn teal" onclick="subRecomment(this)">등록</button>
-                        </div>
-                        <textarea name="content" placeholder="500자 이내, 등록 후 수정이 불가합니다."></textarea>
-                    </form>
-                </div>
-                <div class="comment card pdXs">
-                    <a class="text1 bold">닉네임</a>
-                    <p class="text2 lightText">2026.01.01. 00:00</p>
-                    <div class="commentMenu flex justifyEnd gapXs">
-                        <button class="btn teal" onclick="toggleRecommentForm(this)">답글</button>
-                        <button class="btn teal" onclick="openModal('deletedModal')">삭제</button>
-                        <button class="btn teal" onclick="openModal('adminDeletedModal')">삭제(관리자)</button>
-                    </div>
-                    <p class="text1">내용</p>
-                    <form name="recommentForm" class="commentForm flexColumn gapXs">
-                        <div class="sectionHeader flex justifyBetween">
-                            <span class="title2Text bold">대댓글 작성하기</span>
-                            <button type="button" class="btn teal" onclick="subRecomment(this)">등록</button>
-                        </div>
-                        <textarea name="content" placeholder="500자 이내, 등록 후 수정이 불가합니다."></textarea>
-                    </form>
-                </div>
-                <div class="comment card pdXs">
-                    <a class="text1 bold">닉네임</a>
-                    <p class="text2 lightText">2026.01.01. 00:00</p>
-                    <div class="commentMenu flex justifyEnd gapXs">
-                        <button class="btn teal" onclick="toggleRecommentForm(this)">답글</button>
-                        <button class="btn teal" onclick="openModal('deletedModal')">삭제</button>
-                        <button class="btn teal" onclick="openModal('adminDeletedModal')">삭제(관리자)</button>
-                    </div>
-                    <p class="text1">내용</p>
-                    <form name="recommentForm" class="commentForm flexColumn gapXs">
-                        <div class="sectionHeader flex justifyBetween">
-                            <span class="title2Text bold">대댓글 작성하기</span>
-                            <button type="button" class="btn teal" onclick="subRecomment(this)">등록</button>
-                        </div>
-                        <textarea name="content" placeholder="500자 이내, 등록 후 수정이 불가합니다."></textarea>
-                    </form>
-                </div>
-                <div class="comment card pdXs">
-                    <a class="text1 bold">닉네임</a>
-                    <p class="text2 lightText">2026.01.01. 00:00</p>
-                    <div class="commentMenu flex justifyEnd gapXs">
-                        <button class="btn teal" onclick="toggleRecommentForm(this)">답글</button>
-                        <button class="btn teal" onclick="openModal('deletedModal')">삭제</button>
-                        <button class="btn teal" onclick="openModal('adminDeletedModal')">삭제(관리자)</button>
-                    </div>
-                    <p class="text1">내용</p>
-                    <form name="recommentForm" class="commentForm flexColumn gapXs">
-                        <div class="sectionHeader flex justifyBetween">
-                            <span class="title2Text bold">대댓글 작성하기</span>
-                            <button type="button" class="btn teal" onclick="subRecomment(this)">등록</button>
-                        </div>
-                        <textarea name="content" placeholder="500자 이내, 등록 후 수정이 불가합니다."></textarea>
-                    </form>
-                </div>
-            </div>
-            
+            <div class="commentList flexColumn gapXs" id="commentList"></div>
+
             <!-- 페이지 -->
-            <div class="pages flex justifyCenter gapXs">
-                <a class="page"> < </a>
-                <a class="page now"> 1 </a>
-                <a class="page"> 2 </a>
-                <a class="page"> 3 </a>
-                <a class="page"> 4 </a>
-                <a class="page"> 5 </a>
-                <a class="page"> > </a>
-            </div>
+            <div class="pages flex justifyCenter gapXs" id="commentPagination"></div>
         </div>
     </section>
 
@@ -346,6 +147,17 @@
     method="post" style="display:none;">
         <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
         <input type="hidden" name="reason" value=""/>
+    </form>
+
+    <!-- 댓글/대댓글 일반 삭제 폼 -->
+    <form id="commentDeleteForm" method="post" style="display:none;">
+        <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+    </form>
+
+    <!-- 댓글/대댓글 관리자 삭제 폼 -->
+    <form id="commentAdminDeleteForm" method="post" style="display:none;">
+        <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        <input type="hidden" name="reason" value="" />
     </form>
 
     <script type="module" th:src="@{/js/script.js}"></script>

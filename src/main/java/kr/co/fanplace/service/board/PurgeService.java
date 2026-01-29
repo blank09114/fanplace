@@ -17,7 +17,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class PostPurgeService
+public class PurgeService
 {
     private final PostRepository postRepository;
     private final PostLogRepository postLogRepository;
@@ -28,6 +28,7 @@ public class PostPurgeService
     private final RecommentRepository recommentRepository;
     private final AlarmRepository alarmRepository;
 
+    // 글 하드 삭제
     @Transactional
     public int purgeOnce(int batchSize)
     {
@@ -35,9 +36,8 @@ public class PostPurgeService
         LocalDateTime cutoffNoReason = now.minusDays(30);
         LocalDateTime cutoffWithReason = now.minusDays(1);
 
-        List<Long> postIds = postRepository.findPurgeTargetIds(
-            cutoffNoReason, cutoffWithReason, PageRequest.of(0, batchSize)
-        );
+        List<Long> postIds = postRepository.findPurgeTargetIds
+        (cutoffNoReason, cutoffWithReason, PageRequest.of(0, batchSize));
 
         if (postIds.isEmpty()) return 0;
 

@@ -37,4 +37,27 @@ public class Alarm
 
     @Column(name = "alarm_check_at")
     private LocalDateTime checkedAt;
+
+    @PrePersist
+    void prePersist() { if (alarmAt == null) alarmAt = LocalDateTime.now(); }
+
+    public static Alarm commentAlarm(User target, Comment comment, LocalDateTime now)
+    {
+        Alarm a = new Alarm();
+        a.user = target;
+        a.comment = comment;
+        a.alarmAt = now;
+        return a;
+    }
+
+    public static Alarm recommentAlarm(User target, Recomment recomment, LocalDateTime now)
+    {
+        Alarm a = new Alarm();
+        a.user = target;
+        a.comment = null;
+        a.recomment = recomment;
+        a.alarmAt = now;
+        a.checkedAt = null;
+        return a;
+    }
 }

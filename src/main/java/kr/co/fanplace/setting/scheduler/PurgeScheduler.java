@@ -1,15 +1,15 @@
 package kr.co.fanplace.setting.scheduler;
 
-import kr.co.fanplace.service.board.PostPurgeService;
+import kr.co.fanplace.service.board.PurgeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class PostPurgeScheduler
+public class PurgeScheduler
 {
-    private final PostPurgeService postPurgeService;
+    private final PurgeService purgeService;
 
     // 매일 새벽 4시
     @Scheduled(cron = "0 0 4 * * *")
@@ -19,7 +19,7 @@ public class PostPurgeScheduler
         int total = 0;
         while (true)
         {
-            int purged = postPurgeService.purgeOnce(500);
+            int purged = purgeService.purgeOnce(500);
             total += purged;
             if (purged == 0) break;
         }

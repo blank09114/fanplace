@@ -45,4 +45,27 @@ public class Recomment
 
     @Column(name = "recomment_deleted_at")
     private LocalDateTime deletedAt;
+
+    public static Recomment create(Comment comment, User mentionUserOrNull, User authorUser, String content, LocalDateTime now)
+    {
+        Recomment r = new Recomment();
+        r.comment = comment;
+        r.mentionUser = mentionUserOrNull;
+        r.authorUser = authorUser;
+        r.createdAt = (now == null) ? LocalDateTime.now() : now;
+        r.content = content;
+        r.deleted = false;
+        r.deletedReason = null;
+        r.deletedAt = null;
+        return r;
+    }
+
+    public void softDelete(String reason, LocalDateTime now)
+    {
+        if (this.deleted) return;
+
+        this.deleted = true;
+        this.deletedReason = (reason != null && !reason.isBlank()) ? reason : null;
+        this.deletedAt = (now == null) ? LocalDateTime.now() : now;
+    }
 }

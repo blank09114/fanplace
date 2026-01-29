@@ -156,6 +156,29 @@ export const commons =
         if (!hasVisibleModal) overlay.style.display = 'none';
     },
 
+    // 모달 confirm 버튼 핸들러를 항상 교체
+    bindModalConfirm(modalId, handler)
+    {
+        const modal = document.getElementById(modalId);
+        const confirmBtn = modal?.querySelector('button.btn.teal');
+
+        if (!modal || !confirmBtn)
+        { this.showToast?.('모달 확인 버튼을 찾을 수 없습니다.'); return null; }
+
+        confirmBtn.onclick = null;
+        confirmBtn.onclick = handler;
+
+        return confirmBtn;
+    },
+
+    // 관리자 삭제 모달 입력값 초기화
+    resetAdminDeleteModal()
+    {
+        const modal = document.getElementById('adminDeletedModal');
+        const reasonInput = modal?.querySelector('input[name="reason"]');
+        if (reasonInput) reasonInput.value = '';
+    },
+
     // 입력값 가져오기
     getValueEl(inputEl) { return (inputEl?.value ?? '').trim(); },
 

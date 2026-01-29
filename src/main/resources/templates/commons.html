@@ -16,7 +16,7 @@
             <!-- 관리자 메뉴 -->
             <th:block sec:authorize="hasRole('ADMIN')"> <a class="text3 lightText">관리자</a> </th:block>
 
-            <!-- 비로그인 메뉴 -->
+            <!-- 로그인 메뉴 -->
             <th:block sec:authorize="isAuthenticated()">
                 <a class="text3 lightText">내 정보</a>
                 <a class="text3 lightText">알람</a>
@@ -140,7 +140,7 @@
             <a class="text1">문의/건의</a>
         </div>
         <p class="text1">
-            BLANKSPACE↗ | 사업자등록번호 716-50-01088 | 개인정보 보호 책임자 박예린 <br>
+            <a href="https://blankspace.io.kr/" target="_blank">BLANKSPACE↗</a> | 사업자등록번호 716-50-01088 | 개인정보 보호 책임자 박예린 <br>
             문의 b1ank09114@gmail.com <br>
             COPYRIGHT © 2026 BLANKSPACE. ALL RIGHTS RESERVED. <br>
         </p>
