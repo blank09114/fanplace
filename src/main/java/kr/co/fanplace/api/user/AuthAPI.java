@@ -4,9 +4,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import kr.co.fanplace.dto.ApiOk;
-import kr.co.fanplace.dto.user.AuthReqs;
+import kr.co.fanplace.dto.user.AuthReq;
 import kr.co.fanplace.service.user.AuthService;
-import kr.co.fanplace.setting.security.IpUtil;
+import kr.co.fanplace.setting.ip.IpUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -23,7 +23,7 @@ public class AuthAPI
 
     // 로그인
     @PostMapping("/login")
-    public ResponseEntity<ApiOk> login(@RequestBody @Valid AuthReqs.LoginRequest req, HttpServletRequest request)
+    public ResponseEntity<ApiOk> login(@RequestBody @Valid AuthReq.LoginRequest req, HttpServletRequest request)
     {
         authService.login(req, request);
         return ResponseEntity.ok(ApiOk.ok());
@@ -39,20 +39,20 @@ public class AuthAPI
 
     // 내 정보
     @GetMapping("/me")
-    public ResponseEntity<AuthReqs.MeResponse> me(Authentication authentication)
+    public ResponseEntity<AuthReq.MeResponse> me(Authentication authentication)
     { return ResponseEntity.ok(authService.me(authentication)); }
 
     // ID 중복 검사
     @PostMapping("/join/check-id")
-    public ResponseEntity<AuthReqs.CheckIdResponse> checkId(@RequestBody @Valid AuthReqs.CheckIdRequest req)
+    public ResponseEntity<AuthReq.CheckIdResponse> checkId(@RequestBody @Valid AuthReq.CheckIdRequest req)
     {
         boolean available = authService.isUserIdAvailable(req.getUserId());
-        return ResponseEntity.ok(AuthReqs.CheckIdResponse.of(available));
+        return ResponseEntity.ok(AuthReq.CheckIdResponse.of(available));
     }
 
     // 회원가입 요청
     @PostMapping("/join/request")
-    public ResponseEntity<ApiOk> requestJoin(@RequestBody @Valid AuthReqs.JoinRequest req, HttpServletRequest request)
+    public ResponseEntity<ApiOk> requestJoin(@RequestBody @Valid AuthReq.JoinRequest req, HttpServletRequest request)
     {
         String clientIp = IpUtil.resolveClientIp(request);
         authService.requestJoin(req, clientIp);
@@ -61,7 +61,7 @@ public class AuthAPI
 
     // 인증 메일 재발급
     @PostMapping("/join/resend")
-    public ResponseEntity<ApiOk> resendJoin(@RequestBody @Valid AuthReqs.ResendJoinRequest req, HttpServletRequest request)
+    public ResponseEntity<ApiOk> resendJoin(@RequestBody @Valid AuthReq.ResendJoinRequest req, HttpServletRequest request)
     {
         String clientIp = IpUtil.resolveClientIp(request);
         authService.resendJoin(req.getUserMail(), clientIp);
@@ -82,7 +82,7 @@ public class AuthAPI
 
     // 계정 찾기 요청
     @PostMapping("/reset/request")
-    public ResponseEntity<ApiOk> requestReset(@RequestBody @Valid AuthReqs.ResetRequest req, HttpServletRequest request)
+    public ResponseEntity<ApiOk> requestReset(@RequestBody @Valid AuthReq.ResetRequest req, HttpServletRequest request)
     {
         String clientIp = IpUtil.resolveClientIp(request);
         authService.requestReset(req, clientIp);
@@ -104,8 +104,8 @@ public class AuthAPI
     // 비밀번호 변경
     @PostMapping("/pw/change")
     public ResponseEntity<ApiOk> changePw(
-        @RequestBody @Valid AuthReqs.ChangePwRequest req, Authentication authentication,
-        HttpServletRequest request
+            @RequestBody @Valid AuthReq.ChangePwRequest req, Authentication authentication,
+            HttpServletRequest request
     )
     {
         authService.changePw(req, authentication, request);
@@ -115,7 +115,7 @@ public class AuthAPI
     // 회원 탈퇴 요청
     @PostMapping("/withdraw/request")
     public ResponseEntity<ApiOk> requestWithdraw(
-        @RequestBody @Valid AuthReqs.WithdrawRequest req,
+        @RequestBody @Valid AuthReq.WithdrawRequest req,
         Authentication authentication, HttpServletRequest request
     )
     {

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fan Place - 게시판 이름</title>
+    <title th:text="'Fan Place - ' + ${header.boardName}"></title>
     <link rel="icon" th:href="@{/img/PF_Icon.png}">
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
@@ -15,134 +15,46 @@
     <div th:replace="commons :: mainHeader"></div>
 
     <!-- 섹션 -->
-    <section class="flexColumn gapLg">
+    <section class="flexColumn gapLg" th:attr="data-univ-search=${univSearch}">
         <!-- 게시판 이름 -->
-        <p class="title1Text bold textCenter">게시판 이름</p>
+        <p class="title1Text bold textCenter" th:text="${header.boardName}"></p>
 
-        <!-- 탭 -->
-        <div class="tabs widthFull flex alignCenter gapSm">
-            <a class="tab now text1">전체</a>
-            <a class="tab text1">인기글</a>
-            <a class="tab text1">탭</a>
-            <a class="tab text1">탭</a>
-            <a class="tab text1">탭</a>
-            <a class="tab text1">탭</a>
-            <a class="tab text1">탭</a>
-            <a class="tab text1">탭</a>
-            <a class="tab text1">탭</a>
-            <a class="tab text1">탭</a>
-            <a class="tab text1">탭</a>
-            <a class="tab text1">탭</a>
-            <a class="tab text1">탭</a>
+        <!-- 카테고리 -->
+        <div class="tabs widthFull flex alignCenter gapSm"
+        th:if="${univSearch != true}" th:attr="data-board-id=${header.boardId}">
+            <a class="tab now text1" data-tab-type="all">전체</a>
+            <a class="tab text1" data-tab-type="hot">인기글</a>
+            <a class="tab text1" th:each="cat : ${header.categories}" th:text="${cat.categoryName}"
+            th:attr="data-tab-type='category', data-category-id=${cat.categoryId}"></a>
         </div>
+
+        <a class="widthFull btn teal" sec:authorize="isAuthenticated()"
+        th:if="${univSearch != true}" th:href="@{/{boardId}/write(boardId=${header.boardId})}">글쓰기</a>
 
         <!-- 게시글 목록 -->
         <div class="postListMenu widthFull flexColumn gapSm alignCenter">
             <!-- 게시글 목록 -->
-            <div class="postList widthFull">
-                <div class="post widthFull pdSm">
-                    <div class="flex alignCenter gapXs">
-                        <span class="postTab textCenter">탭</span>
-                        <a class="text1">게시글 제목</a>
-                    </div>
-                    <a class="text1 writer">작성자</a>
-                    <p class="text1 lightText">2026.01.01. 00:00 · 조회 999 · 좋아요 99 · 댓글 99</p>
-                </div>
-                <div class="post widthFull pdSm">
-                    <div class="flex alignCenter gapXs">
-                        <span class="postTab textCenter">탭</span>
-                        <a class="text1">게시글 제목</a>
-                    </div>
-                    <a class="text1 writer">작성자</a>
-                    <p class="text1 lightText">2026.01.01. 00:00 · 조회 999 · 좋아요 99 · 댓글 99</p>
-                </div>
-                <div class="post widthFull pdSm">
-                    <div class="flex alignCenter gapXs">
-                        <span class="postTab textCenter">탭</span>
-                        <a class="text1">게시글 제목</a>
-                    </div>
-                    <a class="text1 writer">작성자</a>
-                    <p class="text1 lightText">2026.01.01. 00:00 · 조회 999 · 좋아요 99 · 댓글 99</p>
-                </div>
-                <div class="post widthFull pdSm">
-                    <div class="flex alignCenter gapXs">
-                        <span class="postTab textCenter">탭</span>
-                        <a class="text1">게시글 제목</a>
-                    </div>
-                    <a class="text1 writer">작성자</a>
-                    <p class="text1 lightText">2026.01.01. 00:00 · 조회 999 · 좋아요 99 · 댓글 99</p>
-                </div>
-                <div class="post widthFull pdSm">
-                    <div class="flex alignCenter gapXs">
-                        <span class="postTab textCenter">탭</span>
-                        <a class="text1">게시글 제목</a>
-                    </div>
-                    <a class="text1 writer">작성자</a>
-                    <p class="text1 lightText">2026.01.01. 00:00 · 조회 999 · 좋아요 99 · 댓글 99</p>
-                </div>
-                <div class="post widthFull pdSm">
-                    <div class="flex alignCenter gapXs">
-                        <span class="postTab textCenter">탭</span>
-                        <a class="text1">게시글 제목</a>
-                    </div>
-                    <a class="text1 writer">작성자</a>
-                    <p class="text1 lightText">2026.01.01. 00:00 · 조회 999 · 좋아요 99 · 댓글 99</p>
-                </div>
-                <div class="post widthFull pdSm">
-                    <div class="flex alignCenter gapXs">
-                        <span class="postTab textCenter">탭</span>
-                        <a class="text1">게시글 제목</a>
-                    </div>
-                    <a class="text1 writer">작성자</a>
-                    <p class="text1 lightText">2026.01.01. 00:00 · 조회 999 · 좋아요 99 · 댓글 99</p>
-                </div>
-                <div class="post widthFull pdSm">
-                    <div class="flex alignCenter gapXs">
-                        <span class="postTab textCenter">탭</span>
-                        <a class="text1">게시글 제목</a>
-                    </div>
-                    <a class="text1 writer">작성자</a>
-                    <p class="text1 lightText">2026.01.01. 00:00 · 조회 999 · 좋아요 99 · 댓글 99</p>
-                </div>
-                <div class="post widthFull pdSm">
-                    <div class="flex alignCenter gapXs">
-                        <span class="postTab textCenter">탭</span>
-                        <a class="text1">게시글 제목</a>
-                    </div>
-                    <a class="text1 writer">작성자</a>
-                    <p class="text1 lightText">2026.01.01. 00:00 · 조회 999 · 좋아요 99 · 댓글 99</p>
-                </div>
-                <div class="post widthFull pdSm">
-                    <div class="flex alignCenter gapXs">
-                        <span class="postTab textCenter">탭</span>
-                        <a class="text1">게시글 제목</a>
-                    </div>
-                    <a class="text1 writer">작성자</a>
-                    <p class="text1 lightText">2026.01.01. 00:00 · 조회 999 · 좋아요 99 · 댓글 99</p>
-                </div>
-            </div>
+            <div class="postList widthFull" id="postList"></div>
 
             <!-- 검색 -->
-            <form name="search" class="searchForm flex gapXs">
+            <form name="search" class="searchForm flex gapXs" th:if="${univSearch != true}">
                 <input type="text" name="keyword" placeholder="게시판 내 검색">
                 <button type="button" class="btn teal" onclick="searchBoard()">검색</button>
             </form>
             
             <!-- 페이지 -->
-            <div class="pages flex justifyCenter gapXs">
-                <a class="page"> < </a>
-                <a class="page now"> 1 </a>
-                <a class="page"> 2 </a>
-                <a class="page"> 3 </a>
-                <a class="page"> 4 </a>
-                <a class="page"> 5 </a>
-                <a class="page"> > </a>
-            </div>
+            <div class="pages flex justifyCenter gapXs" id="pagination"></div>
         </div>
     </section>
 
     <!-- 스크롤 내비게이션 -->
-    <div th:replace="commons :: scrollNav"></div>
+    <nav class="scrollNav flexColumn">
+        <button class="scrollBtn textBtn background" onclick="scrollCtr('top')">▲</button>
+        <a sec:authorize="isAuthenticated()"
+        th:if="${univSearch != true}" class="scrollBtn writeBtn textBtn background"
+        th:href="@{/{boardId}/write(boardId=${header.boardId})}"></a>
+        <button class="scrollBtn textBtn background" onclick="scrollCtr('bottom')">▼</button>
+    </nav>
 
     <!-- 푸터 -->
     <div th:replace="commons :: footer"></div>

@@ -156,6 +156,29 @@ export const commons =
         if (!hasVisibleModal) overlay.style.display = 'none';
     },
 
+    // 모달 confirm 버튼 핸들러를 항상 교체
+    bindModalConfirm(modalId, handler)
+    {
+        const modal = document.getElementById(modalId);
+        const confirmBtn = modal?.querySelector('button.btn.teal');
+
+        if (!modal || !confirmBtn)
+        { this.showToast?.('모달 확인 버튼을 찾을 수 없습니다.'); return null; }
+
+        confirmBtn.onclick = null;
+        confirmBtn.onclick = handler;
+
+        return confirmBtn;
+    },
+
+    // 관리자 삭제 모달 입력값 초기화
+    resetAdminDeleteModal()
+    {
+        const modal = document.getElementById('adminDeletedModal');
+        const reasonInput = modal?.querySelector('input[name="reason"]');
+        if (reasonInput) reasonInput.value = '';
+    },
+
     // 입력값 가져오기
     getValueEl(inputEl) { return (inputEl?.value ?? '').trim(); },
 
@@ -214,7 +237,8 @@ export const commons =
     },
 
     // JSON API 래퍼
-    async fetchJson(url, options = {}, {
+    async fetchJson(url, options = {},
+    {
         defaultErrorMessage = "요청 처리 중 문제가 발생했습니다.",
         toastOnSuccess = null, parseJson = true
     } = {})
@@ -248,13 +272,100 @@ export const commons =
     searchUniv()
     {
         const f = document.forms?.univSearch;
-        const keywordEl = f?.keyword;
+        if (!f) { this.showToast('검색 폼을 찾을 수 없습니다.'); return; }
 
+        const keywordEl = f.elements?.namedItem('keyword');
         if (!keywordEl) { this.showToast('검색 입력창을 찾을 수 없습니다.'); return; }
         if (!this.validate(keywordEl, '검색어')) return;
 
         const keyword = this.getValueEl(keywordEl);
 
-        this.showToast(`"${keyword}" 검색`);
+        const originalName = keywordEl.name;
+        keywordEl.name = 'q';
+        keywordEl.value = keyword;
+
+        f.submit();
+        keywordEl.name = originalName;
+    },
+
+    // 공통 페이지 유틸
+    renderPagination(container, currentPage, totalPages, onPageClick, opts = {})
+    {
+        if (!container) return;
+
+        const
+        {
+            maxVisible = 5,
+            showFirstLast = false,
+            scrollToTop = false
+        } = opts;
+
+        container.innerHTML = "";
+
+        const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
+
+        const safeTotal = Math.max(1, Number(totalPages) || 1);
+        const safeCurrent = clamp(Number(currentPage) || 0, 0, safeTotal - 1);
+
+        const createBtn = (label, page, { isNow = false, disabled = false } = {}) =>
+        {
+            const a = document.createElement("a");
+            a.className = "page" + (isNow ? " now" : "") + (disabled ? " disabled" : "");
+            a.textContent = label;
+            a.href = "javascript:void(0)";
+
+            if (!disabled)
+            {
+                a.onclick = () =>
+                {
+                    if (scrollToTop) window.scrollTo({ top: 0, behavior: "smooth" });
+                    onPageClick?.(page);
+                };
+            }
+            else
+            {
+                a.onclick = e => e.preventDefault();
+                a.setAttribute("aria-disabled", "true");
+                a.setAttribute("tabindex", "-1");
+            }
+            return a;
+        };
+
+        const prevDisabled = (safeTotal <= 1) || (safeCurrent <= 0);
+        const nextDisabled = (safeTotal <= 1) || (safeCurrent >= safeTotal - 1);
+
+        // 처음
+        if (showFirstLast) { container.appendChild(createBtn("<<", 0, { disabled: prevDisabled })); }
+
+        // 이전
+        container.appendChild(createBtn("<", Math.max(0, safeCurrent - 1), { disabled: prevDisabled }));
+
+        // 번호 범위 계산
+        if (safeTotal <= 1)
+        { container.appendChild(createBtn("1", 0, { isNow: true, disabled: true })); }
+        else
+        {
+            const mv = Math.max(1, Number(maxVisible) || 5);
+            const half = Math.floor(mv / 2);
+
+            let start = safeCurrent - half;
+            let end = safeCurrent + half;
+
+            if (mv % 2 === 0) end -= 1; // 짝수면 좌측 우선
+
+            if (start < 0) { end += -start; start = 0; }
+            if (end > safeTotal - 1) { start -= (end - (safeTotal - 1)); end = safeTotal - 1; }
+            start = Math.max(0, start);
+
+            for (let i = start; i <= end; i++)
+            { container.appendChild(createBtn(String(i + 1), i, { isNow: i === safeCurrent })); }
+        }
+
+        // 다음
+        container.appendChild(createBtn(">", Math.min(safeTotal - 1, safeCurrent + 1), { disabled: nextDisabled }));
+
+        // 끝
+        if (showFirstLast)
+        { container.appendChild(createBtn(">>", safeTotal - 1, { disabled: nextDisabled })); }
     },
 };

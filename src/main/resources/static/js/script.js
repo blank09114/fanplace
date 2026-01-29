@@ -1,10 +1,12 @@
 import { commons } from '/js/commons.js';
-import { bindAuth } from '/js/auth.js';
-import { bindUser } from '/js/user.js';
-import { board } from '/js/board.js';
-import { admin } from '/js/admin.js';
+import { bindAuth } from '/js/account/auth.js';
+import { bindUser } from '/js/account/user.js';
+import { board } from '/js/board/board.js';
+import { post, richEditor } from '/js/board/post.js';
+import { comment } from '/js/board/comment.js';
+import { admin } from '/js/admin/admin.js';
 
-// 전역 함수 등록
+// 전역 함수 등록: commons
 window.toggleUi = commons.toggleUi;
 window.toggleDrawer = commons.toggleDrawer;
 window.scrollCtr = commons.scrollCtr;
@@ -14,11 +16,16 @@ window.openModal = commons.openModal.bind(commons);
 window.closeModal = commons.closeModal.bind(commons);
 window.getValueEl = commons.getValueEl.bind(commons);
 window.searchUniv = commons.searchUniv.bind(commons);
+
+// 전역 함수 등록: board
 window.searchBoard = () => board.searchBoard(commons);
-window.writePost = () => board.writePost(commons);
-window.subComment = () => board.subComment(commons);
-window.toggleRecommentForm = (btnEl) => board.toggleRecommentForm(commons, btnEl);
-window.subRecomment = (btnEl) => board.subRecomment(commons, btnEl);
+window.writePost = () => post.writePost(commons);
+window.like = (btnEl) => post.like(commons, btnEl);
+window.subComment = () => comment.subComment(commons);
+window.toggleRecommentForm = (btnEl) => comment.toggleRecommentForm(commons, btnEl);
+window.subRecomment = (btnEl) => comment.subRecomment(commons, btnEl);
+
+// 전역 함수 등록: admin
 window.changeWeek = (direction) => admin.changeWeek(commons, direction);
 window.searchDeletedSearch = () => admin.searchDeletedPost(commons);
 window.searchDeletedComment = () => admin.searchDeletedComment(commons);
@@ -29,7 +36,26 @@ document.addEventListener('DOMContentLoaded', () =>
     commons.applyTheme();
     bindAuth(commons);
     bindUser(commons);
-    admin.changeWeek(commons, 'current');
+
+    board.initBoardPage?.(commons);
+
+    if (document.querySelector('textarea[data-tinymce="post"]')) { richEditor.initPostEditor(); }
+    post.initLike(commons);
+    const hasPostDelete = document.getElementById('postDeleteForm')
+    || document.getElementById('postAdminDeleteForm')
+    || document.getElementById('postDeletedReasonForm');
+    if (hasPostDelete)
+    {
+        post.initPostDelete(commons);
+        post.initDeletedReasonChange(commons);
+    }
+    const f = document.forms?.univSearch;
+    if (f) { f.addEventListener('submit', (e) => { e.preventDefault(); commons.searchUniv(); }); }
+    comment.initPostComment?.(commons);
+    window.openPostDeleteModal = () => post.openPostDeleteModal(commons);
+    window.openPostAdminDeleteModal = () => post.openPostAdminDeleteModal(commons);
+
+    if (document.querySelector('[data-admin-page="1"]')) { admin.changeWeek(commons, 'current'); }
 
     // 인증/리다이렉트 토스트 처리
     const params = new URLSearchParams(window.location.search);

@@ -32,4 +32,16 @@ public class PostLike {
 
     @Column(name = "post_like_date", nullable = false)
     private LocalDateTime likedAt;
+
+    @PrePersist
+    void prePersist() { if (likedAt == null) likedAt = LocalDateTime.now(); }
+
+    public static PostLike create(Post postRef, User userRef, String ip)
+    {
+        PostLike pl = new PostLike();
+        pl.post = postRef;
+        pl.user = userRef;
+        pl.userIp = ip;
+        return pl;
+    }
 }
