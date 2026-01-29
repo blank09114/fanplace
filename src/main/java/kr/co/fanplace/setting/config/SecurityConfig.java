@@ -29,28 +29,19 @@ public class SecurityConfig
         .httpBasic(b -> b.disable())
         .authorizeHttpRequests(auth -> auth
             // 비로그인 사용자만 허용
-            .requestMatchers(
-                "/login",
-                "/join",
-                "/find-account"
-            ).anonymous()
-            .requestMatchers(
-                "/api/auth/login",
-                "/api/auth/join/**",
-                "/api/auth/reset/**"
-            ).anonymous()
+            .requestMatchers("/login", "/join", "/find-account").anonymous()
+            .requestMatchers("/api/auth/login", "/api/auth/join/**", "/api/auth/reset/**").anonymous()
 
             // 로그인 사용자만 허용
-            .requestMatchers(
-                "/change-pw",
-                "/withdraw"
-            ).authenticated()
-            .requestMatchers(
-                "/api/auth/pw/**",
-                "/api/auth/withdraw/**"
-            ).authenticated()
+            .requestMatchers("/change-pw", "/withdraw").authenticated()
+            .requestMatchers("/api/auth/pw/**", "/api/auth/withdraw/**").authenticated()
 
-            // 관리자만 허용
+            // 게시판 관련
+            .requestMatchers("/**/write", "/**/post/*/delete", "/**/post/*/deleted-reason").authenticated()
+            .requestMatchers(
+                "/api/post/*/comment", "/api/post/comment/*/recomment",
+                "/api/post/comment/*/delete", "/api/post/recomment/*/delete"
+            ).authenticated()
 
             // 나머지는 전부 허용
             .anyRequest().permitAll()

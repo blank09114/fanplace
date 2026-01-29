@@ -15,12 +15,24 @@ public class PurgeScheduler
     @Scheduled(cron = "0 0 4 * * *")
     public void purgeDaily()
     {
-        // 한 번에 너무 많이 지우지 말고 batch로 여러 번
-        int total = 0;
+        // 글 purge
         while (true)
         {
             int purged = purgeService.purgeOnce(500);
-            total += purged;
+            if (purged == 0) break;
+        }
+
+        // 댓글 purge
+        while (true)
+        {
+            int purged = purgeService.purgeCommentsOnce(500);
+            if (purged == 0) break;
+        }
+
+        // 대댓글 purge
+        while (true)
+        {
+            int purged = purgeService.purgeRecommentsOnce(500);
             if (purged == 0) break;
         }
     }
