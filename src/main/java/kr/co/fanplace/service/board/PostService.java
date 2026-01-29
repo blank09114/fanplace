@@ -1,7 +1,6 @@
 package kr.co.fanplace.service.board;
 
 import jakarta.persistence.EntityManager;
-import jakarta.servlet.http.HttpServletRequest;
 import kr.co.fanplace.dto.board.PostDTO;
 import kr.co.fanplace.entity.board.Board;
 import kr.co.fanplace.entity.board.Category;
@@ -10,28 +9,28 @@ import kr.co.fanplace.entity.board.post.PostLike;
 import kr.co.fanplace.entity.board.post.PostLog;
 import kr.co.fanplace.entity.board.post.PostView;
 import kr.co.fanplace.entity.user.User;
-import kr.co.fanplace.repository.board.*;
+import kr.co.fanplace.repository.board.BoardRepository;
+import kr.co.fanplace.repository.board.CategoryRepository;
 import kr.co.fanplace.repository.board.post.PostLikeRepository;
 import kr.co.fanplace.repository.board.post.PostLogRepository;
 import kr.co.fanplace.repository.board.post.PostRepository;
 import kr.co.fanplace.repository.board.post.PostViewRepository;
+import kr.co.fanplace.repository.board.post.comment.CommentRepository;
+import kr.co.fanplace.repository.board.post.comment.RecommentRepository;
 import kr.co.fanplace.repository.user.UserRepository;
+import kr.co.fanplace.service.user.AlarmService;
 import kr.co.fanplace.setting.ip.GeoIpService;
-import kr.co.fanplace.setting.ip.IpUtil;
 import kr.co.fanplace.setting.security.SecurityContextHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -44,6 +43,10 @@ public class PostService
     private final PostLogRepository postLogRepository;
     private final PostViewRepository postViewRepository;
     private final PostLikeRepository postLikeRepository;
+
+    private final CommentRepository commentRepository;
+    private final RecommentRepository recommentRepository;
+    private final AlarmService alarmService;
 
     private final CommentService commentService;
     private final GeoIpService geoIpService;
@@ -309,6 +312,17 @@ public class PostService
             post.softDelete(reason, now);
         }
         else { post.softDelete(null, now); }
+
+        List<Long> commentIds = commentRepository.findIdsByPostIds(List.of(postId));
+        if (!commentIds.isEmpty())
+        {
+            // 대댓글 알람 먼저 삭제
+            List<Long> recommentIds = recommentRepository.findIdsByCommentIds(commentIds);
+            alarmService.hardDeleteByRecommentIds(recommentIds);
+
+            // 댓글 알람 삭제
+            for (Long cid : commentIds) { alarmService.hardDeleteByCommentId(cid); }
+        }
 
         return adminDelete;
     }

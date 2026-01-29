@@ -166,6 +166,11 @@ public class CommentService
         // 연쇄 삭제
         recommentRepository.softDeleteByCommentId(commentId, now, "원댓글 삭제");
 
+        alarmService.hardDeleteByCommentId(commentId);
+
+        List<Long> recommentIds = recommentRepository.findIdsByCommentIds(List.of(commentId));
+        alarmService.hardDeleteByRecommentIds(recommentIds);
+
         return adminDelete;
     }
 
@@ -196,6 +201,7 @@ public class CommentService
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "삭제 사유를 입력하세요.");
 
             r.softDelete(reason, now);
+            alarmService.hardDeleteByRecommentIds(List.of(recommentId));
         }
         else { r.softDelete(null, now); }
 

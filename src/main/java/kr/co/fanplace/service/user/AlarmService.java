@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -99,6 +100,17 @@ public class AlarmService
     {
         String userId = SecurityContextHelper.requireUserId();
         return alarmRepository.countByUser_IdAndCheckedAtIsNull(userId);
+    }
+
+    // 알람 삭제
+    @Transactional
+    public void hardDeleteByCommentId(Long commentId) { alarmRepository.deleteByCommentIds(List.of(commentId)); }
+
+    @Transactional
+    public void hardDeleteByRecommentIds(List<Long> recommentIds)
+    {
+        if (recommentIds == null || recommentIds.isEmpty()) return;
+        alarmRepository.deleteByRecommentIds(recommentIds);
     }
 
     // 알람 생성
