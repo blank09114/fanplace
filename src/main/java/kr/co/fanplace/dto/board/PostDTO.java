@@ -21,6 +21,7 @@ public class PostDTO
         private final String categoryName;
 
         // 작성자 표시
+        private String authorUserId;
         private final String authorName;
 
         private final LocalDateTime createdAt;

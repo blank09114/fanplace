@@ -22,6 +22,7 @@ public class CommentDTO
         private final String deletedReasonDisplay;
         private final LocalDateTime deletedAt;
 
+        private String authorUserId;
         private final String authorName;
         private final LocalDateTime createdAt;
 
@@ -45,6 +46,7 @@ public class CommentDTO
         private final String deletedReasonDisplay;
         private final LocalDateTime deletedAt;
 
+        private String authorUserId;
         private final String authorName;
         private final String mentionName;
 

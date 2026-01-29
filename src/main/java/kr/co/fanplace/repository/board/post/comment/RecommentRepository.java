@@ -32,6 +32,7 @@ public interface RecommentRepository extends JpaRepository<Recomment, Long>
                 else null
             end,
             r.deletedAt,
+            au.id,
             case when au is null then '탈퇴 회원' else au.name end,
             case when mu is null then null else mu.name end,
             r.createdAt,

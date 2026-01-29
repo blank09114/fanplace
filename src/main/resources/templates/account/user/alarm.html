@@ -15,100 +15,25 @@
     <div th:replace="commons :: mainHeader"></div>
 
     <!-- 섹션 -->
-    <section class="flexColumn gapSm">
+    <section class="flexColumn gapSm" data-alarm-page="1">
+        <!-- 헤더 -->
         <div class="alarmHeader flex justifyBetween">
             <p class="title2Text bold">알람</p>
-            <label class="checkbox flex justifyEnd alignCenter gapXs"> <input type="checkbox"> 안 읽은 알람만 보기 </label>
+            <label class="checkbox flex justifyEnd alignCenter gapXs">
+                <input type="checkbox" id="alarmUnreadOnly"> 안 읽은 알람만 보기
+            </label>
         </div>
 
         <!-- 목록 -->
-        <div class="list widthFull">
+        <div class="list widthFull" id="alarmList">
             <div class="row widthFull flex alignCenter">
                 <p class="text1 textCenter">내역</p>
                 <p class="text1 textCenter date">일시</p>
             </div>
-            <a class="row widthFull flex alignCenter">
-                <div class="widthFull flexColumn">
-                    <p class="text2">닉네임 님의 댓글</p>
-                    <p class="text1">내용</p>
-                </div>
-                <p class="text1 textCenter date">2026.01.01. 00:00</p>
-            </a>
-            <a class="row widthFull flex alignCenter">
-                <div class="widthFull flexColumn">
-                    <p class="text2 lightText">닉네임 님의 댓글</p>
-                    <p class="text1 lightText">내용</p>
-                </div>
-                <p class="text1 textCenter date">2026.01.01. 00:00</p>
-            </a>
-            <a class="row widthFull flex alignCenter">
-                <div class="widthFull flexColumn">
-                    <p class="text2 lightText">닉네임 님의 댓글</p>
-                    <p class="text1 lightText">내용</p>
-                </div>
-                <p class="text1 textCenter date">2026.01.01. 00:00</p>
-            </a>
-            <a class="row widthFull flex alignCenter">
-                <div class="widthFull flexColumn">
-                    <p class="text2 lightText">닉네임 님의 댓글</p>
-                    <p class="text1 lightText">내용</p>
-                </div>
-                <p class="text1 textCenter date">2026.01.01. 00:00</p>
-            </a>
-            <a class="row widthFull flex alignCenter">
-                <div class="widthFull flexColumn">
-                    <p class="text2 lightText">닉네임 님의 댓글</p>
-                    <p class="text1 lightText">내용</p>
-                </div>
-                <p class="text1 textCenter date">2026.01.01. 00:00</p>
-            </a>
-            <a class="row widthFull flex alignCenter">
-                <div class="widthFull flexColumn">
-                    <p class="text2 lightText">닉네임 님의 댓글</p>
-                    <p class="text1 lightText">내용</p>
-                </div>
-                <p class="text1 textCenter date">2026.01.01. 00:00</p>
-            </a>
-            <a class="row widthFull flex alignCenter">
-                <div class="widthFull flexColumn">
-                    <p class="text2 lightText">닉네임 님의 댓글</p>
-                    <p class="text1 lightText">내용</p>
-                </div>
-                <p class="text1 textCenter date">2026.01.01. 00:00</p>
-            </a>
-            <a class="row widthFull flex alignCenter">
-                <div class="widthFull flexColumn">
-                    <p class="text2 lightText">닉네임 님의 댓글</p>
-                    <p class="text1 lightText">내용</p>
-                </div>
-                <p class="text1 textCenter date">2026.01.01. 00:00</p>
-            </a>
-            <a class="row widthFull flex alignCenter">
-                <div class="widthFull flexColumn">
-                    <p class="text2 lightText">닉네임 님의 댓글</p>
-                    <p class="text1 lightText">내용</p>
-                </div>
-                <p class="text1 textCenter date">2026.01.01. 00:00</p>
-            </a>
-            <a class="row widthFull flex alignCenter">
-                <div class="widthFull flexColumn">
-                    <p class="text2 lightText">닉네임 님의 댓글</p>
-                    <p class="text1 lightText">내용</p>
-                </div>
-                <p class="text1 textCenter date">2026.01.01. 00:00</p>
-            </a>
         </div>
 
         <!-- 페이지 -->
-        <div class="pages flex justifyCenter gapXs">
-            <a class="page"> < </a>
-            <a class="page now"> 1 </a>
-            <a class="page"> 2 </a>
-            <a class="page"> 3 </a>
-            <a class="page"> 4 </a>
-            <a class="page"> 5 </a>
-            <a class="page"> > </a>
-        </div>
+        <div class="pages flex justifyCenter gapXs" id="alarmPagination"></div>
     </section>
 
     <!-- 스크롤 내비게이션 -->

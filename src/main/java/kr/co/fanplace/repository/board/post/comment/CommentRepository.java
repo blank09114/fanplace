@@ -37,6 +37,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long>
                 else null
             end,
             c.deletedAt,
+            u.id,
             case when u is null then '탈퇴 회원' else u.name end,
             c.createdAt,
             c.content,
@@ -74,4 +75,13 @@ public interface CommentRepository extends JpaRepository<Comment, Long>
     order by c.id asc
     """)
     List<Long> findPurgeTargetIdsWithReason(@Param("cutoff") LocalDateTime cutoff, Pageable pageable);
+
+    @Query("""
+        select count(c)
+        from Comment c
+        where c.post.id = :postId
+            and c.deleted = false
+            and c.id < :commentId
+    """)
+    long countVisibleBefore(@Param("postId") Long postId, @Param("commentId") Long commentId);
 }

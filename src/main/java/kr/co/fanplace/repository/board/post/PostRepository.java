@@ -51,6 +51,7 @@ public interface PostRepository extends JpaRepository<Post, Long>
         value = "select new kr.co.fanplace.dto.board.PostDTO$ListItem( " +
             "p.id, " +
             "p.category.id, p.category.name, " +
+            "u.id, " +
             "case when u is null then '탈퇴 회원' else u.name end, " +
             "p.createdAt, " +
             "pl.title, " +
@@ -82,6 +83,7 @@ public interface PostRepository extends JpaRepository<Post, Long>
             "select new kr.co.fanplace.dto.board.PostDTO$ListItem( " +
                 "p.id, " +
                 "p.category.id, p.category.name, " +
+                "u.id, " +
                 "case when u is null then '탈퇴 회원' else u.name end, " +
                 "p.createdAt, " +
                 "pl.title, " +

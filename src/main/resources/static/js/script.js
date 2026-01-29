@@ -1,6 +1,7 @@
 import { commons } from '/js/commons.js';
 import { bindAuth } from '/js/account/auth.js';
 import { bindUser } from '/js/account/user.js';
+import { bindAlarm } from '/js/account/alarm.js';
 import { board } from '/js/board/board.js';
 import { post, richEditor } from '/js/board/post.js';
 import { comment } from '/js/board/comment.js';
@@ -36,6 +37,7 @@ document.addEventListener('DOMContentLoaded', () =>
     commons.applyTheme();
     bindAuth(commons);
     bindUser(commons);
+    bindAlarm(commons);
 
     board.initBoardPage?.(commons);
 
