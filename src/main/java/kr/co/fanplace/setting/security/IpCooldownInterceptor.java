@@ -25,7 +25,12 @@ public class IpCooldownInterceptor implements HandlerInterceptor
         "/api/auth/join/request",
         "/api/auth/join/resend",
         "/api/auth/login",
-        "/api/auth/logout"
+        "/api/auth/logout",
+
+        // 게시판 관련 API
+        "/*/write",
+        "/api/post/*/comment",
+        "/api/post/comment/*/recomment"
     );
 
     @Override

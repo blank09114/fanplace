@@ -35,7 +35,7 @@ public class SecurityConfig
             // 로그인 사용자만 허용
             .requestMatchers("/change-pw", "/withdraw").authenticated()
             .requestMatchers("/api/auth/pw/**", "/api/auth/withdraw/**").authenticated()
-            
+
             // 게시판 관련
             .requestMatchers("/**/write", "/**/post/*/delete", "/**/post/*/deleted-reason").authenticated()
             .requestMatchers(

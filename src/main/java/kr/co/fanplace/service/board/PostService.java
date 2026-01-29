@@ -18,6 +18,7 @@ import kr.co.fanplace.repository.board.post.PostViewRepository;
 import kr.co.fanplace.repository.user.UserRepository;
 import kr.co.fanplace.setting.ip.GeoIpService;
 import kr.co.fanplace.setting.ip.IpUtil;
+import kr.co.fanplace.setting.security.SecurityContextHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -60,12 +61,9 @@ public class PostService
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "게시글 로그가 없습니다."));
 
         // 로그인/권한 판별
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        boolean login = auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal());
-        String loginUserId = login ? auth.getName() : null;
-        boolean isAdmin = login && auth.getAuthorities().stream().anyMatch(a ->
-            "ROLE_ADMIN".equals(a.getAuthority()) || "ADMIN".equals(a.getAuthority())
-        );
+        boolean login = SecurityContextHelper.isLogin();
+        String loginUserId = SecurityContextHelper.userIdOrNull();
+        boolean isAdmin = SecurityContextHelper.isAdmin();
 
         if (post.isDeleted() && !isAdmin) { throw new ResponseStatusException(HttpStatus.FORBIDDEN, "삭제된 글입니다."); }
 
@@ -118,13 +116,8 @@ public class PostService
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void recordPostViewIfNeeded(Long postId)
     {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-        String userId = null;
-        if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal()))
-        { userId = auth.getName(); }
-
-        String ip = resolveClientIp();
+        String userId = SecurityContextHelper.userIdOrNull();
+        String ip = SecurityContextHelper.clientIp();
 
         // 하나의 계정/IP당 한 번만 발생
         if (userId != null)
@@ -147,7 +140,7 @@ public class PostService
     @Transactional
     public PostDTO.LikeRes likePost(Long postId)
     {
-        String userId = requireLoginUserId();
+        String userId = SecurityContextHelper.userIdOrNull();
 
         // 삭제된 글 방어
         Post post = postRepository.findById(postId)
@@ -159,7 +152,7 @@ public class PostService
         if (postLikeRepository.existsByPost_IdAndUser_Id(postId, userId))
         { throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 좋아요한 게시글"); }
 
-        String ip = resolveClientIp();
+        String ip = SecurityContextHelper.clientIp();
 
         Post postRef = em.getReference(Post.class, postId);
         User userRef = em.getReference(User.class, userId);
@@ -175,7 +168,7 @@ public class PostService
     @Transactional
     public PostDTO.LikeRes unlikePost(Long postId)
     {
-        String userId = requireLoginUserId();
+        String userId = SecurityContextHelper.requireUserId();
 
         long deleted = postLikeRepository.deleteByPost_IdAndUser_Id(postId, userId);
         if (deleted == 0) { throw new ResponseStatusException(HttpStatus.NOT_FOUND, "좋아요 기록 없음"); }
@@ -188,7 +181,7 @@ public class PostService
     @Transactional(readOnly = true)
     public PostDTO.LikeRes getLikeStatus(Long postId)
     {
-        String userId = resolveUserIdOrNull();
+        String userId = SecurityContextHelper.userIdOrNull();
 
         boolean liked = false;
         if (userId != null)
@@ -203,8 +196,8 @@ public class PostService
     public Long createPost(String boardId, PostDTO.CreateForm form)
     {
         LocalDateTime now = LocalDateTime.now();
-        String userId = resolveUserIdOrNull();
-        String clientIp = resolveClientIp();
+        String userId = SecurityContextHelper.userIdOrNull();
+        String clientIp = SecurityContextHelper.clientIp();
 
         Board board = boardRepository.findById(boardId)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 게시판입니다."));
@@ -289,7 +282,7 @@ public class PostService
     @Transactional
     public boolean deletePost(String boardId, Long postId, String reason)
     {
-        String loginUserId = requireLoginUserId();
+        String userId = SecurityContextHelper.requireUserId();
         LocalDateTime now = LocalDateTime.now();
 
         Post post = postRepository.findByIdAndBoard_Id(postId, boardId)
@@ -298,15 +291,10 @@ public class PostService
         if (post.isDeleted())
         { throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 삭제된 글입니다."); }
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        boolean isAdmin = auth != null && auth.isAuthenticated()
-            && !"anonymousUser".equals(auth.getPrincipal())
-            && auth.getAuthorities().stream().anyMatch(a ->
-            "ROLE_ADMIN".equals(a.getAuthority()) || "ADMIN".equals(a.getAuthority())
-        );
+        boolean isAdmin = SecurityContextHelper.isAdmin();
 
         String authorUserId = (post.getUser() != null) ? post.getUser().getId() : null;
-        boolean owner = authorUserId != null && authorUserId.equals(loginUserId);
+        boolean owner = authorUserId != null && authorUserId.equals(userId);
 
         // 삭제 권한: 작성자 or 관리자
         if (!owner && !isAdmin)
@@ -330,14 +318,9 @@ public class PostService
     public void changeDeletedReason(String boardId, Long postId, String reason)
     {
         // 관리자만
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        boolean login = auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal());
-        boolean isAdmin = login && auth.getAuthorities().stream().anyMatch(a ->
-            "ROLE_ADMIN".equals(a.getAuthority()) || "ADMIN".equals(a.getAuthority())
-        );
+        boolean isAdmin = SecurityContextHelper.isAdmin();
 
-        if (!isAdmin)
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "관리자만 변경할 수 있습니다.");
+        if (!isAdmin) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "관리자만 변경할 수 있습니다.");
 
         if (reason == null || reason.isBlank())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "삭제 사유를 입력하세요.");
@@ -351,40 +334,11 @@ public class PostService
         post.changeDeletedReason(reason);
     }
 
-    // 사용자 정보 추출
-    private String resolveUserIdOrNull()
-    {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated()) return null;
-        if ("anonymousUser".equals(auth.getPrincipal())) return null;
-        return auth.getName();
-    }
-
-    // IP 추출
-    private String resolveClientIp()
-    {
-        ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        if (attrs == null) return "0.0.0.0";
-        HttpServletRequest request = attrs.getRequest();
-        return IpUtil.resolveClientIp(request);
-    }
-
-    // 로그인 여부 검증
-    private String requireLoginUserId()
-    {
-        String userId = resolveUserIdOrNull();
-        if (userId == null)
-        { throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인 필요"); }
-        return userId;
-    }
-
     // 본인 여부 검증
     private void assertEditableByOwner(Post post)
     {
-        String userId = requireLoginUserId();
-
+        String userId = SecurityContextHelper.requireUserId();
         String authorUserId = (post.getUser() != null) ? post.getUser().getId() : null;
-
         if (authorUserId == null || !authorUserId.equals(userId))
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "수정 권한이 없습니다.");
     }

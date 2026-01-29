@@ -10,12 +10,11 @@ import kr.co.fanplace.repository.board.post.comment.CommentRepository;
 import kr.co.fanplace.repository.board.post.comment.RecommentRepository;
 import kr.co.fanplace.repository.user.UserRepository;
 import kr.co.fanplace.service.user.AlarmService;
+import kr.co.fanplace.setting.security.SecurityContextHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -51,13 +50,8 @@ public class CommentService
     public Page<CommentDTO.Item> getCommentPage(Long postId, int page)
     {
         // 관리자 판별
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        boolean isLogin = auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal());
-
-        boolean isAdmin = isLogin && auth.getAuthorities().stream().anyMatch
-        (a -> "ROLE_ADMIN".equals(a.getAuthority()) || "ADMIN".equals(a.getAuthority()));
-
-        String loginUserId = isLogin ? auth.getName() : null;
+        boolean isAdmin = SecurityContextHelper.isAdmin();
+        String loginUserId = SecurityContextHelper.userIdOrNull();
 
         // 게시글 존재/삭제 방어(삭제글은 관리자만)
         Post post = postRepository.findById(postId)
@@ -89,12 +83,7 @@ public class CommentService
     @Transactional
     public CommentDTO.WriteRes writeComment(Long postId, CommentDTO.WriteReq req)
     {
-        // PostService랑 동일한 로그인 판별 흐름으로 맞춤(프로젝트 결 유지)
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        boolean login = auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal());
-        if (!login) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");
-
-        String loginUserId = auth.getName();
+        String loginUserId = SecurityContextHelper.requireUserId();
         User actor = userRepository.findById(loginUserId)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "사용자 정보를 찾을 수 없습니다."));
 
@@ -117,11 +106,7 @@ public class CommentService
     @Transactional
     public CommentDTO.RecommentWriteRes writeRecomment(Long commentId, CommentDTO.RecommentWriteReq req)
     {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        boolean login = auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal());
-        if (!login) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");
-
-        String loginUserId = auth.getName();
+        String loginUserId = SecurityContextHelper.requireUserId();
         User actor = userRepository.findById(loginUserId)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "사용자 정보를 찾을 수 없습니다."));
 
@@ -152,7 +137,7 @@ public class CommentService
     @Transactional
     public boolean deleteComment(Long commentId, String reason)
     {
-        String loginUserId = requireLoginUserId();
+        String loginUserId = SecurityContextHelper.requireUserId();
         LocalDateTime now = LocalDateTime.now();
 
         Comment c = commentRepository.findById(commentId)
@@ -161,7 +146,7 @@ public class CommentService
         if (c.isDeleted())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 삭제된 댓글입니다.");
 
-        boolean isAdmin = isAdmin();
+        boolean isAdmin = SecurityContextHelper.isAdmin();
         String authorUserId = (c.getUser() != null) ? c.getUser().getId() : null;
         boolean owner = authorUserId != null && authorUserId.equals(loginUserId);
 
@@ -188,7 +173,7 @@ public class CommentService
     @Transactional
     public boolean deleteRecomment(Long recommentId, String reason)
     {
-        String loginUserId = requireLoginUserId();
+        String loginUserId = SecurityContextHelper.requireUserId();
         LocalDateTime now = LocalDateTime.now();
 
         Recomment r = recommentRepository.findById(recommentId)
@@ -197,7 +182,7 @@ public class CommentService
         if (r.isDeleted())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 삭제된 댓글입니다.");
 
-        boolean isAdmin = isAdmin();
+        boolean isAdmin = SecurityContextHelper.isAdmin();
         String authorUserId = (r.getAuthorUser() != null) ? r.getAuthorUser().getId() : null;
         boolean owner = authorUserId != null && authorUserId.equals(loginUserId);
 
@@ -215,30 +200,5 @@ public class CommentService
         else { r.softDelete(null, now); }
 
         return adminDelete;
-    }
-
-    private String resolveUserIdOrNull()
-    {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated()) return null;
-        if ("anonymousUser".equals(auth.getPrincipal())) return null;
-        return auth.getName();
-    }
-
-    private String requireLoginUserId()
-    {
-        String userId = resolveUserIdOrNull();
-        if (userId == null)
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인 필요");
-        return userId;
-    }
-
-    private boolean isAdmin()
-    {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        boolean login = auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal());
-        return login && auth.getAuthorities().stream().anyMatch(a ->
-                "ROLE_ADMIN".equals(a.getAuthority()) || "ADMIN".equals(a.getAuthority())
-        );
     }
 }
