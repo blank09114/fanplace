@@ -23,5 +23,4 @@ public interface UserRepository extends JpaRepository<User, String>
             and u.withdrawAt < :threshold
     """)
     int deleteWithdrawnBefore(@Param("threshold") LocalDateTime threshold);
-
 }

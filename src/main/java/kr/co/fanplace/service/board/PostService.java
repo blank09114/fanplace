@@ -19,6 +19,7 @@ import kr.co.fanplace.repository.board.post.comment.CommentRepository;
 import kr.co.fanplace.repository.board.post.comment.RecommentRepository;
 import kr.co.fanplace.repository.user.UserRepository;
 import kr.co.fanplace.service.user.AlarmService;
+import kr.co.fanplace.service.user.UserSanctionService;
 import kr.co.fanplace.setting.ip.GeoIpService;
 import kr.co.fanplace.setting.security.SecurityContextHelper;
 import lombok.RequiredArgsConstructor;
@@ -47,6 +48,7 @@ public class PostService
     private final CommentRepository commentRepository;
     private final RecommentRepository recommentRepository;
     private final AlarmService alarmService;
+    private final UserSanctionService userSanctionService;
 
     private final CommentService commentService;
     private final GeoIpService geoIpService;
@@ -90,6 +92,7 @@ public class PostService
 
         // 버튼 노출 정책
         boolean canLike = login && !post.isDeleted();
+        if (canLike && loginUserId != null && userSanctionService.isBlocked(loginUserId)) { canLike = false; }
         boolean canEdit = owner && !post.isDeleted();
         boolean canDelete = owner && !post.isDeleted();
         boolean canAdminDelete = isAdmin && !post.isDeleted();
@@ -144,6 +147,7 @@ public class PostService
     public PostDTO.LikeRes likePost(Long postId)
     {
         String userId = SecurityContextHelper.userIdOrNull();
+        userSanctionService.assertWritable(userId);
 
         // 삭제된 글 방어
         Post post = postRepository.findById(postId)
@@ -172,6 +176,7 @@ public class PostService
     public PostDTO.LikeRes unlikePost(Long postId)
     {
         String userId = SecurityContextHelper.requireUserId();
+        userSanctionService.assertWritable(userId);
 
         long deleted = postLikeRepository.deleteByPost_IdAndUser_Id(postId, userId);
         if (deleted == 0) { throw new ResponseStatusException(HttpStatus.NOT_FOUND, "좋아요 기록 없음"); }
@@ -199,7 +204,10 @@ public class PostService
     public Long createPost(String boardId, PostDTO.CreateForm form)
     {
         LocalDateTime now = LocalDateTime.now();
-        String userId = SecurityContextHelper.userIdOrNull();
+
+        String userId = SecurityContextHelper.requireUserId();
+        userSanctionService.assertWritable(userId);
+
         String clientIp = SecurityContextHelper.clientIp();
 
         Board board = boardRepository.findById(boardId)
@@ -208,16 +216,11 @@ public class PostService
         Category category = categoryRepository.findById(form.getCategoryId())
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "존재하지 않는 카테고리입니다."));
 
-        // 카테고리-게시판 정합성
         if (!category.getBoard().getId().equals(boardId))
-        { throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "게시판과 카테고리가 일치하지 않습니다."); }
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "게시판과 카테고리가 일치하지 않습니다.");
 
-        User user = null;
-        if (userId != null)
-        {
-            user = userRepository.findById(userId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인 정보가 유효하지 않습니다."));
-        }
+        User user = userRepository.findById(userId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인 정보가 유효하지 않습니다."));
 
         Post post = Post.create(board, category, user, clientIp, now);
         postRepository.save(post);

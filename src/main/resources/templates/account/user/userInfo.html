@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fan Place - 닉네임 님의 회원정보</title>
+    <title th:text="'Fan Place - ' + ${pageTitle}"></title>
     <link rel="icon" th:href="@{/img/PF_Icon.png}">
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
@@ -22,43 +22,43 @@
 
             <!-- 카드 -->
             <div class="card widthFull flexColumn gapSm pdMd">
-                <button class="btn teal" onclick="openModal('blockModal')">차단</button>
+                <button class="btn teal" sec:authorize="hasRole('ADMIN')" onclick="openModal('blockModal')">차단</button>
                 <!-- ID -->
                 <div class="cardItem flexColumnMov gapXs">
                     <p class="title2Text bold">ID</p>
-                    <p class="title2Text">ID</p>
+                    <p class="title2Text" id="userIdText"></p>
                 </div>
                 <!-- 닉네임 -->
                 <div class="cardItem flexColumnMov gapXs">
                     <p class="title2Text bold">닉네임</p>
                     <div class="nameWrap flexColumnMov gapXs">
-                        <p class="title2Text" id="oldName">닉네임</p>
+                        <p class="title2Text" id="oldName"></p>
                         <form name="nameForm" class="gapXs">
                             <input name="name" type="text">
-                            <button type="button" id="btnNameApply" class="btn teal" onclick="subChangeName()">적용</button>
+                            <button type="button" id="btnNameApply" class="btn teal" style="display:none;" onclick="subChangeName()">적용</button>
                         </form>
-                        <button type="button" id="btnNameToggle" class="btn teal" onclick="toggleForm()">변경</button>
+                        <button type="button" id="btnNameToggle" class="btn teal" style="display:none;" onclick="toggleForm()">변경</button>
                     </div>
                 </div>
                 <!-- 메일 -->
                 <div class="cardItem flexColumnMov gapXs">
                     <p class="title2Text bold">메일</p>
-                    <p class="title2Text">user@naver.com</p>
+                    <p class="title2Text" id="userMailText"></p>
                 </div>
                 <!-- 가입일 -->
                 <div class="cardItem flexColumnMov gapXs">
                     <p class="title2Text bold">가입일</p>
-                    <p class="title2Text">2026.01.01.</p>
+                    <p class="title2Text" id="joinedAtText"></p>
                 </div>
                 <!-- IP -->
                 <div class="cardItem flexColumnMov gapXs">
                     <p class="title2Text bold">회원가입 IP</p>
-                    <p class="title2Text">1.234.567(대한민국, 서울, 서대문구)</p>
+                    <p class="title2Text" id="joinIpText"></p>
                 </div>
                 <!-- 상태 -->
                 <div class="cardItem flexColumnMov gapXs">
                     <p class="title2Text bold">상태</p>
-                    <p class="title2Text">차단됨</p>
+                    <p class="title2Text" id="statusText"></p>
                 </div>
             </div>
         </div>

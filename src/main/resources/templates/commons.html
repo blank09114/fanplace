@@ -19,7 +19,7 @@ th:attr="data-auth=${#authorization.expression('isAuthenticated()')}">
 
             <!-- 로그인 메뉴 -->
             <th:block sec:authorize="isAuthenticated()">
-                <a class="text3 lightText">내 정보</a>
+                <a class="text3 lightText" onclick="goMyInfo()">내 정보</a>
                 <a id="alarmLinkTop" class="text3 lightText" th:href="@{/user/alarm}">알람</a>
                 <a class="text3 lightText" th:href="@{/auth/change-pw}">비밀번호 변경</a>
                 <a class="text3 lightText" th:href="@{/auth/withdraw}">회원 탈퇴</a>
@@ -83,7 +83,7 @@ th:attr="data-auth=${#authorization.expression('isAuthenticated()')}">
 
             <!-- 로그인 메뉴 -->
             <th:block sec:authorize="isAuthenticated()">
-                <a class="text1">내 정보</a>
+                <a class="text1"  onclick="goMyInfo()">내 정보</a>
                 <a id="alarmLinkDrawer" class="text1" th:href="@{/user/alarm}">알람</a>
                 <a class="text1" th:href="@{/auth/change-pw}">비밀번호 변경</a>
                 <a class="text1" th:href="@{/auth/withdraw}">회원 탈퇴</a>

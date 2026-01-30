@@ -56,7 +56,7 @@ public interface RecommentRepository extends JpaRepository<Recomment, Long>
     """)
     int softDeleteByCommentId(@Param("commentId") Long commentId, @Param("now") LocalDateTime now, @Param("reason") String reason);
 
-    // purge 대상(삭제된 대댓글) id 조회
+    // purge 대상 조회
     @Query("""
         select r.id from Recomment r
         where r.deleted = true

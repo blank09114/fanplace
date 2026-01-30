@@ -10,6 +10,7 @@ import { admin } from '/js/admin/admin.js';
 // 전역 함수 등록: commons
 window.toggleUi = commons.toggleUi;
 window.toggleDrawer = commons.toggleDrawer;
+window.goMyInfo = commons.goMyInfo.bind(commons);
 window.scrollCtr = commons.scrollCtr;
 window.showToast = commons.showToast.bind(commons);
 window.closeToast = commons.closeToast.bind(commons);

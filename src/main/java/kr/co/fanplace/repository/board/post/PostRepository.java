@@ -14,8 +14,10 @@ import java.util.Optional;
 
 public interface PostRepository extends JpaRepository<Post, Long>
 {
+    // 게시판 정보 조회
     Optional<Post> findByIdAndBoard_Id(Long postId, String boardId);
 
+    // 이전글
     @Query("""
         select max(p.id)
         from Post p
@@ -25,6 +27,7 @@ public interface PostRepository extends JpaRepository<Post, Long>
     """)
     Long findPrevPostId(@Param("boardId") String boardId, @Param("admin") boolean admin, @Param("postId") Long postId);
 
+    // 다음글
     @Query("""
         select min(p.id)
         from Post p
@@ -34,6 +37,7 @@ public interface PostRepository extends JpaRepository<Post, Long>
     """)
     Long findNextPostId(@Param("boardId") String boardId, @Param("admin") boolean admin, @Param("postId") Long postId);
 
+    // 삭제 대상 찾기
     @Query("""
     select p.id from Post p
     where p.deleted = true

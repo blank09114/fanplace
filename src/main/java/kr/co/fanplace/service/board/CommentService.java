@@ -10,6 +10,7 @@ import kr.co.fanplace.repository.board.post.comment.CommentRepository;
 import kr.co.fanplace.repository.board.post.comment.RecommentRepository;
 import kr.co.fanplace.repository.user.UserRepository;
 import kr.co.fanplace.service.user.AlarmService;
+import kr.co.fanplace.service.user.UserSanctionService;
 import kr.co.fanplace.setting.security.SecurityContextHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -34,6 +35,7 @@ public class CommentService
     private final CommentRepository commentRepository;
     private final RecommentRepository recommentRepository;
 
+    private final UserSanctionService userSanctionService;
     private final AlarmService alarmService;
 
     // 댓글 수 카운트
@@ -84,6 +86,7 @@ public class CommentService
     public CommentDTO.WriteRes writeComment(Long postId, CommentDTO.WriteReq req)
     {
         String loginUserId = SecurityContextHelper.requireUserId();
+        userSanctionService.assertWritable(loginUserId);
         User actor = userRepository.findById(loginUserId)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "사용자 정보를 찾을 수 없습니다."));
 
@@ -107,6 +110,7 @@ public class CommentService
     public CommentDTO.RecommentWriteRes writeRecomment(Long commentId, CommentDTO.RecommentWriteReq req)
     {
         String loginUserId = SecurityContextHelper.requireUserId();
+        userSanctionService.assertWritable(loginUserId);
         User actor = userRepository.findById(loginUserId)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "사용자 정보를 찾을 수 없습니다."));
 
