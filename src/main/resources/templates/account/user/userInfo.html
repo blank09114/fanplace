@@ -22,7 +22,8 @@
 
             <!-- 카드 -->
             <div class="card widthFull flexColumn gapSm pdMd">
-                <button class="btn teal" sec:authorize="hasRole('ADMIN')" onclick="openModal('blockModal')">차단</button>
+                <button sec:authorize="hasRole('ADMIN')" class="btn teal" id="btnBlock"
+                th:if="${!card.blocked}" onclick="openModal('blockModal')">차단</button>
                 <!-- ID -->
                 <div class="cardItem flexColumnMov gapXs">
                     <p class="title2Text bold">ID</p>

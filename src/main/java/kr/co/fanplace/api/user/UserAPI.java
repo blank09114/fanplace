@@ -1,11 +1,13 @@
 package kr.co.fanplace.api.user;
 
+import kr.co.fanplace.dto.ApiOk;
 import kr.co.fanplace.dto.user.AlarmDTO;
 import kr.co.fanplace.dto.user.UserInfoDTO;
 import kr.co.fanplace.service.user.AlarmService;
 import kr.co.fanplace.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -34,4 +36,12 @@ public class UserAPI
     @GetMapping("/{userId}/card")
     public UserInfoDTO.Card getUserCard(@PathVariable String userId)
     { return userService.getUserCard(userId); }
+
+    // 닉네임 변경
+    @PatchMapping("/{userId}/name")
+    public ResponseEntity<ApiOk> changeName(@PathVariable String userId, @RequestBody UserInfoDTO.ChangeNameReq req)
+    {
+        userService.changeName(userId, req == null ? null : req.getName());
+        return ResponseEntity.ok(ApiOk.ok());
+    }
 }

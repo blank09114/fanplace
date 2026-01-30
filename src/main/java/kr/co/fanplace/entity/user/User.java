@@ -82,4 +82,6 @@ public class User
         this.withdraw = true;
         this.withdrawAt = now;
     }
+
+    public void changeName(String newName) { this.name = newName; }
 }

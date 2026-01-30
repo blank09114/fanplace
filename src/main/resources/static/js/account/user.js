@@ -78,13 +78,6 @@ async function bindUserInfoPage(commons)
     if (btnToggle) btnToggle.style.display = canEditName ? '' : 'none';
     if (btnApply) btnApply.style.display = canEditName ? '' : 'none';
     if (form) form.style.display = 'none';
-
-    const btnBlock = document.getElementById('btnBlock');
-    if (btnBlock)
-    {
-        const show = isAdmin && !card.blocked;
-        btnBlock.style.display = show ? '' : 'none';
-    }
 }
 
 // 닉네임 변경 폼 토글
@@ -117,7 +110,7 @@ function toggleForm()
 }
 
 // 닉네임 변경
-function subChangeName(commons, e)
+async function subChangeName(commons, e)
 {
     e?.preventDefault?.();
 
@@ -129,17 +122,40 @@ function subChangeName(commons, e)
 
     if (!commons.validate(nameInput, '닉네임', NAME_REGEX, NAME_MSG, 2, 10)) return;
 
+    const parts = (location.pathname || '').split('/').filter(Boolean);
+    const idx = parts.indexOf('user');
+    const targetUserId = idx !== -1 ? parts[idx + 1] : null;
+    if (!targetUserId) { commons.showToast('회원정보를 불러올 수 없습니다.'); return; }
+
     const newName = commons.getValueEl(nameInput);
-    commons.showToast(`닉네임이 "${newName}"(으)로 변경됐습니다.`);
 
-    const nameText  = document.getElementById('oldName');
-    const toggleBtn = document.getElementById('btnNameToggle');
+    const ok = await commons.fetchJson(
+        `/api/user/${encodeURIComponent(targetUserId)}/name`,
+        {
+            method: 'PATCH',
+            body: JSON.stringify({ name: newName })
+        },
+        {
+            parseJson: true,
+            defaultErrorMessage: '닉네임 변경에 실패했습니다.'
+        }
+    );
 
-    if (nameText) { nameText.textContent = newName; nameText.style.display = ''; }
+    if (!ok) return;
 
+    commons.showToast('닉네임이 변경됐습니다.');
+
+    // 폼 닫기
     form.style.display = 'none';
+
+    const nameText = document.getElementById('oldName');
+    if (nameText) nameText.style.display = '';
+
+    const toggleBtn = document.getElementById('btnNameToggle');
     if (toggleBtn) toggleBtn.textContent = '변경';
     form.reset?.();
+
+    await bindUserInfoPage(commons);
 }
 
 // 바인딩

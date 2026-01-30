@@ -26,4 +26,13 @@ public class UserInfoDTO
         // 제재 상태
         private final boolean blocked;
     }
+
+    // 닉네임 변경 요청
+    public static class ChangeNameReq
+    {
+        private String name;
+
+        public String getName() { return name; }
+        public void setName(String name) { this.name = name; }
+    }
 }

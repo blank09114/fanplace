@@ -54,4 +54,32 @@ public class UserService
             mail, joinIp, target.isWithdraw(), blocked
         );
     }
+
+    // 닉네임 변경
+    @Transactional
+    public void changeName(String targetUserId, String newNameRaw)
+    {
+        if (targetUserId == null || targetUserId.isBlank())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+
+        String viewerId = SecurityContextHelper.userIdOrNull();
+        if (viewerId == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+
+        boolean isAdmin = SecurityContextHelper.isAdmin();
+        boolean owner = viewerId.equals(targetUserId);
+        if (!owner && !isAdmin) throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+
+        String newName = (newNameRaw == null) ? "" : newNameRaw.trim();
+        if (newName.length() < 2 || newName.length() > 10)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+
+        User target = userRepository.findById(targetUserId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        if (target.isWithdraw()) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+
+        if (newName.equals(target.getName())) return;
+
+        target.changeName(newName);
+    }
 }
