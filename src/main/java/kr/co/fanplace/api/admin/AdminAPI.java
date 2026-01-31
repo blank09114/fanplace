@@ -1,0 +1,28 @@
+package kr.co.fanplace.api.admin;
+
+import jakarta.validation.Valid;
+import kr.co.fanplace.dto.user.UserSanctionDTO;
+import kr.co.fanplace.service.user.UserSanctionService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/admin")
+public class AdminAPI
+{
+    private final UserSanctionService userSanctionService;
+
+    // 사용자 차단
+    @PostMapping("/user/{userId}/sanction")
+    public UserSanctionDTO.CreateRes sanction(@PathVariable String userId, @RequestBody @Valid UserSanctionDTO.CreateReq req)
+    {
+        Long id = userSanctionService.createSanctionLog(userId, req);
+        return new UserSanctionDTO.CreateRes(id);
+    }
+
+    // 제재 내역 조회
+    @GetMapping("/user/{userId}/sanction/logs")
+    public UserSanctionDTO.LogListRes sanctionLogs(@PathVariable String userId)
+    { return userSanctionService.getSanctionLogs(userId); }
+}

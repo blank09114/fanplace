@@ -179,14 +179,21 @@ th:attr="data-auth=${#authorization.expression('isAuthenticated()')}">
         <button class="textBtn" onclick="closeModal('blockModal')">X</button>
         <div class="widthFull flex gapSm">
             <select name="long">
-                <option>1일</option>
-                <option>7일</option>
-                <option>30일</option>
-                <option>영구</option>
+                <option value="1">1일</option>
+                <option value="7">7일</option>
+                <option value="30">30일</option>
+                <option value="0">영구</option>
             </select>
             <input name="reason" type="text" placeholder="차단 사유">
         </div>
         <button class="btn teal">차단</button>
+    </div>
+
+    <!-- 차단 취소 모달 -->
+    <div class="modal pdMd flexColumn alignEnd gapXs" id="blockCancelModal">
+        <button class="textBtn" onclick="closeModal('blockCancelModal')">X</button>
+        <p class="text1">차단 기록을 삭제하시겠습니까?</p>
+        <button class="btn teal">확인</button>
     </div>
 
     <!-- 삭제 모달 -->

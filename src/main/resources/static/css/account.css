@@ -43,6 +43,8 @@ form[name="nameForm"] .btn { flex-shrink: 0; }
 .row { padding: 5px 10px; min-height: 30px; border-bottom: 1px solid var(--line-color); }
 .row:last-child { border: none; }
 .date { width: 150px !important; flex-shrink: 0; }
+.blockLog { position: relative; }
+.blockCancle { position: absolute; top: 0; right: 0; }
 
 /* 스크롤 버튼 */
 #userInfoScr { background-image: url("/img/icon/Icon1.png"); }

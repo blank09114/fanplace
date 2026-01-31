@@ -1,14 +1,14 @@
 package kr.co.fanplace.entity.user;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 @Entity
 @Table(name = "user_sanction_log_tbl")
 public class UserSanctionLog
@@ -30,4 +30,11 @@ public class UserSanctionLog
 
     @Column(name = "sanction_at", nullable = false)
     private LocalDateTime sanctionedAt;
+
+    public static UserSanctionLog create(User user, int sanctionLong, String reason, LocalDateTime now)
+    {
+        return UserSanctionLog.builder()
+        .user(user).sanctionLong(sanctionLong).reason(reason)
+        .sanctionedAt(now).build();
+    }
 }

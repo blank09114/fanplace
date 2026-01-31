@@ -78,6 +78,10 @@ async function bindUserInfoPage(commons)
     if (btnToggle) btnToggle.style.display = canEditName ? '' : 'none';
     if (btnApply) btnApply.style.display = canEditName ? '' : 'none';
     if (form) form.style.display = 'none';
+
+    // 차단
+    bindBlockModal(commons, targetUserId, card);
+    await bindSanctionLogList(commons, targetUserId);
 }
 
 // 닉네임 변경 폼 토글
@@ -156,6 +160,152 @@ async function subChangeName(commons, e)
     form.reset?.();
 
     await bindUserInfoPage(commons);
+}
+
+// 차단 모달 바인딩
+function bindBlockModal(commons, targetUserId, card)
+{
+    if (!document.getElementById('userInfo')) return;
+    const btnBlock = document.getElementById('btnBlock');
+    if (!btnBlock) return;
+    if (card?.blocked) return;
+
+    const modal = document.getElementById('blockModal');
+    if (!modal) return;
+
+    const longEl = modal.querySelector('select[name="long"]');
+    const reasonEl = modal.querySelector('input[name="reason"]');
+
+    // confirm 버튼 핸들러 교체
+    commons.bindModalConfirm('blockModal', async () =>
+    {
+        if (!targetUserId) { commons.showToast('대상 사용자를 찾을 수 없습니다.'); return; }
+        if (!longEl || !reasonEl) { commons.showToast('차단 입력 폼을 찾을 수 없습니다.'); return; }
+
+        // 기간
+        const sanctionLong = Number((longEl.value ?? '').trim());
+        if (![0, 1, 7, 30].includes(sanctionLong))
+        { commons.showToast('차단 기간이 올바르지 않습니다.'); return; }
+
+        // 사유
+        if (!commons.validate(reasonEl, '차단 사유', null, '', 1, 100)) return;
+        const reason = commons.getValueEl(reasonEl);
+
+        const res = await commons.fetchJson(
+            `/api/admin/user/${encodeURIComponent(targetUserId)}/sanction`,
+            {
+                method: 'POST',
+                body: JSON.stringify({ sanctionLong, reason })
+            },
+            {
+                parseJson: true,
+                defaultErrorMessage: '차단 처리에 실패했습니다.'
+            }
+        );
+
+        if (!res) return;
+
+        commons.showToast('차단 처리 완료');
+        commons.closeModal('blockModal');
+
+        // 입력값 초기화
+        reasonEl.value = '';
+
+        // 카드 재조회
+        await bindUserInfoPage(commons);
+    });
+
+    btnBlock.addEventListener('click', () =>
+    {
+        if (reasonEl) reasonEl.value = '';
+        if (longEl) longEl.value = '1';
+    }, { once: false });
+}
+
+// 날짜 포맷
+function formatDateTime(iso)
+{
+    if (!iso) return '';
+    const d = new Date(iso);
+    const yy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    const hh = String(d.getHours()).padStart(2, '0');
+    const mi = String(d.getMinutes()).padStart(2, '0');
+    return `${yy}.${mm}.${dd}. ${hh}:${mi}`;
+}
+
+// 포맷
+function toLongText(n)
+{
+    const v = Number(n);
+    if (v === 0) return '영구';
+    if (v === 1) return '1일';
+    if (v === 7) return '7일';
+    if (v === 30) return '30일';
+    // 혹시 모르는 값 방어
+    return `${v}일`;
+}
+
+// 목록 불러오기
+async function bindSanctionLogList(commons, targetUserId)
+{
+    const wrap = document.getElementById('sanctionLog');
+    const listEl = document.getElementById('sanctionLogList');
+    if (!wrap || !listEl) return;
+    wrap.style.display = '';
+
+    // 헤더 row만 남기고 싹 지움
+    const rows = Array.from(listEl.querySelectorAll('.row'));
+    for (let i = 1; i < rows.length; i++) rows[i].remove();
+
+    const data = await commons.fetchJson(
+        `/api/admin/user/${encodeURIComponent(targetUserId)}/sanction/logs`,
+        { method: 'GET' },
+        { parseJson: true, defaultErrorMessage: null }
+    );
+
+    if (!data) { wrap.style.display = 'none'; return; }
+
+    const items = Array.isArray(data.items) ? data.items : [];
+
+    // 0건이면 섹션 자체를 숨김
+    if (items.length === 0) { wrap.style.display = 'none'; return; }
+
+    // 데이터 있으면 렌더링
+    for (const it of items)
+    {
+        const row = document.createElement('div');
+        row.className = 'blockLog row widthFull flex alignCenter';
+        row.dataset.sanctionId = it.sanctionId;
+
+        const longText = toLongText(it.sanctionLong);
+        const reason = (it.reason ?? '');
+        const atText = formatDateTime(it.sanctionedAt);
+
+        row.innerHTML =
+        `
+            <button class="blockCancle textBtn" onclick="openModal('blockCancelModal')">X</button>
+            <div class="widthFull flexColumn">
+                <p class="text2 lightText">${escapeHtml(longText)}</p>
+                <p class="text1">${escapeHtml(reason)}</p>
+            </div>
+            <p class="text1 textCenter date">${escapeHtml(atText)}</p>
+        `;
+
+        listEl.appendChild(row);
+    }
+}
+
+// XSS 방어
+function escapeHtml(str)
+{
+    return String(str)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
 }
 
 // 바인딩

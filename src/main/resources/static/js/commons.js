@@ -148,6 +148,7 @@ export const commons =
         const modal = document.getElementById(modalId);
 
         if (!overlay || !modal) { this.showToast?.('모달을 찾을 수 없습니다.'); return; }
+        overlay.querySelectorAll('.modal').forEach(m => { m.style.display = 'none'; });
 
         overlay.style.display = 'flex';
         modal.style.display = 'flex';

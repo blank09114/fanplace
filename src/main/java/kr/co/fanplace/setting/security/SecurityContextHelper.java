@@ -2,6 +2,7 @@ package kr.co.fanplace.setting.security;
 
 import jakarta.servlet.http.HttpServletRequest;
 import kr.co.fanplace.setting.ip.IpUtil;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -9,10 +10,9 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.server.ResponseStatusException;
 
+@RequiredArgsConstructor
 public final class SecurityContextHelper
 {
-    private SecurityContextHelper() {}
-
     // 로그인 여부
     public static boolean isLogin()
     {
@@ -51,8 +51,7 @@ public final class SecurityContextHelper
     // 현재 요청의 클라이언트 IP
     public static String clientIp()
     {
-        ServletRequestAttributes attrs =
-                (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 
         if (attrs == null) return "0.0.0.0";
 
