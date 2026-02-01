@@ -39,6 +39,20 @@ export const commons =
         btn.textContent = willOpen ? '✕' : '☰';
     },
 
+    // 내 회원정보 페이지로 이동
+    async goMyInfo()
+    {
+        const me = await this.fetchJson(
+            "/api/auth/me",
+            { method: "GET" },
+            { parseJson: true }
+        );
+
+        if (!me || !me.userId) { this.showToast("회원 정보를 불러올 수 없습니다."); return; }
+
+        location.href = `/user/${me.userId}`;
+    },
+
     // 스크롤 제어
     scrollCtr(position)
     {
@@ -134,6 +148,7 @@ export const commons =
         const modal = document.getElementById(modalId);
 
         if (!overlay || !modal) { this.showToast?.('모달을 찾을 수 없습니다.'); return; }
+        overlay.querySelectorAll('.modal').forEach(m => { m.style.display = 'none'; });
 
         overlay.style.display = 'flex';
         modal.style.display = 'flex';

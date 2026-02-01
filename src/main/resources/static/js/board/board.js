@@ -184,6 +184,7 @@ export const board =
             const writerA = document.createElement('a');
             writerA.className = 'text1 writer';
             writerA.textContent = authorName;
+            writerA.href = `/user/${encodeURIComponent(it.authorUserId)}`;
 
             const metaP = document.createElement('p');
             metaP.className = 'text1 lightText';

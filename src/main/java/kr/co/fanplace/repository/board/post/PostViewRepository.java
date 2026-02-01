@@ -14,9 +14,11 @@ public interface PostViewRepository extends JpaRepository<PostView, Long>
     boolean existsByPost_IdAndUser_Id(Long postId, String userId);
     boolean existsByPost_IdAndUserIp(Long postId, String userIp);
 
+    // 삭제
     @Modifying
     @Query("delete from PostView pv where pv.post.id in :postIds")
     int deleteByPostIds(@Param("postIds") List<Long> postIds);
 
+    // 조회수 집계
     long countByPost_Id(Long postId);
 }

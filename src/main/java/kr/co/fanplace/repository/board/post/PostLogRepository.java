@@ -13,6 +13,7 @@ public interface PostLogRepository extends JpaRepository<PostLog, Long>
 {
     Optional<PostLog> findFirstByPost_IdOrderByUpdatedAtDescIdDesc(Long postId);
 
+    // 삭제
     @Modifying
     @Query("delete from PostLog pl where pl.post.id in :postIds")
     int deleteByPostIds(@Param("postIds") List<Long> postIds);

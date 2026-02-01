@@ -32,6 +32,7 @@ public interface RecommentRepository extends JpaRepository<Recomment, Long>
                 else null
             end,
             r.deletedAt,
+            au.id,
             case when au is null then '탈퇴 회원' else au.name end,
             case when mu is null then null else mu.name end,
             r.createdAt,
@@ -55,7 +56,7 @@ public interface RecommentRepository extends JpaRepository<Recomment, Long>
     """)
     int softDeleteByCommentId(@Param("commentId") Long commentId, @Param("now") LocalDateTime now, @Param("reason") String reason);
 
-    // purge 대상(삭제된 대댓글) id 조회
+    // purge 대상 조회
     @Query("""
         select r.id from Recomment r
         where r.deleted = true

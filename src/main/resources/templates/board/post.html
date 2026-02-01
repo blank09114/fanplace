@@ -40,7 +40,9 @@
                     <p class="text2" th:text="${post.categoryName}"></p>
                     <p class="title2Text" th:text="${post.title}"></p>
                     <p class="text1">
-                        <a th:text="${post.authorName != null ? post.authorName : '익명'}">작성자</a>
+                        <a th:if="${post.authorUserId != null}"
+                        th:href="@{/user/{userId}(userId=${post.authorUserId})}"
+                        th:text="${post.authorName != null ? post.authorName : '익명'}"></a>
                         <span sec:authorize="hasRole('ADMIN')"> · </span>
                         <span sec:authorize="hasRole('ADMIN')" th:if="${post.ip != null}" th:text="${post.ip}"></span>
                         <span sec:authorize="hasRole('ADMIN')" th:text="${'(' + post.region + ')'}"></span>
@@ -93,7 +95,8 @@
             </p>
 
             <!-- 댓글 작성 폼 -->
-            <form sec:authorize="isAuthenticated()" th:if="${!post.deleted}" name="commentForm" class="commentForm flexColumn gapXs">
+            <form sec:authorize="isAuthenticated()" name="commentForm"
+            th:if="${!post.deleted and canWrite}" class="commentForm flexColumn gapXs">
                 <!-- 폼 헤더 -->
                 <div class="sectionHeader flex justifyBetween">
                     <span class="title2Text bold">댓글 작성하기</span>

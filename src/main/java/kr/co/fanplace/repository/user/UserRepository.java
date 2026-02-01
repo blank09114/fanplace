@@ -24,4 +24,9 @@ public interface UserRepository extends JpaRepository<User, String>
     """)
     int deleteWithdrawnBefore(@Param("threshold") LocalDateTime threshold);
 
+    @Query("""
+        select (count(u) > 0) from User u
+        where u.name = :name and u.id <> :userId
+    """)
+    boolean existsByNameAndIdNot(@Param("name") String name, @Param("userId") String userId);
 }

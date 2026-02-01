@@ -1,6 +1,7 @@
 package kr.co.fanplace.service.board;
 
 import kr.co.fanplace.dto.board.CommentDTO;
+import kr.co.fanplace.dto.user.MyActivityDTO;
 import kr.co.fanplace.entity.board.post.Post;
 import kr.co.fanplace.entity.board.post.comment.Comment;
 import kr.co.fanplace.entity.board.post.comment.Recomment;
@@ -10,6 +11,7 @@ import kr.co.fanplace.repository.board.post.comment.CommentRepository;
 import kr.co.fanplace.repository.board.post.comment.RecommentRepository;
 import kr.co.fanplace.repository.user.UserRepository;
 import kr.co.fanplace.service.user.AlarmService;
+import kr.co.fanplace.service.user.UserSanctionService;
 import kr.co.fanplace.setting.security.SecurityContextHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -34,6 +36,7 @@ public class CommentService
     private final CommentRepository commentRepository;
     private final RecommentRepository recommentRepository;
 
+    private final UserSanctionService userSanctionService;
     private final AlarmService alarmService;
 
     // 댓글 수 카운트
@@ -84,6 +87,7 @@ public class CommentService
     public CommentDTO.WriteRes writeComment(Long postId, CommentDTO.WriteReq req)
     {
         String loginUserId = SecurityContextHelper.requireUserId();
+        userSanctionService.assertWritable(loginUserId);
         User actor = userRepository.findById(loginUserId)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "사용자 정보를 찾을 수 없습니다."));
 
@@ -107,6 +111,7 @@ public class CommentService
     public CommentDTO.RecommentWriteRes writeRecomment(Long commentId, CommentDTO.RecommentWriteReq req)
     {
         String loginUserId = SecurityContextHelper.requireUserId();
+        userSanctionService.assertWritable(loginUserId);
         User actor = userRepository.findById(loginUserId)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "사용자 정보를 찾을 수 없습니다."));
 
@@ -166,6 +171,11 @@ public class CommentService
         // 연쇄 삭제
         recommentRepository.softDeleteByCommentId(commentId, now, "원댓글 삭제");
 
+        alarmService.hardDeleteByCommentId(commentId);
+
+        List<Long> recommentIds = recommentRepository.findIdsByCommentIds(List.of(commentId));
+        alarmService.hardDeleteByRecommentIds(recommentIds);
+
         return adminDelete;
     }
 
@@ -196,9 +206,30 @@ public class CommentService
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "삭제 사유를 입력하세요.");
 
             r.softDelete(reason, now);
+            alarmService.hardDeleteByRecommentIds(List.of(recommentId));
         }
         else { r.softDelete(null, now); }
 
         return adminDelete;
+    }
+
+    // 특정인 댓글 조회
+    @Transactional(readOnly = true)
+    public Page<MyActivityDTO.CommentItem> getUserCommentActivityPage(String userId, int page, int size)
+    {
+        boolean admin = SecurityContextHelper.isAdmin();
+
+        int safePage = Math.max(0, page);
+        int safeSize = (size <= 0 || size > 20) ? 10 : size;
+
+        PageRequest pageable = PageRequest.of(safePage, safeSize);
+
+        Page<CommentRepository.UserActivityCommentRow> rows =
+        commentRepository.findUserActivityCommentPage(userId, admin, pageable);
+
+        return rows.map(r -> new MyActivityDTO.CommentItem(
+            r.getType(), r.getId(), r.getPostId(), r.getBoardId(), r.getBoardName(),
+            r.getCategoryId(), r.getCategoryName(), r.getContent(), r.getCreatedAt()
+        ));
     }
 }

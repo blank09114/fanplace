@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <!-- 헤더 -->
-<header th:fragment="mainHeader" class="header widthFull">
+<header th:fragment="mainHeader" class="header widthFull"
+th:attr="data-auth=${#authorization.expression('isAuthenticated()')},
+data-admin=${#authorization.expression('hasRole(''ADMIN'')')}">
     <!-- 컨테이너 -->
     <div class="container flexColumn gapSm">
         <!-- 상단 -->
@@ -18,8 +20,8 @@
 
             <!-- 로그인 메뉴 -->
             <th:block sec:authorize="isAuthenticated()">
-                <a class="text3 lightText">내 정보</a>
-                <a class="text3 lightText">알람</a>
+                <a class="text3 lightText" onclick="goMyInfo()">내 정보</a>
+                <a id="alarmLinkTop" class="text3 lightText" th:href="@{/user/alarm}">알람</a>
                 <a class="text3 lightText" th:href="@{/auth/change-pw}">비밀번호 변경</a>
                 <a class="text3 lightText" th:href="@{/auth/withdraw}">회원 탈퇴</a>
                 <button class="textBtn text3 lightText" onclick="openModal('logoutModal')">로그아웃</button>
@@ -82,8 +84,8 @@
 
             <!-- 로그인 메뉴 -->
             <th:block sec:authorize="isAuthenticated()">
-                <a class="text1">내 정보</a>
-                <a class="text1">알람</a>
+                <a class="text1"  onclick="goMyInfo()">내 정보</a>
+                <a id="alarmLinkDrawer" class="text1" th:href="@{/user/alarm}">알람</a>
                 <a class="text1" th:href="@{/auth/change-pw}">비밀번호 변경</a>
                 <a class="text1" th:href="@{/auth/withdraw}">회원 탈퇴</a>
                 <button class="textBtn text1 textLeft" onclick="openModal('logoutModal')">로그아웃</button>
@@ -140,7 +142,7 @@
             <a class="text1">문의/건의</a>
         </div>
         <p class="text1">
-            <a href="https://blankspace.io.kr/" target="_blank">BLANKSPACE↗</a> | 사업자등록번호 716-50-01088 | 개인정보 보호 책임자 박예린 <br>
+            <a class="pointColorText" href="https://blankspace.io.kr/" target="_blank">BLANKSPACE↗</a> | 사업자등록번호 716-50-01088 | 개인정보 보호 책임자 박예린 <br>
             문의 b1ank09114@gmail.com <br>
             COPYRIGHT © 2026 BLANKSPACE. ALL RIGHTS RESERVED. <br>
         </p>
@@ -178,14 +180,21 @@
         <button class="textBtn" onclick="closeModal('blockModal')">X</button>
         <div class="widthFull flex gapSm">
             <select name="long">
-                <option>1일</option>
-                <option>7일</option>
-                <option>30일</option>
-                <option>영구</option>
+                <option value="1">1일</option>
+                <option value="7">7일</option>
+                <option value="30">30일</option>
+                <option value="0">영구</option>
             </select>
             <input name="reason" type="text" placeholder="차단 사유">
         </div>
         <button class="btn teal">차단</button>
+    </div>
+
+    <!-- 차단 취소 모달 -->
+    <div class="modal pdMd flexColumn alignEnd gapXs" id="blockCancelModal">
+        <button class="textBtn" onclick="closeModal('blockCancelModal')">X</button>
+        <p class="text1">차단 기록을 삭제하시겠습니까?</p>
+        <button class="btn teal">확인</button>
     </div>
 
     <!-- 삭제 모달 -->
@@ -209,4 +218,7 @@
         <button class="btn teal">확인</button>
     </div>
 </div>
+
+<script th:src="@{/lib/sockjs.min.js}"></script>
+<script th:src="@{/lib/stomp.umd.min.js}"></script>
 </html>

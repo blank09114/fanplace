@@ -1,6 +1,8 @@
 package kr.co.fanplace.repository.user;
 
 import kr.co.fanplace.entity.user.LoginLog;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -34,4 +36,7 @@ public interface LoginLogRepository extends JpaRepository<LoginLog, Long>
         where l.logoutAt is not null and l.logoutAt <= :cutoff
     """)
     int deleteByLogoutAtBeforeOrEqual(@Param("cutoff") LocalDateTime cutoff);
+
+    // 로그인 기록 조회
+    Page<LoginLog> findByUser_IdOrderByLoginAtDesc(String userId, Pageable pageable);
 }

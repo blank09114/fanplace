@@ -1,6 +1,7 @@
 import { commons } from '/js/commons.js';
 import { bindAuth } from '/js/account/auth.js';
 import { bindUser } from '/js/account/user.js';
+import { bindAlarm } from '/js/account/alarm.js';
 import { board } from '/js/board/board.js';
 import { post, richEditor } from '/js/board/post.js';
 import { comment } from '/js/board/comment.js';
@@ -9,6 +10,7 @@ import { admin } from '/js/admin/admin.js';
 // 전역 함수 등록: commons
 window.toggleUi = commons.toggleUi;
 window.toggleDrawer = commons.toggleDrawer;
+window.goMyInfo = commons.goMyInfo.bind(commons);
 window.scrollCtr = commons.scrollCtr;
 window.showToast = commons.showToast.bind(commons);
 window.closeToast = commons.closeToast.bind(commons);
@@ -36,6 +38,7 @@ document.addEventListener('DOMContentLoaded', () =>
     commons.applyTheme();
     bindAuth(commons);
     bindUser(commons);
+    bindAlarm(commons);
 
     board.initBoardPage?.(commons);
 

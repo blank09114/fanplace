@@ -3,6 +3,7 @@ package kr.co.fanplace.dto.user;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,20 +24,15 @@ public class AuthReq
 
     // 로그인 응답
     @Getter @Setter
+    @AllArgsConstructor(staticName = "of")
     public static class MeResponse
     {
         private String userId;
         private String userName;
+        private boolean admin;
 
-        public static MeResponse of(String userId, String userName)
-        {
-            MeResponse res = new MeResponse();
-            res.setUserId(userId);
-            res.setUserName(userName);
-            return res;
-        }
-
-        public static MeResponse empty() { return of(null, null); }
+        public static MeResponse empty()
+        { return new MeResponse(null, null, false); }
     }
 
     // 회원가입 요청

@@ -1,8 +1,8 @@
 package kr.co.fanplace.service.board;
 
 import jakarta.persistence.EntityManager;
-import jakarta.servlet.http.HttpServletRequest;
 import kr.co.fanplace.dto.board.PostDTO;
+import kr.co.fanplace.dto.user.MyActivityDTO;
 import kr.co.fanplace.entity.board.Board;
 import kr.co.fanplace.entity.board.Category;
 import kr.co.fanplace.entity.board.post.Post;
@@ -10,28 +10,33 @@ import kr.co.fanplace.entity.board.post.PostLike;
 import kr.co.fanplace.entity.board.post.PostLog;
 import kr.co.fanplace.entity.board.post.PostView;
 import kr.co.fanplace.entity.user.User;
-import kr.co.fanplace.repository.board.*;
+import kr.co.fanplace.repository.board.BoardRepository;
+import kr.co.fanplace.repository.board.CategoryRepository;
 import kr.co.fanplace.repository.board.post.PostLikeRepository;
 import kr.co.fanplace.repository.board.post.PostLogRepository;
 import kr.co.fanplace.repository.board.post.PostRepository;
 import kr.co.fanplace.repository.board.post.PostViewRepository;
+import kr.co.fanplace.repository.board.post.comment.CommentRepository;
+import kr.co.fanplace.repository.board.post.comment.RecommentRepository;
 import kr.co.fanplace.repository.user.UserRepository;
+import kr.co.fanplace.service.user.AlarmService;
+import kr.co.fanplace.service.user.UserSanctionService;
 import kr.co.fanplace.setting.ip.GeoIpService;
-import kr.co.fanplace.setting.ip.IpUtil;
 import kr.co.fanplace.setting.security.SecurityContextHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -44,6 +49,11 @@ public class PostService
     private final PostLogRepository postLogRepository;
     private final PostViewRepository postViewRepository;
     private final PostLikeRepository postLikeRepository;
+
+    private final CommentRepository commentRepository;
+    private final RecommentRepository recommentRepository;
+    private final AlarmService alarmService;
+    private final UserSanctionService userSanctionService;
 
     private final CommentService commentService;
     private final GeoIpService geoIpService;
@@ -87,6 +97,7 @@ public class PostService
 
         // 버튼 노출 정책
         boolean canLike = login && !post.isDeleted();
+        if (canLike && loginUserId != null && userSanctionService.isBlocked(loginUserId)) { canLike = false; }
         boolean canEdit = owner && !post.isDeleted();
         boolean canDelete = owner && !post.isDeleted();
         boolean canAdminDelete = isAdmin && !post.isDeleted();
@@ -141,6 +152,7 @@ public class PostService
     public PostDTO.LikeRes likePost(Long postId)
     {
         String userId = SecurityContextHelper.userIdOrNull();
+        userSanctionService.assertWritable(userId);
 
         // 삭제된 글 방어
         Post post = postRepository.findById(postId)
@@ -169,6 +181,7 @@ public class PostService
     public PostDTO.LikeRes unlikePost(Long postId)
     {
         String userId = SecurityContextHelper.requireUserId();
+        userSanctionService.assertWritable(userId);
 
         long deleted = postLikeRepository.deleteByPost_IdAndUser_Id(postId, userId);
         if (deleted == 0) { throw new ResponseStatusException(HttpStatus.NOT_FOUND, "좋아요 기록 없음"); }
@@ -196,7 +209,10 @@ public class PostService
     public Long createPost(String boardId, PostDTO.CreateForm form)
     {
         LocalDateTime now = LocalDateTime.now();
-        String userId = SecurityContextHelper.userIdOrNull();
+
+        String userId = SecurityContextHelper.requireUserId();
+        userSanctionService.assertWritable(userId);
+
         String clientIp = SecurityContextHelper.clientIp();
 
         Board board = boardRepository.findById(boardId)
@@ -205,16 +221,11 @@ public class PostService
         Category category = categoryRepository.findById(form.getCategoryId())
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "존재하지 않는 카테고리입니다."));
 
-        // 카테고리-게시판 정합성
         if (!category.getBoard().getId().equals(boardId))
-        { throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "게시판과 카테고리가 일치하지 않습니다."); }
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "게시판과 카테고리가 일치하지 않습니다.");
 
-        User user = null;
-        if (userId != null)
-        {
-            user = userRepository.findById(userId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인 정보가 유효하지 않습니다."));
-        }
+        User user = userRepository.findById(userId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인 정보가 유효하지 않습니다."));
 
         Post post = Post.create(board, category, user, clientIp, now);
         postRepository.save(post);
@@ -310,6 +321,17 @@ public class PostService
         }
         else { post.softDelete(null, now); }
 
+        List<Long> commentIds = commentRepository.findIdsByPostIds(List.of(postId));
+        if (!commentIds.isEmpty())
+        {
+            // 대댓글 알람 먼저 삭제
+            List<Long> recommentIds = recommentRepository.findIdsByCommentIds(commentIds);
+            alarmService.hardDeleteByRecommentIds(recommentIds);
+
+            // 댓글 알람 삭제
+            for (Long cid : commentIds) { alarmService.hardDeleteByCommentId(cid); }
+        }
+
         return adminDelete;
     }
 
@@ -332,6 +354,16 @@ public class PostService
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "삭제된 글만 사유 변경이 가능합니다.");
 
         post.changeDeletedReason(reason);
+    }
+
+    // 특정인 게시글 조회
+    @Transactional(readOnly = true)
+    public Page<MyActivityDTO.PostItem> getUserPostPagePublic(String userId, int page, int size)
+    {
+        boolean admin = SecurityContextHelper.isAdmin();
+
+        Pageable pageable = PageRequest.of(page, size);
+        return postRepository.findUserPostPage(userId, admin, pageable);
     }
 
     // 본인 여부 검증

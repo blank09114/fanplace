@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fan Place - 닉네임 님의 회원정보</title>
+    <title th:text="'Fan Place - ' + ${pageTitle}"></title>
     <link rel="icon" th:href="@{/img/PF_Icon.png}">
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
@@ -22,43 +22,44 @@
 
             <!-- 카드 -->
             <div class="card widthFull flexColumn gapSm pdMd">
-                <button class="btn teal" onclick="openModal('blockModal')">차단</button>
+                <button sec:authorize="hasRole('ADMIN')" class="btn teal" id="btnBlock"
+                th:if="${!card.blocked}" onclick="openModal('blockModal')">차단</button>
                 <!-- ID -->
                 <div class="cardItem flexColumnMov gapXs">
                     <p class="title2Text bold">ID</p>
-                    <p class="title2Text">ID</p>
+                    <p class="title2Text" id="userIdText"></p>
                 </div>
                 <!-- 닉네임 -->
                 <div class="cardItem flexColumnMov gapXs">
                     <p class="title2Text bold">닉네임</p>
                     <div class="nameWrap flexColumnMov gapXs">
-                        <p class="title2Text" id="oldName">닉네임</p>
+                        <p class="title2Text" id="oldName"></p>
                         <form name="nameForm" class="gapXs">
                             <input name="name" type="text">
-                            <button type="button" id="btnNameApply" class="btn teal" onclick="subChangeName()">적용</button>
+                            <button type="button" id="btnNameApply" class="btn teal" style="display:none;" onclick="subChangeName()">적용</button>
                         </form>
-                        <button type="button" id="btnNameToggle" class="btn teal" onclick="toggleForm()">변경</button>
+                        <button type="button" id="btnNameToggle" class="btn teal" style="display:none;" onclick="toggleForm()">변경</button>
                     </div>
                 </div>
                 <!-- 메일 -->
                 <div class="cardItem flexColumnMov gapXs">
                     <p class="title2Text bold">메일</p>
-                    <p class="title2Text">user@naver.com</p>
+                    <p class="title2Text" id="userMailText"></p>
                 </div>
                 <!-- 가입일 -->
                 <div class="cardItem flexColumnMov gapXs">
                     <p class="title2Text bold">가입일</p>
-                    <p class="title2Text">2026.01.01.</p>
+                    <p class="title2Text" id="joinedAtText"></p>
                 </div>
                 <!-- IP -->
                 <div class="cardItem flexColumnMov gapXs">
                     <p class="title2Text bold">회원가입 IP</p>
-                    <p class="title2Text">1.234.567(대한민국, 서울, 서대문구)</p>
+                    <p class="title2Text" id="joinIpText"></p>
                 </div>
                 <!-- 상태 -->
                 <div class="cardItem flexColumnMov gapXs">
                     <p class="title2Text bold">상태</p>
-                    <p class="title2Text">차단됨</p>
+                    <p class="title2Text" id="statusText"></p>
                 </div>
             </div>
         </div>
@@ -68,38 +69,10 @@
             <p class="title2Text bold">제재 내역</p>
 
             <!-- 목록 -->
-            <div class="list widthFull">
+            <div class="list widthFull" id="sanctionLogList">
                 <div class="row widthFull flex alignCenter">
                     <p class="text1 textCenter">내역</p>
                     <p class="text1 textCenter date">일시</p>
-                </div>
-                <div class="row widthFull flex alignCenter">
-                    <div class="widthFull flexColumn">
-                        <p class="text2 lightText">1일</p>
-                        <p class="text1">병신</p>
-                    </div>
-                    <p class="text1 textCenter date">2026.01.01. 00:00</p>
-                </div>
-                <div class="row widthFull flex alignCenter">
-                    <div class="widthFull flexColumn">
-                        <p class="text2 lightText">7일</p>
-                        <p class="text1">어그로</p>
-                    </div>
-                    <p class="text1 textCenter date">2026.01.01. 00:00</p>
-                </div>
-                <div class="row widthFull flex alignCenter">
-                    <div class="widthFull flexColumn">
-                        <p class="text2 lightText">30일</p>
-                        <p class="text1">정신병자</p>
-                    </div>
-                    <p class="text1 textCenter date">2026.01.01. 00:00</p>
-                </div>
-                <div class="row widthFull flex alignCenter">
-                    <div class="widthFull flexColumn">
-                        <p class="text2 lightText">영구</p>
-                        <p class="text1">도저히 봐줄 수가 없다</p>
-                    </div>
-                    <p class="text1 textCenter date">2026.01.01. 00:00</p>
                 </div>
             </div>
         </div>
@@ -109,93 +82,15 @@
             <p class="title2Text bold">로그인 기록</p>
 
             <!-- 목록 -->
-            <div class="list widthFull">
+            <div class="list widthFull" id="loginLogList">
                 <div class="row widthFull flex alignCenter">
                     <p class="text1 textCenter">IP(지역)</p>
                     <p class="text1 textCenter date">로그인 시각</p>
                 </div>
-                <div class="row widthFull flex alignCenter">
-                    <div class="widthFull flexColumn">
-                        <p class="text2 lightText">세션 유지 중</p>
-                        <p class="text1">1.234.567(대한민국, 서울, 서대문구)</p>
-                    </div>
-                    <p class="text1 textCenter date">2026.01.01. 00:00</p>
-                </div>
-                <div class="row widthFull flex alignCenter">
-                    <div class="widthFull flexColumn">
-                        <p class="text2 lightText">2026.01.01. 00:00 로그아웃됨</p>
-                        <p class="text1">1.234.567(대한민국, 서울, 서대문구)</p>
-                    </div>
-                    <p class="text1 textCenter date">2026.01.01. 00:00</p>
-                </div>
-                <div class="row widthFull flex alignCenter">
-                    <div class="widthFull flexColumn">
-                        <p class="text2 lightText">2026.01.01. 00:00 로그아웃됨</p>
-                        <p class="text1">1.234.567(대한민국, 서울, 서대문구)</p>
-                    </div>
-                    <p class="text1 textCenter date">2026.01.01. 00:00</p>
-                </div>
-                <div class="row widthFull flex alignCenter">
-                    <div class="widthFull flexColumn">
-                        <p class="text2 lightText">2026.01.01. 00:00 로그아웃됨</p>
-                        <p class="text1">1.234.567(대한민국, 서울, 서대문구)</p>
-                    </div>
-                    <p class="text1 textCenter date">2026.01.01. 00:00</p>
-                </div>
-                <div class="row widthFull flex alignCenter">
-                    <div class="widthFull flexColumn">
-                        <p class="text2 lightText">2026.01.01. 00:00 로그아웃됨</p>
-                        <p class="text1">1.234.567(대한민국, 서울, 서대문구)</p>
-                    </div>
-                    <p class="text1 textCenter date">2026.01.01. 00:00</p>
-                </div>
-                <div class="row widthFull flex alignCenter">
-                    <div class="widthFull flexColumn">
-                        <p class="text2 lightText">2026.01.01. 00:00 로그아웃됨</p>
-                        <p class="text1">1.234.567(대한민국, 서울, 서대문구)</p>
-                    </div>
-                    <p class="text1 textCenter date">2026.01.01. 00:00</p>
-                </div>
-                <div class="row widthFull flex alignCenter">
-                    <div class="widthFull flexColumn">
-                        <p class="text2 lightText">2026.01.01. 00:00 로그아웃됨</p>
-                        <p class="text1">1.234.567(대한민국, 서울, 서대문구)</p>
-                    </div>
-                    <p class="text1 textCenter date">2026.01.01. 00:00</p>
-                </div>
-                <div class="row widthFull flex alignCenter">
-                    <div class="widthFull flexColumn">
-                        <p class="text2 lightText">2026.01.01. 00:00 로그아웃됨</p>
-                        <p class="text1">1.234.567(대한민국, 서울, 서대문구)</p>
-                    </div>
-                    <p class="text1 textCenter date">2026.01.01. 00:00</p>
-                </div>
-                <div class="row widthFull flex alignCenter">
-                    <div class="widthFull flexColumn">
-                        <p class="text2 lightText">2026.01.01. 00:00 로그아웃됨</p>
-                        <p class="text1">1.234.567(대한민국, 서울, 서대문구)</p>
-                    </div>
-                    <p class="text1 textCenter date">2026.01.01. 00:00</p>
-                </div>
-                <div class="row widthFull flex alignCenter">
-                    <div class="widthFull flexColumn">
-                        <p class="text2 lightText">2026.01.01. 00:00 로그아웃됨</p>
-                        <p class="text1">1.234.567(대한민국, 서울, 서대문구)</p>
-                    </div>
-                    <p class="text1 textCenter date">2026.01.01. 00:00</p>
-                </div>
             </div>
 
             <!-- 페이지 -->
-            <div class="pages flex justifyCenter gapXs">
-                <a class="page"> < </a>
-                <a class="page now"> 1 </a>
-                <a class="page"> 2 </a>
-                <a class="page"> 3 </a>
-                <a class="page"> 4 </a>
-                <a class="page"> 5 </a>
-                <a class="page"> > </a>
-            </div>
+            <div class="pages flex justifyCenter gapXs" id="loginLogPagination"></div>
         </div>
 
         <!-- 작성글 -->
@@ -203,93 +98,15 @@
             <p class="title2Text bold">작성글</p>
 
             <!-- 목록 -->
-            <div class="list widthFull">
+            <div class="list widthFull" id="myPostList">
                 <div class="row widthFull flex alignCenter">
                     <p class="text1 textCenter">제목</p>
                     <p class="text1 textCenter date">작성일시</p>
                 </div>
-                <a class="row widthFull flex alignCenter">
-                    <div class="widthFull flexColumn">
-                        <p class="text2 lightText">게시판 - 탭</p>
-                        <p class="text1">제목</p>
-                    </div>
-                    <p class="text1 textCenter date">2026.01.01. 00:00</p>
-                </a>
-                <a class="row widthFull flex alignCenter">
-                    <div class="widthFull flexColumn">
-                        <p class="text2 lightText">게시판 - 탭</p>
-                        <p class="text1">제목</p>
-                    </div>
-                    <p class="text1 textCenter date">2026.01.01. 00:00</p>
-                </a>
-                <a class="row widthFull flex alignCenter">
-                    <div class="widthFull flexColumn">
-                        <p class="text2 lightText">게시판 - 탭</p>
-                        <p class="text1">제목</p>
-                    </div>
-                    <p class="text1 textCenter date">2026.01.01. 00:00</p>
-                </a>
-                <a class="row widthFull flex alignCenter">
-                    <div class="widthFull flexColumn">
-                        <p class="text2 lightText">게시판 - 탭</p>
-                        <p class="text1">제목</p>
-                    </div>
-                    <p class="text1 textCenter date">2026.01.01. 00:00</p>
-                </a>
-                <a class="row widthFull flex alignCenter">
-                    <div class="widthFull flexColumn">
-                        <p class="text2 lightText">게시판 - 탭</p>
-                        <p class="text1">제목</p>
-                    </div>
-                    <p class="text1 textCenter date">2026.01.01. 00:00</p>
-                </a>
-                <a class="row widthFull flex alignCenter">
-                    <div class="widthFull flexColumn">
-                        <p class="text2 lightText">게시판 - 탭</p>
-                        <p class="text1">제목</p>
-                    </div>
-                    <p class="text1 textCenter date">2026.01.01. 00:00</p>
-                </a>
-                <a class="row widthFull flex alignCenter">
-                    <div class="widthFull flexColumn">
-                        <p class="text2 lightText">게시판 - 탭</p>
-                        <p class="text1">제목</p>
-                    </div>
-                    <p class="text1 textCenter date">2026.01.01. 00:00</p>
-                </a>
-                <a class="row widthFull flex alignCenter">
-                    <div class="widthFull flexColumn">
-                        <p class="text2 lightText">게시판 - 탭</p>
-                        <p class="text1">제목</p>
-                    </div>
-                    <p class="text1 textCenter date">2026.01.01. 00:00</p>
-                </a>
-                <a class="row widthFull flex alignCenter">
-                    <div class="widthFull flexColumn">
-                        <p class="text2 lightText">게시판 - 탭</p>
-                        <p class="text1">제목</p>
-                    </div>
-                    <p class="text1 textCenter date">2026.01.01. 00:00</p>
-                </a>
-                <a class="row widthFull flex alignCenter">
-                    <div class="widthFull flexColumn">
-                        <p class="text2 lightText">게시판 - 탭</p>
-                        <p class="text1">제목</p>
-                    </div>
-                    <p class="text1 textCenter date">2026.01.01. 00:00</p>
-                </a>
             </div>
 
             <!-- 페이지 -->
-            <div class="pages flex justifyCenter gapXs">
-                <a class="page"> < </a>
-                <a class="page now"> 1 </a>
-                <a class="page"> 2 </a>
-                <a class="page"> 3 </a>
-                <a class="page"> 4 </a>
-                <a class="page"> 5 </a>
-                <a class="page"> > </a>
-            </div>
+            <div class="pages flex justifyCenter gapXs" id="myPostPagination"></div>
         </div>
 
         <!-- 작성 댓글 -->
@@ -297,93 +114,15 @@
             <p class="title2Text bold">작성 댓글</p>
 
             <!-- 목록 -->
-            <div class="list widthFull">
+            <div class="list widthFull" id="myCommentList">
                 <div class="row widthFull flex alignCenter">
                     <p class="text1 textCenter">내용</p>
                     <p class="text1 textCenter date">작성일시</p>
                 </div>
-                <a class="row widthFull flex alignCenter">
-                    <div class="widthFull flexColumn">
-                        <p class="text2 lightText">게시판 - 탭</p>
-                        <p class="text1">내용</p>
-                    </div>
-                    <p class="text1 textCenter date">2026.01.01. 00:00</p>
-                </a>
-                <a class="row widthFull flex alignCenter">
-                    <div class="widthFull flexColumn">
-                        <p class="text2 lightText">게시판 - 탭</p>
-                        <p class="text1">내용</p>
-                    </div>
-                    <p class="text1 textCenter date">2026.01.01. 00:00</p>
-                </a>
-                <a class="row widthFull flex alignCenter">
-                    <div class="widthFull flexColumn">
-                        <p class="text2 lightText">게시판 - 탭</p>
-                        <p class="text1">내용</p>
-                    </div>
-                    <p class="text1 textCenter date">2026.01.01. 00:00</p>
-                </a>
-                <a class="row widthFull flex alignCenter">
-                    <div class="widthFull flexColumn">
-                        <p class="text2 lightText">게시판 - 탭</p>
-                        <p class="text1">내용</p>
-                    </div>
-                    <p class="text1 textCenter date">2026.01.01. 00:00</p>
-                </a>
-                <a class="row widthFull flex alignCenter">
-                    <div class="widthFull flexColumn">
-                        <p class="text2 lightText">게시판 - 탭</p>
-                        <p class="text1">내용</p>
-                    </div>
-                    <p class="text1 textCenter date">2026.01.01. 00:00</p>
-                </a>
-                <a class="row widthFull flex alignCenter">
-                    <div class="widthFull flexColumn">
-                        <p class="text2 lightText">게시판 - 탭</p>
-                        <p class="text1">내용</p>
-                    </div>
-                    <p class="text1 textCenter date">2026.01.01. 00:00</p>
-                </a>
-                <a class="row widthFull flex alignCenter">
-                    <div class="widthFull flexColumn">
-                        <p class="text2 lightText">게시판 - 탭</p>
-                        <p class="text1">내용</p>
-                    </div>
-                    <p class="text1 textCenter date">2026.01.01. 00:00</p>
-                </a>
-                <a class="row widthFull flex alignCenter">
-                    <div class="widthFull flexColumn">
-                        <p class="text2 lightText">게시판 - 탭</p>
-                        <p class="text1">내용</p>
-                    </div>
-                    <p class="text1 textCenter date">2026.01.01. 00:00</p>
-                </a>
-                <a class="row widthFull flex alignCenter">
-                    <div class="widthFull flexColumn">
-                        <p class="text2 lightText">게시판 - 탭</p>
-                        <p class="text1">내용</p>
-                    </div>
-                    <p class="text1 textCenter date">2026.01.01. 00:00</p>
-                </a>
-                <a class="row widthFull flex alignCenter">
-                    <div class="widthFull flexColumn">
-                        <p class="text2 lightText">게시판 - 탭</p>
-                        <p class="text1">내용</p>
-                    </div>
-                    <p class="text1 textCenter date">2026.01.01. 00:00</p>
-                </a>
             </div>
 
             <!-- 페이지 -->
-            <div class="pages flex justifyCenter gapXs">
-                <a class="page"> < </a>
-                <a class="page now"> 1 </a>
-                <a class="page"> 2 </a>
-                <a class="page"> 3 </a>
-                <a class="page"> 4 </a>
-                <a class="page"> 5 </a>
-                <a class="page"> > </a>
-            </div>
+            <div class="pages flex justifyCenter gapXs" id="myCommentPagination"></div>
         </div>
     </section>
 

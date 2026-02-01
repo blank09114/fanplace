@@ -45,7 +45,12 @@ export const comment =
         // 삭제 모달 confirm은 "열 때만" 바인딩(충돌 방지)
         this._unbindDeleteModals();
 
-        this._loadLastPage(commons);
+        const params = new URLSearchParams(location.search);
+        const cpRaw = params.get('cp');
+        const cp = (cpRaw != null && /^\d+$/.test(cpRaw)) ? parseInt(cpRaw, 10) : null;
+
+        if (cp != null) this.loadPage(commons, cp);
+        else this._loadLastPage(commons);
     },
 
     // 마지막 페이지 기준으로 최초 로드
@@ -134,6 +139,13 @@ export const comment =
         }
 
         commons.renderPagination(pagerEl, currentPage, totalPages, (p) => this.loadPage(commons, p));
+
+        const hashId = (location.hash || '').replace('#', '');
+        if (hashId)
+        {
+            const el = document.getElementById(hashId);
+            if (el) el.scrollIntoView({ block: 'start' });
+        }
     },
 
     // 댓글 카드 렌더링
@@ -142,6 +154,7 @@ export const comment =
         const wrap = document.createElement('div');
         wrap.className = 'comment card pdXs';
         wrap.dataset.commentId = c.commentId;
+        wrap.id = `comment-${c.commentId}`;
 
         // 삭제 배너
         if (c.deleted)
@@ -162,6 +175,7 @@ export const comment =
         const a = document.createElement('a');
         a.className = 'text1 bold';
         a.textContent = c.authorName ?? '익명';
+        a.href = `/user/${encodeURIComponent(c.authorUserId)}`;
 
         const dt = document.createElement('p');
         dt.className = 'text2 lightText';
@@ -239,6 +253,7 @@ export const comment =
         wrap.className = 'comment widthFull card pdXs';
         wrap.dataset.recommentId = r.recommentId;
         wrap.dataset.commentId = r.commentId;
+        wrap.id = `recomment-${r.recommentId}`;
 
         // 삭제 배너(삭제된 대댓글이면 항상 표시)
         if (r.deleted)
@@ -259,6 +274,7 @@ export const comment =
         const a = document.createElement('a');
         a.className = 'text1 bold';
         a.textContent = r.authorName ?? '익명';
+        a.href = `/user/${encodeURIComponent(r.authorUserId)}`;
 
         const dt = document.createElement('p');
         dt.className = 'text2 lightText';
@@ -395,6 +411,8 @@ export const comment =
         if (!data) return;
 
         contentEl.value = '';
+        const newCommentId = data?.commentId || data?.id;
+        if (newCommentId) location.hash = `comment-${newCommentId}`;
         await this._loadLastPage(commons);
     },
 
@@ -452,6 +470,10 @@ export const comment =
 
         contentEl.value = '';
         formEl.style.display = 'none';
+
+        const newRecommentId = data?.recommentId || data?.id;
+        if (newRecommentId) location.hash = `recomment-${newRecommentId}`;
+
         await this.loadPage(commons, this.state.page);
     },
 

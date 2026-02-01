@@ -104,8 +104,8 @@ public class AuthAPI
     // 비밀번호 변경
     @PostMapping("/pw/change")
     public ResponseEntity<ApiOk> changePw(
-            @RequestBody @Valid AuthReq.ChangePwRequest req, Authentication authentication,
-            HttpServletRequest request
+        @RequestBody @Valid AuthReq.ChangePwRequest req, Authentication authentication,
+        HttpServletRequest request
     )
     {
         authService.changePw(req, authentication, request);

@@ -1,5 +1,6 @@
 package kr.co.fanplace.controller;
 
-public class AdminController
+public class ErrorController
 {
+
 }

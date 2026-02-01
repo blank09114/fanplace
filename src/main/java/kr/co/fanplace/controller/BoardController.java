@@ -5,11 +5,15 @@ import kr.co.fanplace.dto.board.BoardDTO;
 import kr.co.fanplace.dto.board.PostDTO;
 import kr.co.fanplace.service.board.BoardService;
 import kr.co.fanplace.service.board.PostService;
+import kr.co.fanplace.service.user.UserSanctionService;
+import kr.co.fanplace.setting.security.SecurityContextHelper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -19,6 +23,7 @@ public class BoardController
 {
     private final BoardService boardService;
     private final PostService postService;
+    private final UserSanctionService userSanctionService;
 
     // 게시판
     @GetMapping("/{boardId}")
@@ -28,6 +33,11 @@ public class BoardController
 
         model.addAttribute("header", header);
         model.addAttribute("boardId", boardId);
+
+        String loginUserId = SecurityContextHelper.userIdOrNull();
+        boolean canWrite = (loginUserId != null) && !userSanctionService.isBlocked(loginUserId);
+        model.addAttribute("canWrite", canWrite);
+        model.addAttribute("isNotice", "notice".equals(boardId));
 
         return "board/board";
     }
@@ -54,6 +64,10 @@ public class BoardController
         model.addAttribute("canAdminDelete", page.isCanAdminDelete());
         model.addAttribute("canChangeDeletedReason", page.isCanChangeDeletedReason());
 
+        String loginUserId = SecurityContextHelper.userIdOrNull();
+        boolean canWrite = (loginUserId != null) && !userSanctionService.isBlocked(loginUserId);
+        model.addAttribute("canWrite", canWrite);
+
         return "board/post";
     }
 
@@ -65,7 +79,8 @@ public class BoardController
         model.addAttribute("header", header);
         model.addAttribute("boardId", boardId);
         model.addAttribute("form", new PostDTO.CreateForm());
-
+        if ("notice".equals(boardId) && !SecurityContextHelper.isAdmin())
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         return "board/write";
     }
 
@@ -80,8 +95,9 @@ public class BoardController
             model.addAttribute("mode", "create");
             return writePage(boardId, model);
         }
-
         Long postId = postService.createPost(boardId, form);
+        if ("notice".equals(boardId) && !SecurityContextHelper.isAdmin())
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         return "redirect:/" + boardId + "/post/" + postId;
     }
 

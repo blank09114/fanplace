@@ -1,6 +1,7 @@
 package kr.co.fanplace.repository.board.post;
 
 import kr.co.fanplace.dto.board.PostDTO;
+import kr.co.fanplace.dto.user.MyActivityDTO;
 import kr.co.fanplace.entity.board.post.Post;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,8 +15,10 @@ import java.util.Optional;
 
 public interface PostRepository extends JpaRepository<Post, Long>
 {
+    // 게시판 정보 조회
     Optional<Post> findByIdAndBoard_Id(Long postId, String boardId);
 
+    // 이전글
     @Query("""
         select max(p.id)
         from Post p
@@ -25,6 +28,7 @@ public interface PostRepository extends JpaRepository<Post, Long>
     """)
     Long findPrevPostId(@Param("boardId") String boardId, @Param("admin") boolean admin, @Param("postId") Long postId);
 
+    // 다음글
     @Query("""
         select min(p.id)
         from Post p
@@ -34,6 +38,7 @@ public interface PostRepository extends JpaRepository<Post, Long>
     """)
     Long findNextPostId(@Param("boardId") String boardId, @Param("admin") boolean admin, @Param("postId") Long postId);
 
+    // 삭제 대상 찾기
     @Query("""
     select p.id from Post p
     where p.deleted = true
@@ -51,6 +56,7 @@ public interface PostRepository extends JpaRepository<Post, Long>
         value = "select new kr.co.fanplace.dto.board.PostDTO$ListItem( " +
             "p.id, " +
             "p.category.id, p.category.name, " +
+            "u.id, " +
             "case when u is null then '탈퇴 회원' else u.name end, " +
             "p.createdAt, " +
             "pl.title, " +
@@ -82,6 +88,7 @@ public interface PostRepository extends JpaRepository<Post, Long>
             "select new kr.co.fanplace.dto.board.PostDTO$ListItem( " +
                 "p.id, " +
                 "p.category.id, p.category.name, " +
+                "u.id, " +
                 "case when u is null then '탈퇴 회원' else u.name end, " +
                 "p.createdAt, " +
                 "pl.title, " +
@@ -136,4 +143,21 @@ public interface PostRepository extends JpaRepository<Post, Long>
         where p.deleted = false and lower(pl.title) like lower(concat('%', :q, '%'))
     """)
     Page<PostDTO.UnivListItem> searchUnivByTitle(@Param("q") String q, Pageable pageable);
+
+    // 특정인 게시글 조회
+    @Query(value = """
+        select new kr.co.fanplace.dto.user.MyActivityDTO$PostItem(
+            p.id, p.board.id, p.board.name, p.category.id, p.category.name,
+            pl.title, p.createdAt
+        )
+        from Post p
+        join PostLog pl on pl.post = p and pl.id = (select max(pl2.id) from PostLog pl2 where pl2.post = p)
+        where p.user is not null and p.user.id = :userId and (:admin = true or p.deleted = false)
+        order by p.id desc
+    """, countQuery = """
+        select count(p)
+        from Post p
+        where p.user is not null and p.user.id = :userId and (:admin = true or p.deleted = false)
+    """)
+    Page<MyActivityDTO.PostItem> findUserPostPage(@Param("userId") String userId, @Param("admin") boolean admin, Pageable pageable);
 }
