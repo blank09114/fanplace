@@ -4,9 +4,22 @@ const NAME_MSG = '닉네임 형식이 올바르지 않습니다.';
 
 let __selectedSanctionId = null;
 
+// 상태 판단
+const loginLogState =
+{
+    page: 0,
+    size: 10,
+    totalPages: 0,
+    loaded: false
+};
+
 // 회원정보 조회
 async function bindUserInfoPage(commons)
 {
+    // 관리자 여부 판별
+    const header = document.querySelector('header.header[data-auth]');
+    const isAdmin = header?.dataset?.admin === 'true';
+
     // userInfo.html 아니면 아무것도 안 함
     if (!document.getElementById('userInfo')) return;
 
@@ -83,8 +96,17 @@ async function bindUserInfoPage(commons)
 
     // 차단
     bindBlockModal(commons, targetUserId, card);
-    bindBlockCancelModal(commons, targetUserId);
-    await bindSanctionLogList(commons, targetUserId);
+    if (isAdmin) bindBlockCancelModal(commons, targetUserId);
+    await bindSanctionLogList(commons, targetUserId, isAdmin);
+
+    // 로그인 기록
+    const okLoginLog = await canViewLoginLogs(commons, targetUserId, isAdmin);
+    if (okLoginLog) await bindLoginLogList(commons, targetUserId, 0);
+    else
+    {
+        const loginWrap = document.getElementById('loginLog');
+        if (loginWrap) loginWrap.style.display = 'none';
+    }
 }
 
 // 닉네임 변경 폼 토글
@@ -225,33 +247,8 @@ function bindBlockModal(commons, targetUserId, card)
     }, { once: false });
 }
 
-// 날짜 포맷
-function formatDateTime(iso)
-{
-    if (!iso) return '';
-    const d = new Date(iso);
-    const yy = d.getFullYear();
-    const mm = String(d.getMonth() + 1).padStart(2, '0');
-    const dd = String(d.getDate()).padStart(2, '0');
-    const hh = String(d.getHours()).padStart(2, '0');
-    const mi = String(d.getMinutes()).padStart(2, '0');
-    return `${yy}.${mm}.${dd}. ${hh}:${mi}`;
-}
-
-// 포맷
-function toLongText(n)
-{
-    const v = Number(n);
-    if (v === 0) return '영구';
-    if (v === 1) return '1일';
-    if (v === 7) return '7일';
-    if (v === 30) return '30일';
-    // 혹시 모르는 값 방어
-    return `${v}일`;
-}
-
 // 목록 불러오기
-async function bindSanctionLogList(commons, targetUserId)
+async function bindSanctionLogList(commons, targetUserId, isAdmin)
 {
     const wrap = document.getElementById('sanctionLog');
     const listEl = document.getElementById('sanctionLogList');
@@ -263,7 +260,7 @@ async function bindSanctionLogList(commons, targetUserId)
     for (let i = 1; i < rows.length; i++) rows[i].remove();
 
     const data = await commons.fetchJson(
-        `/api/admin/user/${encodeURIComponent(targetUserId)}/sanction/logs`,
+        `/api/user/${encodeURIComponent(targetUserId)}/sanction/logs`,
         { method: 'GET' },
         { parseJson: true, defaultErrorMessage: null }
     );
@@ -278,22 +275,24 @@ async function bindSanctionLogList(commons, targetUserId)
     // 데이터 있으면 렌더링
     for (const it of items)
     {
-        const row = document.createElement('div');
-        row.className = 'blockLog row widthFull flex alignCenter';
-        row.dataset.sanctionId = it.sanctionId;
+        const ip = it.ip ?? '';
+        const region = it.region ?? 'UNKNOWN';
+        const loginAt = formatDateTime(it.loginAt);
+        const logoutAt = it.logoutAt ? formatDateTime(it.logoutAt) : '';
 
-        const longText = toLongText(it.sanctionLong);
-        const reason = (it.reason ?? '');
-        const atText = formatDateTime(it.sanctionedAt);
+        const statusText = logoutAt ? `로그아웃: ${logoutAt}` : '세션 유지 중';
+        const ipText = `${ip}(${region})`;
+
+        const row = document.createElement('div');
+        row.className = 'row widthFull flex alignCenter';
 
         row.innerHTML =
         `
-            <button class="blockCancle textBtn" onclick="openBlockCancelModal(this)">X</button>
             <div class="widthFull flexColumn">
-                <p class="text2 lightText">${escapeHtml(longText)}</p>
-                <p class="text1">${escapeHtml(reason)}</p>
+                <p class="text2 lightText">${escapeHtml(statusText)}</p>
+                <p class="text1">${escapeHtml(ipText)}</p>
             </div>
-            <p class="text1 textCenter date">${escapeHtml(atText)}</p>
+            <p class="text1 textCenter date">${escapeHtml(loginAt)}</p>
         `;
 
         listEl.appendChild(row);
@@ -339,6 +338,116 @@ function bindBlockCancelModal(commons, targetUserId)
         // 카드/상태/리스트까지 한 번에 최신화
         await bindUserInfoPage(commons);
     });
+}
+
+// 로그인 기록 열람 권한 판별
+async function canViewLoginLogs(commons, targetUserId, isAdmin)
+{
+    if (isAdmin) return true;
+
+    const header = document.querySelector('header.header[data-auth]');
+    const isAuth = header?.dataset?.auth === 'true';
+    if (!isAuth) return false;
+
+    const me = await commons.fetchJson(
+        '/api/auth/me',
+        { method: 'GET' },
+        { parseJson: true, defaultErrorMessage: null }
+    );
+
+    const myId = me?.userId ?? me?.id ?? null;
+    if (!myId) return false;
+
+    return String(myId) === String(targetUserId);
+}
+
+// 로그인 기록 조회
+async function bindLoginLogList(commons, targetUserId, page)
+{
+    const wrap = document.getElementById('loginLog');
+    const listEl = document.getElementById('loginLogList');
+    const pagerEl = document.getElementById('loginLogPagination');
+    if (!wrap || !listEl || !pagerEl) return;
+
+    const safePage = Math.max(0, page | 0);
+    loginLogState.page = safePage;
+
+    const params = new URLSearchParams();
+    params.set('page', String(safePage));
+    params.set('size', String(loginLogState.size));
+
+    const data = await commons.fetchJson(
+        `/api/user/${encodeURIComponent(targetUserId)}/login/logs?${params.toString()}`,
+        { method: 'GET' },
+        { parseJson: true, defaultErrorMessage: null }
+    );
+
+    // 권한 없거나 실패면 섹션 숨김
+    if (!data)
+    { wrap.style.display = 'none'; return; }
+
+    const items = Array.isArray(data.content) ? data.content : [];
+    const totalPages = Number.isFinite(data.totalPages) ? data.totalPages : 0;
+    const currentPage = Number.isFinite(data.number) ? data.number : safePage;
+
+    // 0건이면 섹션 통째로 숨김
+    if (items.length === 0)
+    { wrap.style.display = 'none'; return; }
+
+    wrap.style.display = '';
+
+    const rows = Array.from(listEl.querySelectorAll('.row'));
+    for (let i = 1; i < rows.length; i++) rows[i].remove();
+
+    for (const it of items)
+    {
+        const ip = it.ip ?? '';
+        const region = it.region ?? 'UNKNOWN';
+        const loginAt = formatDateTime(it.loginAt);
+        const logoutAt = it.logoutAt ? formatDateTime(it.logoutAt) : '';
+
+        const row = document.createElement('div');
+        row.className = 'row widthFull flex alignCenter';
+
+        row.innerHTML =
+        `
+            <div class="widthFull flexColumn">
+                <p class="text2 lightText">${logoutAt ? `${escapeHtml(logoutAt)}에 로그아웃` : '세션 유지 중'}</p>
+                <p class="text1">${escapeHtml(ip)} (${escapeHtml(region)})</p>
+            </div>
+            <p class="text1 textCenter date">${escapeHtml(loginAt)}</p>
+        `;
+
+        listEl.appendChild(row);
+    }
+
+    commons.renderPagination(pagerEl, currentPage, totalPages, (p) =>
+    { bindLoginLogList(commons, targetUserId, p); });
+}
+
+// 날짜 포맷
+function formatDateTime(iso)
+{
+    if (!iso) return '';
+    const d = new Date(iso);
+    const yy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    const hh = String(d.getHours()).padStart(2, '0');
+    const mi = String(d.getMinutes()).padStart(2, '0');
+    return `${yy}.${mm}.${dd}. ${hh}:${mi}`;
+}
+
+// 포맷
+function toLongText(n)
+{
+    const v = Number(n);
+    if (v === 0) return '영구';
+    if (v === 1) return '1일';
+    if (v === 7) return '7일';
+    if (v === 30) return '30일';
+    // 혹시 모르는 값 방어
+    return `${v}일`;
 }
 
 // XSS 방어

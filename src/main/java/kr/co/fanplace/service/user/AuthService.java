@@ -15,6 +15,7 @@ import kr.co.fanplace.setting.security.TokenUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -114,7 +115,7 @@ public class AuthService
 
     // 로그인 정보
     @Transactional(readOnly = true)
-    public AuthReq.MeResponse me(org.springframework.security.core.Authentication authentication)
+    public AuthReq.MeResponse me(Authentication authentication)
     {
         if (authentication == null) return AuthReq.MeResponse.empty();
         Object principal = authentication.getPrincipal();
@@ -124,7 +125,8 @@ public class AuthService
         User user = userRepository.findById(userId).orElse(null);
         if (user == null) return AuthReq.MeResponse.empty();
 
-        return AuthReq.MeResponse.of(user.getId(), user.getName());
+        boolean isAdmin = (user.getRole() == User.UserRole.ADMIN);
+        return AuthReq.MeResponse.of(user.getId(), user.getName(), isAdmin);
     }
 
     // ID 중복 검사

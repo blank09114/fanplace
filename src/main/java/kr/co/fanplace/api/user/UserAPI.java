@@ -2,8 +2,12 @@ package kr.co.fanplace.api.user;
 
 import kr.co.fanplace.dto.ApiOk;
 import kr.co.fanplace.dto.user.AlarmDTO;
+import kr.co.fanplace.dto.user.LoginLogDTO;
 import kr.co.fanplace.dto.user.UserInfoDTO;
+import kr.co.fanplace.dto.user.UserSanctionDTO;
 import kr.co.fanplace.service.user.AlarmService;
+import kr.co.fanplace.service.user.LoginLogService;
+import kr.co.fanplace.service.user.UserSanctionService;
 import kr.co.fanplace.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -17,6 +21,8 @@ public class UserAPI
 {
     private final AlarmService alarmService;
     private final UserService userService;
+    private final UserSanctionService userSanctionService;
+    private final LoginLogService loginLogService;
 
     // 알람 목록 조회
     @GetMapping("/alarm")
@@ -44,4 +50,16 @@ public class UserAPI
         userService.changeName(userId, req == null ? null : req.getName());
         return ResponseEntity.ok(ApiOk.ok());
     }
+
+    // 제재 내역 조회
+    @GetMapping("/{userId}/sanction/logs")
+    public UserSanctionDTO.LogListRes sanctionLogs(@PathVariable String userId)
+    { return userSanctionService.getSanctionLogs(userId); }
+
+    // 로그인 기록 조회
+    @GetMapping("/{userId}/login/logs")
+    public Page<LoginLogDTO.Item> loginLogs(
+        @PathVariable String userId, @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) { return loginLogService.getLoginLogs(userId, page, size); }
 }

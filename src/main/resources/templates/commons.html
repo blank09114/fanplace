@@ -2,7 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <!-- 헤더 -->
 <header th:fragment="mainHeader" class="header widthFull"
-th:attr="data-auth=${#authorization.expression('isAuthenticated()')}">
+th:attr="data-auth=${#authorization.expression('isAuthenticated()')},
+data-admin=${#authorization.expression('hasRole(''ADMIN'')')}">
     <!-- 컨테이너 -->
     <div class="container flexColumn gapSm">
         <!-- 상단 -->

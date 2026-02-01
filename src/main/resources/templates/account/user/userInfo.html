@@ -65,7 +65,7 @@
         </div>
 
         <!-- 제재 내역 -->
-        <div sec:authorize="hasRole('ADMIN')" class="flexColumn gapSm" id="sanctionLog">
+        <div class="flexColumn gapSm" id="sanctionLog">
             <p class="title2Text bold">제재 내역</p>
 
             <!-- 목록 -->
@@ -82,93 +82,15 @@
             <p class="title2Text bold">로그인 기록</p>
 
             <!-- 목록 -->
-            <div class="list widthFull">
+            <div class="list widthFull" id="loginLogList">
                 <div class="row widthFull flex alignCenter">
                     <p class="text1 textCenter">IP(지역)</p>
                     <p class="text1 textCenter date">로그인 시각</p>
                 </div>
-                <div class="row widthFull flex alignCenter">
-                    <div class="widthFull flexColumn">
-                        <p class="text2 lightText">세션 유지 중</p>
-                        <p class="text1">1.234.567(대한민국, 서울, 서대문구)</p>
-                    </div>
-                    <p class="text1 textCenter date">2026.01.01. 00:00</p>
-                </div>
-                <div class="row widthFull flex alignCenter">
-                    <div class="widthFull flexColumn">
-                        <p class="text2 lightText">2026.01.01. 00:00 로그아웃됨</p>
-                        <p class="text1">1.234.567(대한민국, 서울, 서대문구)</p>
-                    </div>
-                    <p class="text1 textCenter date">2026.01.01. 00:00</p>
-                </div>
-                <div class="row widthFull flex alignCenter">
-                    <div class="widthFull flexColumn">
-                        <p class="text2 lightText">2026.01.01. 00:00 로그아웃됨</p>
-                        <p class="text1">1.234.567(대한민국, 서울, 서대문구)</p>
-                    </div>
-                    <p class="text1 textCenter date">2026.01.01. 00:00</p>
-                </div>
-                <div class="row widthFull flex alignCenter">
-                    <div class="widthFull flexColumn">
-                        <p class="text2 lightText">2026.01.01. 00:00 로그아웃됨</p>
-                        <p class="text1">1.234.567(대한민국, 서울, 서대문구)</p>
-                    </div>
-                    <p class="text1 textCenter date">2026.01.01. 00:00</p>
-                </div>
-                <div class="row widthFull flex alignCenter">
-                    <div class="widthFull flexColumn">
-                        <p class="text2 lightText">2026.01.01. 00:00 로그아웃됨</p>
-                        <p class="text1">1.234.567(대한민국, 서울, 서대문구)</p>
-                    </div>
-                    <p class="text1 textCenter date">2026.01.01. 00:00</p>
-                </div>
-                <div class="row widthFull flex alignCenter">
-                    <div class="widthFull flexColumn">
-                        <p class="text2 lightText">2026.01.01. 00:00 로그아웃됨</p>
-                        <p class="text1">1.234.567(대한민국, 서울, 서대문구)</p>
-                    </div>
-                    <p class="text1 textCenter date">2026.01.01. 00:00</p>
-                </div>
-                <div class="row widthFull flex alignCenter">
-                    <div class="widthFull flexColumn">
-                        <p class="text2 lightText">2026.01.01. 00:00 로그아웃됨</p>
-                        <p class="text1">1.234.567(대한민국, 서울, 서대문구)</p>
-                    </div>
-                    <p class="text1 textCenter date">2026.01.01. 00:00</p>
-                </div>
-                <div class="row widthFull flex alignCenter">
-                    <div class="widthFull flexColumn">
-                        <p class="text2 lightText">2026.01.01. 00:00 로그아웃됨</p>
-                        <p class="text1">1.234.567(대한민국, 서울, 서대문구)</p>
-                    </div>
-                    <p class="text1 textCenter date">2026.01.01. 00:00</p>
-                </div>
-                <div class="row widthFull flex alignCenter">
-                    <div class="widthFull flexColumn">
-                        <p class="text2 lightText">2026.01.01. 00:00 로그아웃됨</p>
-                        <p class="text1">1.234.567(대한민국, 서울, 서대문구)</p>
-                    </div>
-                    <p class="text1 textCenter date">2026.01.01. 00:00</p>
-                </div>
-                <div class="row widthFull flex alignCenter">
-                    <div class="widthFull flexColumn">
-                        <p class="text2 lightText">2026.01.01. 00:00 로그아웃됨</p>
-                        <p class="text1">1.234.567(대한민국, 서울, 서대문구)</p>
-                    </div>
-                    <p class="text1 textCenter date">2026.01.01. 00:00</p>
-                </div>
             </div>
 
             <!-- 페이지 -->
-            <div class="pages flex justifyCenter gapXs">
-                <a class="page"> < </a>
-                <a class="page now"> 1 </a>
-                <a class="page"> 2 </a>
-                <a class="page"> 3 </a>
-                <a class="page"> 4 </a>
-                <a class="page"> 5 </a>
-                <a class="page"> > </a>
-            </div>
+            <div class="pages flex justifyCenter gapXs" id="loginLogPagination"></div>
         </div>
 
         <!-- 작성글 -->

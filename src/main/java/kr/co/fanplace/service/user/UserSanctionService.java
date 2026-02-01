@@ -26,9 +26,6 @@ public class UserSanctionService
     @Transactional(readOnly = true)
     public UserSanctionDTO.LogListRes getSanctionLogs(String targetUserId)
     {
-        if (!SecurityContextHelper.isAdmin())
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "관리자만 가능합니다.");
-
         if (targetUserId == null || targetUserId.isBlank())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "대상 사용자 ID가 필요합니다.");
 
@@ -36,8 +33,7 @@ public class UserSanctionService
             userSanctionLogRepository.findByUser_IdOrderBySanctionedAtDescIdDesc(targetUserId);
 
         List<UserSanctionDTO.LogItem> items = logs.stream()
-        .map(l -> new UserSanctionDTO.LogItem
-        (l.getId(), l.getSanctionLong(), l.getReason(), l.getSanctionedAt())).toList();
+        .map(l -> new UserSanctionDTO.LogItem(l.getId(), l.getSanctionLong(), l.getReason(), l.getSanctionedAt())).toList();
 
         return new UserSanctionDTO.LogListRes(items);
     }
