@@ -2,6 +2,8 @@
 const NAME_REGEX = /^.{2,10}$/;
 const NAME_MSG = '닉네임 형식이 올바르지 않습니다.';
 
+let __selectedSanctionId = null;
+
 // 회원정보 조회
 async function bindUserInfoPage(commons)
 {
@@ -81,6 +83,7 @@ async function bindUserInfoPage(commons)
 
     // 차단
     bindBlockModal(commons, targetUserId, card);
+    bindBlockCancelModal(commons, targetUserId);
     await bindSanctionLogList(commons, targetUserId);
 }
 
@@ -285,7 +288,7 @@ async function bindSanctionLogList(commons, targetUserId)
 
         row.innerHTML =
         `
-            <button class="blockCancle textBtn" onclick="openModal('blockCancelModal')">X</button>
+            <button class="blockCancle textBtn" onclick="openBlockCancelModal(this)">X</button>
             <div class="widthFull flexColumn">
                 <p class="text2 lightText">${escapeHtml(longText)}</p>
                 <p class="text1">${escapeHtml(reason)}</p>
@@ -295,6 +298,47 @@ async function bindSanctionLogList(commons, targetUserId)
 
         listEl.appendChild(row);
     }
+}
+
+// 제재 내역 삭제 모달 바인딩
+function openBlockCancelModal(commons, btnEl)
+{
+    const row = btnEl?.closest?.('.blockLog');
+    const sid = row?.dataset?.sanctionId;
+
+    if (!sid || !/^\d+$/.test(String(sid)))
+    { commons.showToast('차단 기록 정보를 찾을 수 없습니다.'); return; }
+
+    __selectedSanctionId = Number(sid);
+    commons.openModal('blockCancelModal');
+}
+
+// 제재 내역 삭제
+function bindBlockCancelModal(commons, targetUserId)
+{
+    const modal = document.getElementById('blockCancelModal');
+    if (!modal) return;
+
+    commons.bindModalConfirm('blockCancelModal', async () =>
+    {
+        if (!targetUserId) { commons.showToast('대상 사용자를 찾을 수 없습니다.'); return; }
+        if (!__selectedSanctionId) { commons.showToast('삭제할 차단 기록이 없습니다.'); return; }
+
+        const ok = await commons.fetchJson(
+            `/api/admin/user/${encodeURIComponent(targetUserId)}/sanction/logs/${encodeURIComponent(__selectedSanctionId)}`,
+            { method: 'DELETE' },
+            { parseJson: true, defaultErrorMessage: '차단 기록 삭제에 실패했습니다.' }
+        );
+
+        if (!ok) return;
+
+        commons.showToast('차단 기록을 삭제했습니다.');
+        __selectedSanctionId = null;
+        commons.closeModal('blockCancelModal');
+
+        // 카드/상태/리스트까지 한 번에 최신화
+        await bindUserInfoPage(commons);
+    });
 }
 
 // XSS 방어
@@ -313,5 +357,6 @@ export function bindUser(commons)
 {
     window.toggleForm = toggleForm;
     window.subChangeName = (e) => subChangeName(commons, e || window.event);
+    window.openBlockCancelModal = (btnEl) => openBlockCancelModal(commons, btnEl);
     bindUserInfoPage(commons);
 }

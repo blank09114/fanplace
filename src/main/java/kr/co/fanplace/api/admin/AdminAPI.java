@@ -1,9 +1,11 @@
 package kr.co.fanplace.api.admin;
 
 import jakarta.validation.Valid;
+import kr.co.fanplace.dto.ApiOk;
 import kr.co.fanplace.dto.user.UserSanctionDTO;
 import kr.co.fanplace.service.user.UserSanctionService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -25,4 +27,12 @@ public class AdminAPI
     @GetMapping("/user/{userId}/sanction/logs")
     public UserSanctionDTO.LogListRes sanctionLogs(@PathVariable String userId)
     { return userSanctionService.getSanctionLogs(userId); }
+
+    // 제재 내역 삭제
+    @DeleteMapping("/user/{userId}/sanction/logs/{sanctionId}")
+    public ResponseEntity<ApiOk> deleteSanctionLog(@PathVariable String userId, @PathVariable Long sanctionId)
+    {
+        userSanctionService.deleteSanctionLog(userId, sanctionId);
+        return ResponseEntity.ok(ApiOk.ok());
+    }
 }

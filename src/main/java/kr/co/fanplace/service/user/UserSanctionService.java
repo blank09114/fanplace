@@ -77,6 +77,25 @@ public class UserSanctionService
         return log.getId();
     }
 
+    // 제재 내역 삭제
+    @Transactional
+    public void deleteSanctionLog(String targetUserId, Long sanctionId)
+    {
+        SecurityContextHelper.requireUserId();
+        if (!SecurityContextHelper.isAdmin())
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "관리자만 가능합니다.");
+
+        UserSanctionLog log = userSanctionLogRepository.findById(sanctionId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "차단 기록이 존재하지 않습니다."));
+
+        // url의 userId랑 로그 소유자가 다르면 잘못된 호출로 판단
+        String ownerId = (log.getUser() == null ? null : log.getUser().getId());
+        if (ownerId == null || !ownerId.equals(targetUserId))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 요청입니다.");
+
+        userSanctionLogRepository.delete(log);
+    }
+
     // 접근 차단
     @Transactional(readOnly = true)
     public void assertWritable(String userId)
