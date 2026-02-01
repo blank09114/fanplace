@@ -1,6 +1,7 @@
 package kr.co.fanplace.repository.board.post;
 
 import kr.co.fanplace.dto.board.PostDTO;
+import kr.co.fanplace.dto.user.MyActivityDTO;
 import kr.co.fanplace.entity.board.post.Post;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -142,4 +143,21 @@ public interface PostRepository extends JpaRepository<Post, Long>
         where p.deleted = false and lower(pl.title) like lower(concat('%', :q, '%'))
     """)
     Page<PostDTO.UnivListItem> searchUnivByTitle(@Param("q") String q, Pageable pageable);
+
+    // 특정인 게시글 조회
+    @Query(value = """
+        select new kr.co.fanplace.dto.user.MyActivityDTO$PostItem(
+            p.id, p.board.id, p.board.name, p.category.id, p.category.name,
+            pl.title, p.createdAt
+        )
+        from Post p
+        join PostLog pl on pl.post = p and pl.id = (select max(pl2.id) from PostLog pl2 where pl2.post = p)
+        where p.user is not null and p.user.id = :userId and (:admin = true or p.deleted = false)
+        order by p.id desc
+    """, countQuery = """
+        select count(p)
+        from Post p
+        where p.user is not null and p.user.id = :userId and (:admin = true or p.deleted = false)
+    """)
+    Page<MyActivityDTO.PostItem> findUserPostPage(@Param("userId") String userId, @Param("admin") boolean admin, Pageable pageable);
 }

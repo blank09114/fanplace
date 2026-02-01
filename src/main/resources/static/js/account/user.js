@@ -13,12 +13,84 @@ const loginLogState =
     loaded: false
 };
 
+// 사용자
+const authState =
+{
+    loaded: false,
+    userId: null,
+    isAdmin: false,
+};
+
+// 활동 기록
+const myPostState = { page: 0, size: 10 };
+const myCommentState = { page: 0, size: 10 };
+
+// 날짜 포맷
+function formatDateTime(iso)
+{
+    if (!iso) return '';
+    const d = new Date(iso);
+    const yy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    const hh = String(d.getHours()).padStart(2, '0');
+    const mi = String(d.getMinutes()).padStart(2, '0');
+    return `${yy}.${mm}.${dd}. ${hh}:${mi}`;
+}
+
+// 포맷
+function toLongText(n)
+{
+    const v = Number(n);
+    if (v === 0) return '영구';
+    if (v === 1) return '1일';
+    if (v === 7) return '7일';
+    if (v === 30) return '30일';
+    return `${v}일`;
+}
+
+// XSS 방어
+function escapeHtml(str)
+{
+    return String(str)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
 // 회원정보 조회
 async function bindUserInfoPage(commons)
 {
     // 관리자 여부 판별
     const header = document.querySelector('header.header[data-auth]');
     const isAdmin = header?.dataset?.admin === 'true';
+
+    // 로그인 사용자 정보 1회 로딩
+    if (!authState.loaded)
+    {
+        const isAuth = header?.dataset?.auth === 'true';
+
+        if (isAuth)
+        {
+            const me = await commons.fetchJson(
+                '/api/auth/me',
+                { method: 'GET' },
+                { parseJson: true, defaultErrorMessage: null }
+            );
+
+            authState.userId = me?.userId ?? me?.id ?? null;
+            authState.isAdmin = isAdmin;
+        }
+        else
+        {
+            authState.userId = null;
+            authState.isAdmin = false;
+        }
+
+        authState.loaded = true;
+    }
 
     // userInfo.html 아니면 아무것도 안 함
     if (!document.getElementById('userInfo')) return;
@@ -100,13 +172,17 @@ async function bindUserInfoPage(commons)
     await bindSanctionLogList(commons, targetUserId, isAdmin);
 
     // 로그인 기록
-    const okLoginLog = await canViewLoginLogs(commons, targetUserId, isAdmin);
+    const okLoginLog = canViewLoginLogs(targetUserId);
     if (okLoginLog) await bindLoginLogList(commons, targetUserId, 0);
     else
     {
         const loginWrap = document.getElementById('loginLog');
         if (loginWrap) loginWrap.style.display = 'none';
     }
+
+    // 활동 기록
+    bindMyPostList(commons, targetUserId, 0);
+    bindMyCommentList(commons, targetUserId, 0);
 }
 
 // 닉네임 변경 폼 토글
@@ -341,24 +417,16 @@ function bindBlockCancelModal(commons, targetUserId)
 }
 
 // 로그인 기록 열람 권한 판별
-async function canViewLoginLogs(commons, targetUserId, isAdmin)
+function canViewLoginLogs(targetUserId)
 {
-    if (isAdmin) return true;
+    // 관리자면 바로 허용
+    if (authState.isAdmin) return true;
 
-    const header = document.querySelector('header.header[data-auth]');
-    const isAuth = header?.dataset?.auth === 'true';
-    if (!isAuth) return false;
+    // 로그인 안 했으면 불가
+    if (!authState.userId) return false;
 
-    const me = await commons.fetchJson(
-        '/api/auth/me',
-        { method: 'GET' },
-        { parseJson: true, defaultErrorMessage: null }
-    );
-
-    const myId = me?.userId ?? me?.id ?? null;
-    if (!myId) return false;
-
-    return String(myId) === String(targetUserId);
+    // 본인만 허용
+    return String(authState.userId) === String(targetUserId);
 }
 
 // 로그인 기록 조회
@@ -425,40 +493,142 @@ async function bindLoginLogList(commons, targetUserId, page)
     { bindLoginLogList(commons, targetUserId, p); });
 }
 
-// 날짜 포맷
-function formatDateTime(iso)
+// 게시글 조회
+async function bindMyPostList(commons, targetUserId, page)
 {
-    if (!iso) return '';
-    const d = new Date(iso);
-    const yy = d.getFullYear();
-    const mm = String(d.getMonth() + 1).padStart(2, '0');
-    const dd = String(d.getDate()).padStart(2, '0');
-    const hh = String(d.getHours()).padStart(2, '0');
-    const mi = String(d.getMinutes()).padStart(2, '0');
-    return `${yy}.${mm}.${dd}. ${hh}:${mi}`;
+    const wrap = document.getElementById('myPost');
+    const listEl = document.getElementById('myPostList');
+    const pagerEl = document.getElementById('myPostPagination');
+    if (!wrap || !listEl || !pagerEl) return;
+
+    const safePage = Math.max(0, page | 0);
+    myPostState.page = safePage;
+
+    const params = new URLSearchParams();
+    params.set('page', String(safePage));
+    params.set('size', String(myPostState.size));
+
+    const data = await commons.fetchJson(
+        `/api/user/${encodeURIComponent(targetUserId)}/activity/posts?${params.toString()}`,
+        { method: 'GET' },
+        { parseJson: true, defaultErrorMessage: null }
+    );
+
+    if (!data) { wrap.style.display = 'none'; return; }
+
+    const items = Array.isArray(data.content) ? data.content : [];
+    const totalPages = Number.isFinite(data.totalPages) ? data.totalPages : 0;
+    const currentPage = Number.isFinite(data.number) ? data.number : safePage;
+
+    if (items.length === 0) { wrap.style.display = 'none'; return; }
+
+    wrap.style.display = '';
+
+    const rows = Array.from(listEl.querySelectorAll('.row'));
+    for (let i = 1; i < rows.length; i++) rows[i].remove();
+
+    for (const it of items)
+    {
+        const boardName = it.boardName ?? '';
+        const categoryName = it.categoryName ?? '';
+        const title = it.title ?? '';
+        const createdAt = formatDateTime(it.createdAt);
+
+        const boardId = it.boardId;
+        const postId = it.postId;
+        const href = (boardId && postId != null)
+        ? `/${encodeURIComponent(boardId)}/post/${postId}` : '#';
+
+        const sub = categoryName ? `${boardName} - ${categoryName}` : boardName;
+
+        const a = document.createElement('a');
+        a.className = 'row widthFull flex alignCenter';
+        a.href = href;
+
+        a.innerHTML =
+        `
+            <div class="widthFull flexColumn">
+                <p class="text2 lightText">${escapeHtml(sub)}</p>
+                <p class="text1">${escapeHtml(title)}</p>
+            </div>
+            <p class="text1 textCenter date">${escapeHtml(createdAt)}</p>
+        `;
+
+        listEl.appendChild(a);
+    }
+
+    commons.renderPagination(pagerEl, currentPage, totalPages, (p) =>
+    { bindMyPostList(commons, targetUserId, p); });
 }
 
-// 포맷
-function toLongText(n)
+// 작성 댓글 조회
+async function bindMyCommentList(commons, targetUserId, page)
 {
-    const v = Number(n);
-    if (v === 0) return '영구';
-    if (v === 1) return '1일';
-    if (v === 7) return '7일';
-    if (v === 30) return '30일';
-    // 혹시 모르는 값 방어
-    return `${v}일`;
-}
+    const wrap = document.getElementById('myComment');
+    const listEl = document.getElementById('myCommentList');
+    const pagerEl = document.getElementById('myCommentPagination');
+    if (!wrap || !listEl || !pagerEl) return;
 
-// XSS 방어
-function escapeHtml(str)
-{
-    return String(str)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;');
+    const safePage = Math.max(0, page | 0);
+    myCommentState.page = safePage;
+
+    const params = new URLSearchParams();
+    params.set('page', String(safePage));
+    params.set('size', String(myCommentState.size));
+
+    const data = await commons.fetchJson(
+        `/api/user/${encodeURIComponent(targetUserId)}/activity/comments?${params.toString()}`,
+        { method: 'GET' },
+        { parseJson: true, defaultErrorMessage: null }
+    );
+
+    if (!data) { wrap.style.display = 'none'; return; }
+
+    const items = Array.isArray(data.content) ? data.content : [];
+    const totalPages = Number.isFinite(data.totalPages) ? data.totalPages : 0;
+    const currentPage = Number.isFinite(data.number) ? data.number : safePage;
+
+    // 0건이면 섹션 숨김
+    if (items.length === 0) { wrap.style.display = 'none'; return; }
+
+    wrap.style.display = '';
+
+    // 헤더 row만 남기고 싹 지움
+    const rows = Array.from(listEl.querySelectorAll('.row'));
+    for (let i = 1; i < rows.length; i++) rows[i].remove();
+
+    for (const it of items)
+    {
+        const boardName = it.boardName ?? '';
+        const categoryName = it.categoryName ?? '';
+        const content = it.content ?? '';
+        const createdAt = formatDateTime(it.createdAt);
+
+        const boardId = it.boardId;
+        const postId = it.postId;
+        const href = (boardId && postId != null)
+            ? `/${encodeURIComponent(boardId)}/post/${postId}` : '#';
+
+        const sub = categoryName ? `${boardName} - ${categoryName}` : boardName;
+
+        const a = document.createElement('a');
+        a.className = 'row widthFull flex alignCenter';
+        a.href = href;
+
+        a.innerHTML =
+        `
+            <div class="widthFull flexColumn">
+                <p class="text2 lightText">${escapeHtml(sub)}</p>
+                <p class="text1">${escapeHtml(content)}</p>
+            </div>
+            <p class="text1 textCenter date">${escapeHtml(createdAt)}</p>
+        `;
+
+        listEl.appendChild(a);
+    }
+
+    commons.renderPagination(pagerEl, currentPage, totalPages, (p) =>
+    { bindMyCommentList(commons, targetUserId, p); });
 }
 
 // 바인딩

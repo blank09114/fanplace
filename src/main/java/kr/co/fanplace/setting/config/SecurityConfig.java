@@ -43,6 +43,12 @@ public class SecurityConfig
                 "/api/post/comment/*/delete", "/api/post/recomment/*/delete"
             ).authenticated()
 
+            // 사용자 관련
+            .requestMatchers("/api/user/*/login/logs").authenticated()
+
+            // 관리자만 허용
+            .requestMatchers("/api/admin/**").hasRole("ADMIN")
+
             // 나머지는 전부 허용
             .anyRequest().permitAll()
         );

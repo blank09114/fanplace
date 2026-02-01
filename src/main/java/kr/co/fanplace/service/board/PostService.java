@@ -2,6 +2,7 @@ package kr.co.fanplace.service.board;
 
 import jakarta.persistence.EntityManager;
 import kr.co.fanplace.dto.board.PostDTO;
+import kr.co.fanplace.dto.user.MyActivityDTO;
 import kr.co.fanplace.entity.board.Board;
 import kr.co.fanplace.entity.board.Category;
 import kr.co.fanplace.entity.board.post.Post;
@@ -24,6 +25,10 @@ import kr.co.fanplace.setting.ip.GeoIpService;
 import kr.co.fanplace.setting.security.SecurityContextHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -349,6 +354,16 @@ public class PostService
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "삭제된 글만 사유 변경이 가능합니다.");
 
         post.changeDeletedReason(reason);
+    }
+
+    // 특정인 게시글 조회
+    @Transactional(readOnly = true)
+    public Page<MyActivityDTO.PostItem> getUserPostPagePublic(String userId, int page, int size)
+    {
+        boolean admin = SecurityContextHelper.isAdmin();
+
+        Pageable pageable = PageRequest.of(page, size);
+        return postRepository.findUserPostPage(userId, admin, pageable);
     }
 
     // 본인 여부 검증

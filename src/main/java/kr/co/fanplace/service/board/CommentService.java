@@ -1,6 +1,7 @@
 package kr.co.fanplace.service.board;
 
 import kr.co.fanplace.dto.board.CommentDTO;
+import kr.co.fanplace.dto.user.MyActivityDTO;
 import kr.co.fanplace.entity.board.post.Post;
 import kr.co.fanplace.entity.board.post.comment.Comment;
 import kr.co.fanplace.entity.board.post.comment.Recomment;
@@ -210,5 +211,25 @@ public class CommentService
         else { r.softDelete(null, now); }
 
         return adminDelete;
+    }
+
+    // 특정인 댓글 조회
+    @Transactional(readOnly = true)
+    public Page<MyActivityDTO.CommentItem> getUserCommentActivityPage(String userId, int page, int size)
+    {
+        boolean admin = SecurityContextHelper.isAdmin();
+
+        int safePage = Math.max(0, page);
+        int safeSize = (size <= 0 || size > 20) ? 10 : size;
+
+        PageRequest pageable = PageRequest.of(safePage, safeSize);
+
+        Page<CommentRepository.UserActivityCommentRow> rows =
+        commentRepository.findUserActivityCommentPage(userId, admin, pageable);
+
+        return rows.map(r -> new MyActivityDTO.CommentItem(
+            r.getType(), r.getId(), r.getPostId(), r.getBoardId(), r.getBoardName(),
+            r.getCategoryId(), r.getCategoryName(), r.getContent(), r.getCreatedAt()
+        ));
     }
 }

@@ -1,10 +1,9 @@
 package kr.co.fanplace.api.user;
 
 import kr.co.fanplace.dto.ApiOk;
-import kr.co.fanplace.dto.user.AlarmDTO;
-import kr.co.fanplace.dto.user.LoginLogDTO;
-import kr.co.fanplace.dto.user.UserInfoDTO;
-import kr.co.fanplace.dto.user.UserSanctionDTO;
+import kr.co.fanplace.dto.user.*;
+import kr.co.fanplace.service.board.CommentService;
+import kr.co.fanplace.service.board.PostService;
 import kr.co.fanplace.service.user.AlarmService;
 import kr.co.fanplace.service.user.LoginLogService;
 import kr.co.fanplace.service.user.UserSanctionService;
@@ -23,6 +22,8 @@ public class UserAPI
     private final UserService userService;
     private final UserSanctionService userSanctionService;
     private final LoginLogService loginLogService;
+    private final PostService postService;
+    private final CommentService commentService;
 
     // 알람 목록 조회
     @GetMapping("/alarm")
@@ -62,4 +63,18 @@ public class UserAPI
         @PathVariable String userId, @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size
     ) { return loginLogService.getLoginLogs(userId, page, size); }
+
+    // 특정인 게시글 조회
+    @GetMapping("/{userId}/activity/posts")
+    public Page<MyActivityDTO.PostItem> myPosts(
+        @PathVariable String userId, @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ){ return postService.getUserPostPagePublic(userId, page, size); }
+
+    // 특정인 댓글 조회
+    @GetMapping("/{userId}/activity/comments")
+    public Page<MyActivityDTO.CommentItem> myComments(
+        @PathVariable String userId, @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ){ return commentService.getUserCommentActivityPage(userId, page, size); }
 }
