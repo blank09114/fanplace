@@ -70,6 +70,30 @@ export const commons =
         window.scrollTo({ top: y, behavior: 'smooth' });
     },
 
+    // 날짜 포맷
+    formatDateTime(iso)
+    {
+        if (!iso) return '';
+        const d = new Date(iso);
+        const yy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        const hh = String(d.getHours()).padStart(2, '0');
+        const mi = String(d.getMinutes()).padStart(2, '0');
+        return `${yy}.${mm}.${dd}. ${hh}:${mi}`;
+    },
+
+    // XSS 방어
+    escapeHtml(str)
+    {
+        return String(str)
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#39;');
+    },
+
     // 토스트 전역 변수
     toast: { duration: 5000, timer: null, progressTimer: null, remaining: 5000, start: null, paused: false },
 
@@ -384,3 +408,32 @@ export const commons =
         { container.appendChild(createBtn(">>", safeTotal - 1, { disabled: nextDisabled })); }
     },
 };
+
+// 바인딩
+export function bindCommons(commons)
+{
+    // 전역 함수
+    window.toggleUi = () => commons.toggleUi();
+    window.toggleDrawer = () => commons.toggleDrawer();
+    window.goMyInfo = () => commons.goMyInfo();
+    window.scrollCtr = (pos) => commons.scrollCtr(pos);
+
+    window.showToast = (text) => commons.showToast(text);
+    window.closeToast = () => commons.closeToast();
+    window.openModal = (id) => commons.openModal(id);
+    window.closeModal = (id) => commons.closeModal(id);
+
+    window.getValueEl = (el) => commons.getValueEl(el);
+    window.searchUniv = () => commons.searchUniv();
+
+    // 공용 폼 바인딩(있을 때만)
+    const f = document.forms?.univSearch;
+    if (f)
+    {
+        f.addEventListener('submit', (e) =>
+        {
+            e.preventDefault();
+            commons.searchUniv();
+        });
+    }
+}

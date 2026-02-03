@@ -215,3 +215,33 @@ export const richEditor =
         });
     }
 };
+
+// 바인딩
+export function bindPost(commons)
+{
+    window.writePost = () => post.writePost(commons);
+    window.like = (btnEl) => post.like(commons, btnEl);
+
+    // 에디터가 있는 페이지에서만 초기화
+    if (document.querySelector('textarea[data-tinymce="post"]')) { richEditor.initPostEditor(); }
+
+    // 좋아요 버튼이 있는 페이지에서만 초기화(내부 가드 있음)
+    post.initLike(commons);
+
+    // 삭제 관련 요소가 있는 페이지에서만 초기화 + 전역 함수 등록
+    const hasPostDelete = document.getElementById('postDeleteForm')
+    || document.getElementById('postAdminDeleteForm')
+    || document.getElementById('postDeletedReasonForm')
+    || document.getElementById('deletedModal')
+    || document.getElementById('adminDeletedModal')
+    || document.getElementById('deletedReasonModal');
+
+    if (hasPostDelete)
+    {
+        post.initPostDelete(commons);
+        post.initDeletedReasonChange(commons);
+
+        window.openPostDeleteModal = () => post.openPostDeleteModal(commons);
+        window.openPostAdminDeleteModal = () => post.openPostAdminDeleteModal(commons);
+    }
+}

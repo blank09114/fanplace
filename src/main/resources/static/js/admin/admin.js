@@ -83,3 +83,14 @@ export const admin =
         commons.showToast(`"${keyword}" 검색`);
     }
 };
+
+// 바인딩
+export function bindAdmin(commons)
+{
+    window.changeWeek = (direction) => admin.changeWeek(commons, direction);
+    window.searchDeletedSearch = () => admin.searchDeletedPost(commons);
+    window.searchDeletedComment = () => admin.searchDeletedComment(commons);
+
+    // 관리자 페이지에서만 초기 로딩
+    if (document.querySelector('[data-admin-page="1"]')) { admin.changeWeek(commons, 'current'); }
+}

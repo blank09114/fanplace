@@ -1,16 +1,3 @@
-export function bindAlarm(commons)
-{
-    initAlarmPage(commons);
-
-    const header = document.querySelector('header.header[data-auth]');
-    const isAuth = header?.dataset?.auth === 'true';
-
-    if (!isAuth) return;
-
-    initAlarmHeader(commons);
-    initAlarmRealtime(commons);
-}
-
 // 알람 페이지 초기화
 function initAlarmPage(commons)
 {
@@ -27,18 +14,6 @@ function initAlarmPage(commons)
         page: 0,
         totalPages: 1,
         unreadOnly: false
-    };
-
-    const formatDate = (iso) =>
-    {
-        if (!iso) return '';
-        const d = new Date(iso);
-        const yy = d.getFullYear();
-        const mm = String(d.getMonth() + 1).padStart(2, '0');
-        const dd = String(d.getDate()).padStart(2, '0');
-        const hh = String(d.getHours()).padStart(2, '0');
-        const mi = String(d.getMinutes()).padStart(2, '0');
-        return `${yy}.${mm}.${dd}. ${hh}:${mi}`;
     };
 
     const applyFromQuery = () =>
@@ -77,18 +52,12 @@ function initAlarmPage(commons)
                 const json = await res.json();
                 targetUrl = json?.targetUrl || '';
             }
-            else
-            {
-                targetUrl = (await res.text()).trim();
-            }
+            else { targetUrl = (await res.text()).trim(); }
 
             if (!targetUrl) { commons.showToast('이동할 위치를 찾지 못했습니다.'); return; }
             location.href = targetUrl;
         }
-        catch (_)
-        {
-            commons.showToast('네트워크 오류가 발생했습니다.');
-        }
+        catch (_) { commons.showToast('네트워크 오류가 발생했습니다.'); }
     };
 
     const renderRows = (items) =>
@@ -122,9 +91,9 @@ function initAlarmPage(commons)
             a.innerHTML = `
                 <div class="widthFull flexColumn">
                     <p class="text2${lightClass}">${actionText}</p>
-                    <p class="text1${lightClass}">${escapeHtml(it.preview || '')}</p>
+                    <p class="text1${lightClass}">${commons.escapeHtml(it.preview || '')}</p>
                 </div>
-                <p class="text1 textCenter date${lightClass}">${formatDate(it.alarmAt)}</p>
+                <p class="text1 textCenter date${lightClass}">${commons.formatDateTime(it.alarmAt)}</p>
             `;
 
             a.onclick = (e) =>
@@ -184,15 +153,6 @@ function initAlarmPage(commons)
     load();
 }
 
-function escapeHtml(str)
-{
-    return String(str)
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;')
-        .replaceAll("'", '&#39;');
-}
 
 // 안 읽은 알람 갯수 표시
 function initAlarmHeader(commons) { refreshHeaderUnread(commons); }
@@ -262,12 +222,24 @@ function initAlarmRealtime(commons)
 
             // 증가했을 때만 토스트
             if (lastCount != null && n > lastCount)
-            {
-                commons.showToast(`안 읽은 알람이 ${n}개 있습니다.`);
-            }
+            { commons.showToast(`읽지 않은 알람이 ${n}개 있습니다.`); }
             lastCount = n;
         });
     };
 
     client.activate();
+}
+
+// 바인딩
+export function bindAlarm(commons)
+{
+    initAlarmPage(commons);
+
+    const header = document.querySelector('header.header[data-auth]');
+    const isAuth = header?.dataset?.auth === 'true';
+
+    if (!isAuth) return;
+
+    initAlarmHeader(commons);
+    initAlarmRealtime(commons);
 }

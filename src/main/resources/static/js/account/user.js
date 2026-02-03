@@ -25,18 +25,6 @@ const authState =
 const myPostState = { page: 0, size: 10 };
 const myCommentState = { page: 0, size: 10 };
 
-// 날짜 포맷
-function formatDateTime(iso)
-{
-    if (!iso) return '';
-    const d = new Date(iso);
-    const yy = d.getFullYear();
-    const mm = String(d.getMonth() + 1).padStart(2, '0');
-    const dd = String(d.getDate()).padStart(2, '0');
-    const hh = String(d.getHours()).padStart(2, '0');
-    const mi = String(d.getMinutes()).padStart(2, '0');
-    return `${yy}.${mm}.${dd}. ${hh}:${mi}`;
-}
 
 // 포맷
 function toLongText(n)
@@ -49,16 +37,6 @@ function toLongText(n)
     return `${v}일`;
 }
 
-// XSS 방어
-function escapeHtml(str)
-{
-    return String(str)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;');
-}
 
 // 회원정보 조회
 async function bindUserInfoPage(commons)
@@ -353,8 +331,8 @@ async function bindSanctionLogList(commons, targetUserId, isAdmin)
     {
         const ip = it.ip ?? '';
         const region = it.region ?? 'UNKNOWN';
-        const loginAt = formatDateTime(it.loginAt);
-        const logoutAt = it.logoutAt ? formatDateTime(it.logoutAt) : '';
+        const loginAt = commons.formatDateTime(it.loginAt);
+        const logoutAt = it.logoutAt ? commons.formatDateTime(it.logoutAt) : '';
 
         const statusText = logoutAt ? `로그아웃: ${logoutAt}` : '세션 유지 중';
         const ipText = `${ip}(${region})`;
@@ -365,10 +343,10 @@ async function bindSanctionLogList(commons, targetUserId, isAdmin)
         row.innerHTML =
         `
             <div class="widthFull flexColumn">
-                <p class="text2 lightText">${escapeHtml(statusText)}</p>
-                <p class="text1">${escapeHtml(ipText)}</p>
+                <p class="text2 lightText">${commons.escapeHtml(statusText)}</p>
+                <p class="text1">${commons.escapeHtml(ipText)}</p>
             </div>
-            <p class="text1 textCenter date">${escapeHtml(loginAt)}</p>
+            <p class="text1 textCenter date">${commons.escapeHtml(loginAt)}</p>
         `;
 
         listEl.appendChild(row);
@@ -471,8 +449,8 @@ async function bindLoginLogList(commons, targetUserId, page)
     {
         const ip = it.ip ?? '';
         const region = it.region ?? 'UNKNOWN';
-        const loginAt = formatDateTime(it.loginAt);
-        const logoutAt = it.logoutAt ? formatDateTime(it.logoutAt) : '';
+        const loginAt = commons.formatDateTime(it.loginAt);
+        const logoutAt = it.logoutAt ? commons.formatDateTime(it.logoutAt) : '';
 
         const row = document.createElement('div');
         row.className = 'row widthFull flex alignCenter';
@@ -480,10 +458,10 @@ async function bindLoginLogList(commons, targetUserId, page)
         row.innerHTML =
         `
             <div class="widthFull flexColumn">
-                <p class="text2 lightText">${logoutAt ? `${escapeHtml(logoutAt)}에 로그아웃` : '세션 유지 중'}</p>
-                <p class="text1">${escapeHtml(ip)} (${escapeHtml(region)})</p>
+                <p class="text2 lightText">${logoutAt ? `${commons.escapeHtml(logoutAt)}에 로그아웃` : '세션 유지 중'}</p>
+                <p class="text1">${commons.escapeHtml(ip)} (${commons.escapeHtml(region)})</p>
             </div>
-            <p class="text1 textCenter date">${escapeHtml(loginAt)}</p>
+            <p class="text1 textCenter date">${commons.escapeHtml(loginAt)}</p>
         `;
 
         listEl.appendChild(row);
@@ -532,7 +510,7 @@ async function bindMyPostList(commons, targetUserId, page)
         const boardName = it.boardName ?? '';
         const categoryName = it.categoryName ?? '';
         const title = it.title ?? '';
-        const createdAt = formatDateTime(it.createdAt);
+        const createdAt = commons.formatDateTime(it.createdAt);
 
         const boardId = it.boardId;
         const postId = it.postId;
@@ -548,10 +526,10 @@ async function bindMyPostList(commons, targetUserId, page)
         a.innerHTML =
         `
             <div class="widthFull flexColumn">
-                <p class="text2 lightText">${escapeHtml(sub)}</p>
-                <p class="text1">${escapeHtml(title)}</p>
+                <p class="text2 lightText">${commons.escapeHtml(sub)}</p>
+                <p class="text1">${commons.escapeHtml(title)}</p>
             </div>
-            <p class="text1 textCenter date">${escapeHtml(createdAt)}</p>
+            <p class="text1 textCenter date">${commons.escapeHtml(createdAt)}</p>
         `;
 
         listEl.appendChild(a);
@@ -602,7 +580,7 @@ async function bindMyCommentList(commons, targetUserId, page)
         const boardName = it.boardName ?? '';
         const categoryName = it.categoryName ?? '';
         const content = it.content ?? '';
-        const createdAt = formatDateTime(it.createdAt);
+        const createdAt = commons.formatDateTime(it.createdAt);
 
         const boardId = it.boardId;
         const postId = it.postId;
@@ -618,10 +596,10 @@ async function bindMyCommentList(commons, targetUserId, page)
         a.innerHTML =
         `
             <div class="widthFull flexColumn">
-                <p class="text2 lightText">${escapeHtml(sub)}</p>
-                <p class="text1">${escapeHtml(content)}</p>
+                <p class="text2 lightText">${commons.escapeHtml(sub)}</p>
+                <p class="text1">${commons.escapeHtml(content)}</p>
             </div>
-            <p class="text1 textCenter date">${escapeHtml(createdAt)}</p>
+            <p class="text1 textCenter date">${commons.escapeHtml(createdAt)}</p>
         `;
 
         listEl.appendChild(a);

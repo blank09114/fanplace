@@ -28,8 +28,14 @@
             th:attr="data-tab-type='category', data-category-id=${cat.categoryId}"></a>
         </div>
 
+        <!-- 글쓰기 -->
         <a sec:authorize="isAuthenticated()" class="widthFull btn teal"
-        th:if="${canWrite and (!isNotice or #authorization.expression('hasRole(''ADMIN'')'))}"
+        th:if="${univSearch != true and canWrite and !isNotice}"
+        th:href="@{/{boardId}/write(boardId=${header.boardId})}">
+            글쓰기
+        </a>
+        <a sec:authorize="hasRole('ADMIN')" class="widthFull btn teal"
+        th:if="${univSearch != true and canWrite and isNotice}"
         th:href="@{/{boardId}/write(boardId=${header.boardId})}">
             글쓰기
         </a>
@@ -54,7 +60,10 @@
     <nav class="scrollNav flexColumn">
         <button class="scrollBtn textBtn background" onclick="scrollCtr('top')">▲</button>
         <a sec:authorize="isAuthenticated()" class="scrollBtn writeBtn textBtn background"
-        th:if="${canWrite and (!isNotice or #authorization.expression('hasRole(''ADMIN'')'))}"
+        th:if="${univSearch != true and canWrite and !isNotice}"
+        th:href="@{/{boardId}/write(boardId=${header.boardId})}"></a>
+        <a sec:authorize="hasRole('ADMIN')" class="scrollBtn writeBtn textBtn background"
+        th:if="${univSearch != true and canWrite and isNotice}"
         th:href="@{/{boardId}/write(boardId=${header.boardId})}"></a>
         <button class="scrollBtn textBtn background" onclick="scrollCtr('bottom')">▼</button>
     </nav>
