@@ -17,13 +17,13 @@
     <!-- 섹션 -->
     <section class="flexColumn gapLg">
         <!-- 로그인 -->
-        <div class="card pdMd widthFull flexColumn alignCenter gapSm">
+        <div sec:authorize="isAnonymous()" class="card pdMd widthFull flexColumn alignCenter gapSm">
             <p class="text1 textCenter">로그인하고 내 활동 리포트를 확인하세요!</p>
-            <a class="btn teal">로그인</a>
+            <a class="btn teal" th:href="@{/auth/login}">로그인</a>
         </div>
 
         <!-- 내 정보 -->
-        <div class="mainUser flexColumnMov gapSm">
+        <div sec:authorize="isAuthenticated()" class="mainUser flexColumnMov gapSm">
             <!-- 활동 리포트 -->
             <div class="flexColumn widthFull gapXs">
                 <div class="sectionHeader report flexColumnMov justifyBetween alignCenter gapXs">

@@ -163,6 +163,9 @@ public class BoardController
         model.addAttribute("header", header);
         model.addAttribute("boardId", "univ");
         model.addAttribute("univSearch", true);
+        String loginUserId = SecurityContextHelper.userIdOrNull();
+        boolean canWrite = (loginUserId != null) && !userSanctionService.isBlocked(loginUserId);
+        model.addAttribute("canWrite", canWrite);
 
         return "board/board";
     }

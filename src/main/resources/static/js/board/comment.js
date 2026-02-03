@@ -10,7 +10,7 @@ export const comment =
         isAdmin: false,
 
         // 삭제 컨텍스트
-        deleteTarget: null,          // { type: 'comment'|'recomment', id }
+        deleteTarget: null, // { type: 'comment'|'recomment', id }
         lastReloadStrategy: 'current' // 'last' | 'current'
     },
 
@@ -583,3 +583,14 @@ export const comment =
         this.state.lastReloadStrategy = reloadStrategy;
     },
 };
+
+// 바인딩
+export function bindComment(commons)
+{
+    window.subComment = () => comment.subComment(commons);
+    window.toggleRecommentForm = (btnEl) => comment.toggleRecommentForm(commons, btnEl);
+    window.subRecomment = (btnEl) => comment.subRecomment(commons, btnEl);
+
+    // 게시글 상세 페이지에서만 동작(요소 없으면 내부에서 return)
+    comment.initPostComment?.(commons);
+}
