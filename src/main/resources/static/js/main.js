@@ -72,5 +72,38 @@ async function handleRedirectToasts(commons)
     if (handled) history.replaceState({}, '', window.location.pathname);
 }
 
+function toggleMoon()
+{
+    const week = document.getElementById('weekReport');
+    const moon = document.getElementById('moonReport');
+    const titleUnit = document.getElementById('reportTitleUnit');
+    const btn = document.getElementById('reportToggleBtn');
+
+    if (!week || !moon || !titleUnit || !btn) return;
+
+    const moonVisible = moon.style.display !== 'none';
+
+    if (moonVisible)
+    {
+        // 월간 -> 주간
+        moon.style.display = 'none';
+        week.style.display = 'block';
+        titleUnit.textContent = '주간';
+        btn.textContent = '월간 리포트 보기';
+    }
+    else
+    {
+        // 주간 -> 월간
+        week.style.display = 'none';
+        moon.style.display = 'block';
+        titleUnit.textContent = '월간';
+        btn.textContent = '주간 리포트 보기';
+    }
+}
+
 // 바인딩
-export async function bindMain(commons) { await handleRedirectToasts(commons); }
+export async function bindMain(commons)
+{
+    await handleRedirectToasts(commons);
+    window.toggleMoon = () => toggleMoon();
+}

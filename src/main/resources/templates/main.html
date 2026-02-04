@@ -27,76 +27,69 @@
             <!-- 활동 리포트 -->
             <div class="flexColumn widthFull gapXs">
                 <div class="sectionHeader report flexColumnMov justifyBetween alignCenter gapXs">
-                    <span class="title2Text bold">닉네임 님의 주간 활동 리포트</span>
-                    <button class="btn navy" onclick="toggleMoon()">월간 리포트 보기</button>
+                    <span class="title2Text bold">
+                        <span th:text="${mainMe.name}"></span> 님의
+                        <span id="reportTitleUnit">주간</span> 활동 리포트
+                    </span>
+                    <button class="btn navy" id="reportToggleBtn" onclick="toggleMoon()">월간 리포트 보기</button>
                 </div>
                 <div class="card pdMd widthFull flexColumn alignCenter gapSm">
-                    <p class="text1">
-                        <span class="mainColorText">닉네임</span> 님은 최근 7일간, <br>
-                        글을 <span class="mainColorText">10회</span> 작성했고, <br>
-                        댓글을 <span class="mainColorText">100회</span> 작성했고, <br>
-                        자주 이용한 게시판은 <span class="mainColorText">야구</span> 게시판이에요.
+                    <p class="text1" id="weekReport">
+                        <span class="mainColorText" th:text="${mainMe.name}"></span> 님은 최근 7일간, <br>
+                        글을 <span class="mainColorText" th:text="${weekReport.postCount}"></span>회 작성했고, <br>
+                        댓글을 <span class="mainColorText" th:text="${weekReport.commentCount}"></span>회 작성했고, <br>
+                        자주 이용한 게시판은 <span class="mainColorText" th:text="${weekReport.favoriteBoardName}"></span> 게시판이에요.
+                    </p>
+                    <p class="text1" id="moonReport" style="display: none;">
+                        <span class="mainColorText" th:text="${mainMe.name}"></span> 님은 최근 30일간, <br>
+                        글을 <span class="mainColorText" th:text="${moonReport.postCount}"></span>회 작성했고, <br>
+                        댓글을 <span class="mainColorText" th:text="${moonReport.commentCount}"></span>회 작성했고, <br>
+                        자주 이용한 게시판은 <span class="mainColorText" th:text="${moonReport.favoriteBoardName}"></span> 게시판이에요.
                     </p>
                 </div>
             </div>
 
             <!-- 회원 정보 -->
             <div class="mainUserInfo card pdMd flexColumn justifyCenter alignCenter gapXs">
-                <p class="text1 textCenter"><span class="mainColorText bold">닉네임</span> 님, 반갑습니다.</p>
+                <p class="text1 textCenter">
+                    <span class="mainColorText bold" th:text="${mainMe.name}"></span> 님, 반갑습니다.
+                </p>
                 <button class="btn teal" onclick="openModal('logoutModal')">로그아웃</button>
-                <p class="text1 textCenter">글 <span class="mainColorText">1000</span> 댓글 <span class="mainColorText">1000</span></p>
-                <p class="text1 textCenter">상태: <span class="pointColorText bold">차단됨</span>(7일 후 해제)</p>
+                <p class="text1 textCenter">
+                    글 <span class="mainColorText" th:text="${mainMe.postCount}"></span>
+                    댓글 <span class="mainColorText" th:text="${mainMe.commentCount}"></span>
+                </p>
+                <p class="text1 textCenter">
+                    상태:
+                    <span class="bold" th:text="${mainMe.blocked ? '차단됨' : '정상'}"
+                    th:classappend="${mainMe.blocked ? 'pointColorText' : 'mainColorText'}"></span>
+                </p>
             </div>
         </div>
 
         <!-- 최신 공지사항 -->
-        <div class="flexColumn gapSm">
+        <div class="flexColumn gapSm" th:if="${recentNotices != null and !#lists.isEmpty(recentNotices)}">
             <div class="sectionHeader widthFull flex justifyBetween alignCenter">
                 <span class="title2Text bold">최신 공지사항</span>
-                <a class="btn navy">전체 공지사항 보기</a>
+                <a class="btn navy" th:href="@{/notice}">전체 공지사항 보기</a>
             </div>
 
             <!-- 게시글 목록 -->
             <div class="postList widthFull">
-                <div class="post widthFull pdSm">
+                <div class="post widthFull pdSm" th:each="p : ${recentNotices}">
                     <div class="flex alignCenter gapXs">
-                        <span class="postTab textCenter">탭</span>
-                        <a class="text1">게시글 제목</a>
+                        <span class="postTab textCenter" th:text="${p.categoryName}">탭</span>
+                        <a class="text1"
+                           th:href="@{'/notice/post/' + ${p.postId}}"
+                           th:text="${p.title}"></a>
                     </div>
-                    <a class="text1 writer">작성자</a>
-                    <p class="text1 lightText">2026.01.01. 00:00</p>
-                </div>
-                <div class="post widthFull pdSm">
-                    <div class="flex alignCenter gapXs">
-                        <span class="postTab textCenter">탭</span>
-                        <a class="text1">게시글 제목</a>
-                    </div>
-                    <a class="text1 writer">작성자</a>
-                    <p class="text1 lightText">2026.01.01. 00:00</p>
-                </div>
-                <div class="post widthFull pdSm">
-                    <div class="flex alignCenter gapXs">
-                        <span class="postTab textCenter">탭</span>
-                        <a class="text1">게시글 제목</a>
-                    </div>
-                    <a class="text1 writer">작성자</a>
-                    <p class="text1 lightText">2026.01.01. 00:00</p>
-                </div>
-                <div class="post widthFull pdSm">
-                    <div class="flex alignCenter gapXs">
-                        <span class="postTab textCenter">탭</span>
-                        <a class="text1">게시글 제목</a>
-                    </div>
-                    <a class="text1 writer">작성자</a>
-                    <p class="text1 lightText">2026.01.01. 00:00</p>
-                </div>
-                <div class="post widthFull pdSm">
-                    <div class="flex alignCenter gapXs">
-                        <span class="postTab textCenter">탭</span>
-                        <a class="text1">게시글 제목</a>
-                    </div>
-                    <a class="text1 writer">작성자</a>
-                    <p class="text1 lightText">2026.01.01. 00:00</p>
+                    <a class="text1 writer" th:text="${p.authorName}"></a>
+                    <p class="text1 lightText">
+                        <span class="lightText" th:text="${#temporals.format(p.createdAt, 'yyyy.MM.dd. HH:mm')}"></span>
+                        · 조회 <span class="lightText" th:text="${p.viewCount}"></span>
+                        · 좋아요 <span class="lightText" th:text="${p.likeCount}"></span>
+                        · 댓글 <span class="lightText" th:text="${p.commentCount}"></span>
+                    </p>
                 </div>
             </div>
         </div>
@@ -106,60 +99,34 @@
             <p class="title2Text bold">지금 우리 사이트는…</p>
             <div class="card pdMd widthFull flexColumn alignCenter gapSm">
                 <p class="text1">
-                    지난 24시간 동안, <br>
-                    <span class="mainColorText">10명</span>의 신규 유저가 가입했고, <br>
-                    <span class="mainColorText">100개</span>의 글이 작성됐고, <br>
-                    <span class="mainColorText">1000개</span>의 댓글이 작성됐고, <br>
-                    가장 활발한 곳은 <span class="mainColorText">야구</span> 게시판이에요.
+                    <span th:text="${#temporals.format(siteStat.date, 'yyyy년 MM월 dd일')}"></span>, <br>
+                    <span class="mainColorText" th:text="${siteStat.newUserCount}"></span>명의 신규 유저가 가입했고, <br>
+                    <span class="mainColorText" th:text="${siteStat.postCount}"></span>개의 글이 작성됐고, <br>
+                    <span class="mainColorText" th:text="${siteStat.commentCount}"></span>개의 댓글이 작성됐고, <br>
+                    가장 활발한 곳은 <span class="mainColorText" th:text="${siteStat.favoriteBoardName}"></span> 게시판이에요.
                 </p>
             </div>
         </div>
 
         <!-- 최신글 -->
-        <div class="flexColumn gapSm">
+        <div class="flexColumn gapSm" th:if="${latestPosts != null and !#lists.isEmpty(latestPosts)}">
             <p class="title2Text bold">최신글</p>
 
             <!-- 게시글 목록 -->
             <div class="postList widthFull">
-                <div class="post widthFull pdSm">
+                <div class="post widthFull pdSm" th:each="p : ${latestPosts}">
                     <div class="flex alignCenter gapXs">
-                        <span class="postTab textCenter">탭</span>
-                        <a class="text1">게시글 제목</a>
+                        <span class="postTab textCenter" th:text="${p.boardName}"></span>
+                        <a class="text1" th:text="${p.title}"
+                        th:href="@{'/' + ${p.boardId} + '/post/' + ${p.postId}}"></a>
                     </div>
-                    <a class="text1 writer">작성자</a>
-                    <p class="text1 lightText">2026.01.01. 00:00</p>
-                </div>
-                <div class="post widthFull pdSm">
-                    <div class="flex alignCenter gapXs">
-                        <span class="postTab textCenter">탭</span>
-                        <a class="text1">게시글 제목</a>
-                    </div>
-                    <a class="text1 writer">작성자</a>
-                    <p class="text1 lightText">2026.01.01. 00:00</p>
-                </div>
-                <div class="post widthFull pdSm">
-                    <div class="flex alignCenter gapXs">
-                        <span class="postTab textCenter">탭</span>
-                        <a class="text1">게시글 제목</a>
-                    </div>
-                    <a class="text1 writer">작성자</a>
-                    <p class="text1 lightText">2026.01.01. 00:00</p>
-                </div>
-                <div class="post widthFull pdSm">
-                    <div class="flex alignCenter gapXs">
-                        <span class="postTab textCenter">탭</span>
-                        <a class="text1">게시글 제목</a>
-                    </div>
-                    <a class="text1 writer">작성자</a>
-                    <p class="text1 lightText">2026.01.01. 00:00</p>
-                </div>
-                <div class="post widthFull pdSm">
-                    <div class="flex alignCenter gapXs">
-                        <span class="postTab textCenter">탭</span>
-                        <a class="text1">게시글 제목</a>
-                    </div>
-                    <a class="text1 writer">작성자</a>
-                    <p class="text1 lightText">2026.01.01. 00:00</p>
+                    <a class="text1 writer" th:text="${p.authorName}"></a>
+                    <p class="text1 lightText">
+                        <span class="lightText" th:text="${#temporals.format(p.createdAt, 'yyyy.MM.dd. HH:mm')}"></span>
+                        · 조회 <span class="lightText" th:text="${p.viewCount}"></span>
+                        · 좋아요 <span class="lightText" th:text="${p.likeCount}"></span>
+                        · 댓글 <span class="lightText" th:text="${p.commentCount}"></span>
+                    </p>
                 </div>
             </div>
         </div>

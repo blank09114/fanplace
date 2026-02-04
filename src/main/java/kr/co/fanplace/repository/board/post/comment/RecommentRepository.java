@@ -2,6 +2,7 @@ package kr.co.fanplace.repository.board.post.comment;
 
 import kr.co.fanplace.dto.board.CommentDTO;
 import kr.co.fanplace.entity.board.post.comment.Recomment;
+import kr.co.fanplace.repository.BoardCountRow;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -93,4 +94,62 @@ public interface RecommentRepository extends JpaRepository<Recomment, Long>
     order by r.id asc
     """)
     List<Long> findPurgeTargetIdsWithReason(@Param("cutoff") LocalDateTime cutoff, Pageable pageable);
+
+    long countByAuthorUser_IdAndDeletedFalse(String userId);
+
+    // 유저 기간 내 대댓글 수
+    @Query("""
+        select count(r)
+        from Recomment r
+        where r.authorUser is not null
+            and r.authorUser.id = :userId
+            and r.deleted = false
+            and r.comment.deleted = false
+            and r.comment.post.deleted = false
+            and r.createdAt >= :from and r.createdAt < :to
+    """)
+    long countUserRecommentInRange(@Param("userId") String userId, @Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+
+    // 유저 기간 내 게시판별 대댓글 수
+    @Query("""
+        select
+            r.comment.post.board.id as boardId,
+            r.comment.post.board.name as boardName,
+            count(r) as cnt
+        from Recomment r
+        where r.authorUser is not null
+            and r.authorUser.id = :userId
+            and r.deleted = false
+            and r.comment.deleted = false
+            and r.comment.post.deleted = false
+            and r.createdAt >= :from and r.createdAt < :to
+        group by r.comment.post.board.id, r.comment.post.board.name
+    """)
+    List<BoardCountRow> countUserRecommentByBoardInRange(@Param("userId") String userId, @Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+
+    // 전체 기간 내 대댓글 수
+    @Query("""
+        select count(r)
+        from Recomment r
+        where r.deleted = false
+            and r.comment.deleted = false
+            and r.comment.post.deleted = false
+            and r.createdAt >= :from and r.createdAt < :to
+    """)
+    long countRecommentInRange(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+
+    // 전체 기간 내 게시판별 대댓글 수
+    @Query("""
+        select
+            r.comment.post.board.id as boardId,
+            r.comment.post.board.name as boardName,
+            count(r) as cnt
+        from Recomment r
+        where r.deleted = false
+            and r.comment.deleted = false
+            and r.comment.post.deleted = false
+            and r.createdAt >= :from and r.createdAt < :to
+        group by r.comment.post.board.id, r.comment.post.board.name
+    """)
+    List<BoardCountRow> countRecommentByBoardInRange(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
 }

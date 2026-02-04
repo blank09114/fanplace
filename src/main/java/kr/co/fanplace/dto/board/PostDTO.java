@@ -17,6 +17,9 @@ public class PostDTO
     {
         private final Long postId;
 
+        private final String boardId;
+        private final String boardName;
+
         private final String categoryId;
         private final String categoryName;
 

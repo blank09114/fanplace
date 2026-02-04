@@ -3,6 +3,7 @@ package kr.co.fanplace.repository.board.post;
 import kr.co.fanplace.dto.board.PostDTO;
 import kr.co.fanplace.dto.user.MyActivityDTO;
 import kr.co.fanplace.entity.board.post.Post;
+import kr.co.fanplace.repository.BoardCountRow;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -55,6 +56,7 @@ public interface PostRepository extends JpaRepository<Post, Long>
     @Query(
         value = "select new kr.co.fanplace.dto.board.PostDTO$ListItem( " +
             "p.id, " +
+            "p.board.id, p.board.name, " +
             "p.category.id, p.category.name, " +
             "u.id, " +
             "case when u is null then '탈퇴 회원' else u.name end, " +
@@ -87,6 +89,7 @@ public interface PostRepository extends JpaRepository<Post, Long>
         value =
             "select new kr.co.fanplace.dto.board.PostDTO$ListItem( " +
                 "p.id, " +
+                "p.board.id, p.board.name, " +
                 "p.category.id, p.category.name, " +
                 "u.id, " +
                 "case when u is null then '탈퇴 회원' else u.name end, " +
@@ -160,4 +163,101 @@ public interface PostRepository extends JpaRepository<Post, Long>
         where p.user is not null and p.user.id = :userId and (:admin = true or p.deleted = false)
     """)
     Page<MyActivityDTO.PostItem> findUserPostPage(@Param("userId") String userId, @Param("admin") boolean admin, Pageable pageable);
+
+    // 특정인 게시글 수 합산
+    long countByUser_IdAndDeletedFalse(String userId);
+
+    // 유저 기간 내 글 수
+    @Query("""
+        select count(p)
+        from Post p
+        where p.user is not null
+            and p.user.id = :userId
+            and p.deleted = false
+            and p.createdAt >= :from and p.createdAt < :to
+    """)
+    long countUserPostInRange(@Param("userId") String userId, @Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+
+    // 유저 기간 내 게시판별 글 수
+    @Query("""
+        select
+            p.board.id as boardId,
+            p.board.name as boardName,
+            count(p) as cnt
+        from Post p
+        where p.user is not null
+            and p.user.id = :userId
+            and p.deleted = false
+            and p.createdAt >= :from and p.createdAt < :to
+        group by p.board.id, p.board.name
+    """)
+    List<BoardCountRow> countUserPostByBoardInRange(@Param("userId") String userId, @Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+
+    // 전체 기간 내 글 수
+    @Query("""
+        select count(p)
+        from Post p
+        where p.deleted = false and p.createdAt >= :from and p.createdAt < :to
+    """)
+    long countPostInRange(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+
+    // 전체 기간 내 게시판별 글 수
+    @Query("""
+        select
+            p.board.id as boardId,
+            p.board.name as boardName,
+            count(p) as cnt
+        from Post p
+        where p.deleted = false and p.createdAt >= :from and p.createdAt < :to
+        group by p.board.id, p.board.name
+    """)
+    List<BoardCountRow> countPostByBoardInRange(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+
+    // 공지
+    @Query(value =
+        "select new kr.co.fanplace.dto.board.PostDTO$ListItem( " +
+        "p.id, " +
+        "p.board.id, p.board.name, " +
+        "p.category.id, p.category.name, " +
+        "u.id, " +
+        "case when u is null then '탈퇴 회원' else u.name end, " +
+        "p.createdAt, " +
+        "pl.title, " +
+        "(select count(v) from PostView v where v.post = p), " +
+        "(select count(l) from PostLike l where l.post = p), " +
+        "( (select count(c) from Comment c where c.post = p and c.deleted = false) + " +
+        "  (select count(r) from Recomment r where r.comment.post = p and r.deleted = false and r.comment.deleted = false) )" +
+        ") " +
+        "from Post p " +
+        "join PostLog pl on pl.post = p and pl.id = (select max(pl2.id) from PostLog pl2 where pl2.post = p) " +
+        "left join p.user u " +
+        "where p.board.id = :boardId " +
+        "and p.deleted = false " +
+        "and p.createdAt >= :from and p.createdAt < :to " +
+        "order by p.id desc"
+    )
+    List<PostDTO.ListItem> findRecentBoardPosts(@Param("boardId") String boardId, @Param("from") LocalDateTime from, @Param("to") LocalDateTime to, Pageable pageable);
+
+    // 최신글
+    @Query(value =
+        "select new kr.co.fanplace.dto.board.PostDTO$ListItem( " +
+        "p.id, " +
+        "p.board.id, p.board.name, " +
+        "p.category.id, p.category.name, " +
+        "u.id, " +
+        "case when u is null then '탈퇴 회원' else u.name end, " +
+        "p.createdAt, " +
+        "pl.title, " +
+        "(select count(v) from PostView v where v.post = p), " +
+        "(select count(l) from PostLike l where l.post = p), " +
+        "( (select count(c) from Comment c where c.post = p and c.deleted = false) + " +
+        "  (select count(r) from Recomment r where r.comment.post = p and r.deleted = false and r.comment.deleted = false) )" +
+        ") " +
+        "from Post p " +
+        "join PostLog pl on pl.post = p and pl.id = (select max(pl2.id) from PostLog pl2 where pl2.post = p) " +
+        "left join p.user u " +
+        "where p.deleted = false " +
+        "order by p.id desc"
+    )
+    List<PostDTO.ListItem> findLatestPosts(Pageable pageable);
 }
