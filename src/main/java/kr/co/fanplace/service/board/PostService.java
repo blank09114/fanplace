@@ -26,7 +26,6 @@ import kr.co.fanplace.setting.security.SecurityContextHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -374,4 +373,22 @@ public class PostService
         if (authorUserId == null || !authorUserId.equals(userId))
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "수정 권한이 없습니다.");
     }
+
+    // 최신 공지사항
+    @Transactional(readOnly = true)
+    public List<PostDTO.ListItem> getRecentNotices()
+    {
+        LocalDateTime to = java.time.LocalDate.now().plusDays(1).atStartOfDay(); // 내일 00:00
+        LocalDateTime from = to.minusDays(7);
+
+        return postRepository.findRecentBoardPosts(
+            "notice", from, to,
+            org.springframework.data.domain.PageRequest.of(0, 5)
+        );
+    }
+
+    // 최신글
+    @Transactional(readOnly = true)
+    public List<PostDTO.ListItem> getLatestPosts()
+    { return postRepository.findLatestPosts(org.springframework.data.domain.PageRequest.of(0, 5)); }
 }

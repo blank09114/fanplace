@@ -29,4 +29,11 @@ public interface UserRepository extends JpaRepository<User, String>
         where u.name = :name and u.id <> :userId
     """)
     boolean existsByNameAndIdNot(@Param("name") String name, @Param("userId") String userId);
+
+    @Query("""
+        select count(u)
+        from User u
+        where u.enabled = true and u.createdAt >= :from and u.createdAt < :to
+    """)
+    long countJoinedInRange(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
 }

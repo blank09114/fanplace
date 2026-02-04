@@ -35,4 +35,29 @@ public class UserInfoDTO
         public String getName() { return name; }
         public void setName(String name) { this.name = name; }
     }
+
+    // 메인 페이지 회원 정보 위젯
+    @Getter
+    @AllArgsConstructor
+    public static class MainSummary
+    {
+        private final String userId;
+        private final String name;
+
+        private final long postCount;
+        private final long commentCount;
+
+        private final boolean blocked;
+    }
+
+    // 활동 리포트
+    @Getter
+    @AllArgsConstructor
+    public static class ActivityReport
+    {
+        private final int days;
+        private final long postCount;
+        private final long commentCount;
+        private final String favoriteBoardName;
+    }
 }

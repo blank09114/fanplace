@@ -2,6 +2,7 @@ package kr.co.fanplace.repository.board.post.comment;
 
 import kr.co.fanplace.dto.board.CommentDTO;
 import kr.co.fanplace.entity.board.post.comment.Comment;
+import kr.co.fanplace.repository.BoardCountRow;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -161,4 +162,58 @@ public interface CommentRepository extends JpaRepository<Comment, Long>
     ) t
     """, nativeQuery = true)
     Page<UserActivityCommentRow> findUserActivityCommentPage(@Param("userId") String userId, @Param("admin") boolean admin, Pageable pageable);
+
+    long countByUser_IdAndDeletedFalse(String userId);
+
+    // 유저 기간 내 댓글 수
+    @Query("""
+        select count(c)
+        from Comment c
+        where c.user is not null
+            and c.user.id = :userId
+            and c.deleted = false
+            and c.post.deleted = false
+            and c.createdAt >= :from and c.createdAt < :to
+    """)
+    long countUserCommentInRange(@Param("userId") String userId, @Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+
+    // 유저 기간 내 게시판별 댓글 수
+    @Query("""
+        select
+            c.post.board.id as boardId,
+            c.post.board.name as boardName,
+            count(c) as cnt
+        from Comment c
+        where c.user is not null
+            and c.user.id = :userId
+            and c.deleted = false
+            and c.post.deleted = false
+            and c.createdAt >= :from and c.createdAt < :to
+        group by c.post.board.id, c.post.board.name
+    """)
+    List<BoardCountRow> countUserCommentByBoardInRange(@Param("userId") String userId, @Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+
+    // 전체 기간 내 댓글 수
+    @Query("""
+        select count(c)
+        from Comment c
+        where c.deleted = false
+            and c.post.deleted = false
+            and c.createdAt >= :from and c.createdAt < :to
+    """)
+    long countCommentInRange(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+
+    // 전체 기간 내 게시판별 댓글 수
+    @Query("""
+        select
+            c.post.board.id as boardId,
+            c.post.board.name as boardName,
+            count(c) as cnt
+        from Comment c
+        where c.deleted = false
+            and c.post.deleted = false
+            and c.createdAt >= :from and c.createdAt < :to
+        group by c.post.board.id, c.post.board.name
+    """)
+    List<BoardCountRow> countCommentByBoardInRange(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
 }

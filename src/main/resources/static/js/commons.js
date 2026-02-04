@@ -426,7 +426,7 @@ export function bindCommons(commons)
     window.getValueEl = (el) => commons.getValueEl(el);
     window.searchUniv = () => commons.searchUniv();
 
-    // 공용 폼 바인딩(있을 때만)
+    // 공용 폼 바인딩
     const f = document.forms?.univSearch;
     if (f)
     {
