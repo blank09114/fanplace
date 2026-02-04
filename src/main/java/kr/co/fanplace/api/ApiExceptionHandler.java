@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-@RestControllerAdvice
+@RestControllerAdvice(basePackages = "kr.co.fanplace.api")
 public class ApiExceptionHandler
 {
     @ExceptionHandler(IllegalArgumentException.class)

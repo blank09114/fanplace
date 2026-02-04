@@ -11,10 +11,10 @@
     <!-- 에러 -->
     <div class="error pdMd flexColumn alignCenter">
         <p class="title1Text textCenter bold">· ERROR ·</p>
-        <p class="errorCode bold">404</p>
-        <p class="title1Text textCenter bold">NOT FOUND</p>
-        <p class="title2Text textCenter">요청하신 경로를 찾을 수 없습니다.</p>
-        <a class="btn navy">메인 페이지로 이동</a>
+        <p class="errorCode bold" th:text="${status}"></p>
+        <p class="title1Text textCenter bold" th:text="${title}"></p>
+        <p class="title2Text textCenter" th:text="${message}"></p>
+        <a class="btn navy" th:href="@{/}">메인 페이지로 이동</a>
     </div>
 
     <script type="module" th:src="@{/js/script.js}"></script>
