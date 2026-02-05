@@ -11,6 +11,9 @@ import kr.co.fanplace.service.MainService;
 import kr.co.fanplace.setting.ip.GeoIpService;
 import kr.co.fanplace.setting.security.SecurityContextHelper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -155,5 +158,32 @@ public class UserService
         long totalCommentCount = commentCount + recommentCount;
 
         return new UserInfoDTO.ActivityReport(days, postCount, totalCommentCount, favoriteBoardName);
+    }
+
+    // 회원목록
+    @Transactional(readOnly = true)
+    public Page<UserInfoDTO.Card> getUserListPageAdmin(int page, int size)
+    {
+        if (!SecurityContextHelper.isAdmin())
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "관리자만 접근할 수 있습니다.");
+
+        int safePage = Math.max(0, page);
+        int safeSize = Math.min(50, Math.max(1, size)); // 방어
+
+        var pageable = PageRequest.of
+        (safePage, safeSize, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        return userRepository.findAll(pageable).map(u ->
+        {
+            boolean withdraw = u.isWithdraw();
+            boolean blocked = false;
+
+            if (!withdraw) blocked = userSanctionService.isBlocked(u.getId());
+
+            return new UserInfoDTO.Card(
+                u.getId(), u.getName(), u.getCreatedAt(), u.getMail(), null,
+                u.isWithdraw(), blocked
+            );
+        });
     }
 }

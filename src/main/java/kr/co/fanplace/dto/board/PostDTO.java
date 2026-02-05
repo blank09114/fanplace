@@ -136,4 +136,27 @@ public class PostDTO
         private final long likeCount;
         private final long commentCount;
     }
+
+    // 삭제된 글
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    public static class DeletedListItem
+    {
+        private Long postId;
+        private String boardId;
+        private String boardName;
+
+        private String authorUserId;
+        private String authorName;
+
+        private String title;
+
+        private LocalDateTime createdAt;
+        private LocalDateTime deletedAt;
+
+        private long viewCount;
+        private long likeCount;
+        private long commentCount;
+    }
 }

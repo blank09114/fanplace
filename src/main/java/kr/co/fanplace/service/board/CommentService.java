@@ -16,6 +16,7 @@ import kr.co.fanplace.setting.security.SecurityContextHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -231,5 +232,28 @@ public class CommentService
             r.getType(), r.getId(), r.getPostId(), r.getBoardId(), r.getBoardName(),
             r.getCategoryId(), r.getCategoryName(), r.getContent(), r.getCreatedAt()
         ));
+    }
+
+    // 삭제된 댓글/대댓글
+    @Transactional(readOnly = true)
+    public Page<CommentDTO.DeletedListItem> getDeletedCommentPage(int page, int size, String q)
+    {
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<CommentRepository.DeletedCommentRow> rows = commentRepository.findDeletedCommentPage(q, pageable);
+
+        return rows.map(r -> {
+            String reason = r.getDeletedReason();
+            String reasonDisplay = (reason == null || reason.isBlank()) ? "본인 삭제" : reason;
+
+            String authorName = (r.getAuthorName() == null || r.getAuthorName().isBlank())
+            ? "탈퇴 회원" : r.getAuthorName();
+
+            return new CommentDTO.DeletedListItem(
+                r.getType(), r.getId(), r.getPostId(), r.getBoardId(), r.getBoardName(),
+                r.getCategoryId(), r.getCategoryName(), r.getAuthorUserId(), authorName,
+                r.getContent(), r.getCreatedAt(), r.getDeletedAt(), reasonDisplay
+            );
+        });
     }
 }

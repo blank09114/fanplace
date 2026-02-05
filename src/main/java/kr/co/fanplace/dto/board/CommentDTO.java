@@ -82,4 +82,28 @@ public class CommentDTO
     @Getter
     @AllArgsConstructor
     public static class RecommentWriteRes { private final Long recommentId; }
+
+    // 삭제된 댓글/대댓글 목록
+    @Getter
+    @AllArgsConstructor
+    public static class DeletedListItem
+    {
+        private final String type;
+        private final Long id;
+
+        private final Long postId;
+        private final String boardId;
+        private final String boardName;
+        private final String categoryId;
+        private final String categoryName;
+
+        private final String authorUserId;
+        private final String authorName;
+
+        private final String content;
+        private final LocalDateTime createdAt;
+
+        private final LocalDateTime deletedAt;
+        private final String deletedReason;
+    }
 }

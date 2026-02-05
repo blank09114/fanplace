@@ -260,4 +260,166 @@ public interface PostRepository extends JpaRepository<Post, Long>
         "order by p.id desc"
     )
     List<PostDTO.ListItem> findLatestPosts(Pageable pageable);
+
+    // 삭제된 글 조회
+    @Query(value = """
+        select new kr.co.fanplace.dto.board.PostDTO$DeletedListItem(
+            p.id,
+            b.id, b.name,
+            u.id,
+            case when u is null then '탈퇴 회원' else u.name end,
+            pl.title,
+            p.createdAt, p.deletedAt,
+            (select count(v) from PostView v where v.post = p),
+            (select count(l) from PostLike l where l.post = p),
+            (
+                (select count(c) from Comment c where c.post = p and c.deleted = false)
+                + (select count(r) from Recomment r
+                    where r.comment.post = p
+                      and r.deleted = false
+                      and r.comment.deleted = false)
+            )
+        )
+        from Post p
+        join p.board b
+        join PostLog pl on pl.post = p
+            and pl.id = (select max(pl2.id) from PostLog pl2 where pl2.post = p)
+        left join p.user u
+        where p.deleted = true
+        order by p.deletedAt desc, p.id desc
+    """, countQuery = """
+        select count(p) from Post p where p.deleted = true
+    """)
+    Page<PostDTO.DeletedListItem> findDeletedPostPage(Pageable pageable);
+
+    // 삭제된 글 검색
+    @Query(value = """
+        select new kr.co.fanplace.dto.board.PostDTO$DeletedListItem(
+            p.id,
+            b.id, b.name,
+            (case when u is null then null else u.id end),
+            (case when u is null then '탈퇴 회원' else u.name end),
+            pl.title,
+            p.createdAt, p.deletedAt,
+            (select count(v) from PostView v where v.post = p),
+            (select count(l) from PostLike l where l.post = p),
+            (
+                (select count(c) from Comment c where c.post = p and c.deleted = false)
+                + (select count(r) from Recomment r
+                    where r.comment.post = p
+                      and r.deleted = false
+                      and r.comment.deleted = false)
+            )
+        )
+        from Post p
+        join p.board b
+        join PostLog pl on pl.post = p
+            and pl.id = (select max(pl2.id) from PostLog pl2 where pl2.post = p)
+        left join p.user u
+        where p.deleted = true
+          and lower(pl.title) like lower(concat('%', :q, '%'))
+        order by p.deletedAt desc, p.id desc
+    """, countQuery = """
+        select count(p)
+        from Post p
+        join PostLog pl on pl.post = p
+            and pl.id = (select max(pl2.id) from PostLog pl2 where pl2.post = p)
+        where p.deleted = true
+          and lower(pl.title) like lower(concat('%', :q, '%'))
+    """)
+    Page<PostDTO.DeletedListItem> searchDeletedByTitle(@Param("q") String q, Pageable pageable);
+
+    // 일별 글 수
+    @Query(value = """
+        select date(p.post_date) as day, count(*) as cnt
+        from post_tbl p
+        where p.post_is_deleted = false
+          and p.post_date >= :from and p.post_date < :to
+        group by date(p.post_date)
+        order by day asc
+    """, nativeQuery = true)
+    List<kr.co.fanplace.repository.DayCountRow> countPostByDayInRange
+    (@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+
+    // 일 10회 이상 글 작성 유저 수
+    @Query(value = """
+        select count(*) from (
+            select p.user_id
+            from post_tbl p
+            where p.post_is_deleted = false
+              and p.user_id is not null
+              and p.post_date >= :from and p.post_date < :to
+            group by date(p.post_date), p.user_id
+            having count(*) >= 10
+        ) t
+    """, nativeQuery = true)
+    long countPostOver10UsersInWeek(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+
+    // 게시판별 댓글(댓글+대댓글) 없는 글 수
+    @Query(value = """
+    select p.board_id as boardId, b.board_name as boardName, count(*) as cnt
+    from post_tbl p
+    join board_tbl b on b.board_id = p.board_id
+    where p.post_is_deleted = false
+      and p.post_date >= :from and p.post_date < :to
+      and not exists (
+          select 1
+          from comment_tbl c
+          where c.post_id = p.post_id
+            and c.comment_is_deleted = false
+            and c.comment_date >= :from and c.comment_date < :to
+      )
+      and not exists (
+          select 1
+          from recomment_tbl r
+          join comment_tbl c2 on c2.comment_id = r.comment_id
+          where c2.post_id = p.post_id
+            and r.recomment_is_deleted = false
+            and c2.comment_is_deleted = false
+            and r.recomment_date >= :from and r.recomment_date < :to
+      )
+    group by p.board_id, b.board_name
+""", nativeQuery = true)
+    List<kr.co.fanplace.repository.BoardCountRow> countNoCommentPostByBoardInRange
+    (@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+
+    // 게시판별 "작성자만 댓글(댓글+대댓글)" 단 글 수
+    @Query(value = """
+        select t.boardId as boardId, t.boardName as boardName, count(*) as cnt
+        from (
+            select
+                p.post_id as postId,
+                p.board_id as boardId,
+                b.board_name as boardName
+            from post_tbl p
+            join board_tbl b on b.board_id = p.board_id
+            join (
+                select c.post_id as postId, c.user_id as uid
+                from comment_tbl c
+                join post_tbl p2 on p2.post_id = c.post_id
+                where c.comment_is_deleted = false
+                  and p2.post_is_deleted = false
+                  and c.comment_date >= :from and c.comment_date < :to
+    
+                union all
+    
+                select p3.post_id as postId, r.author_user_id as uid
+                from recomment_tbl r
+                join comment_tbl c2 on c2.comment_id = r.comment_id
+                join post_tbl p3 on p3.post_id = c2.post_id
+                where r.recomment_is_deleted = false
+                  and c2.comment_is_deleted = false
+                  and p3.post_is_deleted = false
+                  and r.recomment_date >= :from and r.recomment_date < :to
+            ) x on x.postId = p.post_id
+            where p.post_is_deleted = false
+              and p.post_date >= :from and p.post_date < :to
+              and p.user_id is not null
+            group by p.post_id, p.board_id, b.board_name, p.user_id
+            having sum(case when x.uid is null or x.uid <> p.user_id then 1 else 0 end) = 0
+        ) t
+        group by t.boardId, t.boardName
+    """, nativeQuery = true)
+    List<kr.co.fanplace.repository.BoardCountRow> countAuthorOnlyCommentPostByBoardInRange
+    (@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
 }

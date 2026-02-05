@@ -21,126 +21,17 @@
 
         <!-- 게시글 목록 -->
         <div class="postListMenu widthFull flexColumn gapSm alignCenter">
-            <!-- 게시글 목록 -->
-            <div class="postListMenu widthFull flexColumn gapSm alignCenter">
-                <!-- 게시글 목록 -->
-                <div class="postList widthFull">
-                    <div class="post widthFull pdSm">
-                        <div class="flex alignCenter gapXs">
-                            <span class="postTab textCenter">탭</span>
-                            <a class="text1">게시글 제목</a>
-                        </div>
-                        <a class="text1 writer">작성자</a>
-                        <p class="text1 lightText">2026.01.01. 00:00 · 조회 999 · 좋아요 99 · 댓글 99</p>
-                    </div>
-                    <div class="post widthFull pdSm">
-                        <div class="flex alignCenter gapXs">
-                            <span class="postTab textCenter">탭</span>
-                            <a class="text1">게시글 제목</a>
-                        </div>
-                        <a class="text1 writer">작성자</a>
-                        <p class="text1 lightText">2026.01.01. 00:00 · 조회 999 · 좋아요 99 · 댓글 99</p>
-                    </div>
-                    <div class="post widthFull pdSm">
-                        <div class="flex alignCenter gapXs">
-                            <span class="postTab textCenter">탭</span>
-                            <a class="text1">게시글 제목</a>
-                        </div>
-                        <a class="text1 writer">작성자</a>
-                        <p class="text1 lightText">2026.01.01. 00:00 · 조회 999 · 좋아요 99 · 댓글 99</p>
-                    </div>
-                    <div class="post widthFull pdSm">
-                        <div class="flex alignCenter gapXs">
-                            <span class="postTab textCenter">탭</span>
-                            <a class="text1">게시글 제목</a>
-                        </div>
-                        <a class="text1 writer">작성자</a>
-                        <p class="text1 lightText">2026.01.01. 00:00 · 조회 999 · 좋아요 99 · 댓글 99</p>
-                    </div>
-                    <div class="post widthFull pdSm">
-                        <div class="flex alignCenter gapXs">
-                            <span class="postTab textCenter">탭</span>
-                            <a class="text1">게시글 제목</a>
-                        </div>
-                        <a class="text1 writer">작성자</a>
-                        <p class="text1 lightText">2026.01.01. 00:00 · 조회 999 · 좋아요 99 · 댓글 99</p>
-                    </div>
-                    <div class="post widthFull pdSm">
-                        <div class="flex alignCenter gapXs">
-                            <span class="postTab textCenter">탭</span>
-                            <a class="text1">게시글 제목</a>
-                        </div>
-                        <a class="text1 writer">작성자</a>
-                        <p class="text1 lightText">2026.01.01. 00:00 · 조회 999 · 좋아요 99 · 댓글 99</p>
-                    </div>
-                    <div class="post widthFull pdSm">
-                        <div class="flex alignCenter gapXs">
-                            <span class="postTab textCenter">탭</span>
-                            <a class="text1">게시글 제목</a>
-                        </div>
-                        <a class="text1 writer">작성자</a>
-                        <p class="text1 lightText">2026.01.01. 00:00 · 조회 999 · 좋아요 99 · 댓글 99</p>
-                    </div>
-                    <div class="post widthFull pdSm">
-                        <div class="flex alignCenter gapXs">
-                            <span class="postTab textCenter">탭</span>
-                            <a class="text1">게시글 제목</a>
-                        </div>
-                        <a class="text1 writer">작성자</a>
-                        <p class="text1 lightText">2026.01.01. 00:00 · 조회 999 · 좋아요 99 · 댓글 99</p>
-                    </div>
-                    <div class="post widthFull pdSm">
-                        <div class="flex alignCenter gapXs">
-                            <span class="postTab textCenter">탭</span>
-                            <a class="text1">게시글 제목</a>
-                        </div>
-                        <a class="text1 writer">작성자</a>
-                        <p class="text1 lightText">2026.01.01. 00:00 · 조회 999 · 좋아요 99 · 댓글 99</p>
-                    </div>
-                    <div class="post widthFull pdSm">
-                        <div class="flex alignCenter gapXs">
-                            <span class="postTab textCenter">탭</span>
-                            <a class="text1">게시글 제목</a>
-                        </div>
-                        <a class="text1 writer">작성자</a>
-                        <p class="text1 lightText">2026.01.01. 00:00 · 조회 999 · 좋아요 99 · 댓글 99</p>
-                    </div>
-                </div>
-
-                <!-- 검색 -->
-                <form name="search" class="searchForm flex gapXs">
-                    <input type="text" name="keyword" placeholder="게시판 내 검색">
-                    <button type="button" class="btn teal" onclick="searchBoard()">검색</button>
-                </form>
-
-                <!-- 페이지 -->
-                <div class="pages flex justifyCenter gapXs">
-                    <a class="page"> < </a>
-                    <a class="page now"> 1 </a>
-                    <a class="page"> 2 </a>
-                    <a class="page"> 3 </a>
-                    <a class="page"> 4 </a>
-                    <a class="page"> 5 </a>
-                    <a class="page"> > </a>
-                </div>
-            </div>
+            <!-- 목록 -->
+            <div class="postList widthFull" id="deletedPostList"></div>
 
             <!-- 검색 -->
             <form name="deletedPostSearch" class="searchForm flex gapXs">
-                <input type="text" name="keyword" placeholder="삭제된 게시글 중 검색">
-                <button type="button" class="btn teal" onclick="searchDeletedSearch()">검색</button>
+                <input type="text" name="keyword" placeholder="삭제된 게시글 중 검색" th:if="${univSearch != true}">
+                <button type="button" class="btn teal" onclick="searchDeletedPost()">검색</button>
             </form>
-            
+
             <!-- 페이지 -->
-            <div class="pages flex justifyCenter gapXs">
-                <a class="page"> < </a>
-                <a class="page now"> 1 </a>
-                <a class="page"> 2 </a>
-                <a class="page"> 3 </a>
-                <a class="page"> 4 </a>
-                <a class="page"> 5 </a>
-                <a class="page"> > </a>
-            </div>
+            <div class="pages flex justifyCenter gapXs" id="deletedPostPagination"></div>
         </div>
     </section>
 
