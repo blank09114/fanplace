@@ -300,4 +300,204 @@ public interface CommentRepository extends JpaRepository<Comment, Long>
             ") t ",
     nativeQuery = true)
     Page<DeletedCommentRow> findDeletedCommentPage(@Param("q") String q, Pageable pageable);
+
+    @Query(value = """
+        select date(c.comment_date) as day, count(*) as cnt
+        from comment_tbl c
+        join post_tbl p on p.post_id = c.post_id
+        where c.comment_is_deleted = false
+          and p.post_is_deleted = false
+          and c.comment_date >= :from and c.comment_date < :to
+        group by date(c.comment_date)
+        order by day asc
+    """, nativeQuery = true)
+    List<kr.co.fanplace.repository.DayCountRow> countCommentByDayInRange
+    (@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+
+    // 주간 활성 유저 수 (글/댓글/대댓글 중 하나라도)
+    @Query(value = """
+    select count(*) from (
+        select distinct t.uid
+        from (
+            select p.user_id as uid
+            from post_tbl p
+            where p.post_is_deleted = false
+              and p.user_id is not null
+              and p.post_date >= :from and p.post_date < :to
+
+            union
+
+            select c.user_id as uid
+            from comment_tbl c
+            join post_tbl p on p.post_id = c.post_id
+            where c.comment_is_deleted = false
+              and p.post_is_deleted = false
+              and c.user_id is not null
+              and c.comment_date >= :from and c.comment_date < :to
+
+            union
+
+            select r.author_user_id as uid
+            from recomment_tbl r
+            join comment_tbl c on c.comment_id = r.comment_id
+            join post_tbl p on p.post_id = c.post_id
+            where r.recomment_is_deleted = false
+              and c.comment_is_deleted = false
+              and p.post_is_deleted = false
+              and r.author_user_id is not null
+              and r.recomment_date >= :from and r.recomment_date < :to
+        ) t
+    ) x
+""", nativeQuery = true)
+    long countActiveUserInRange(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+
+    // 일별 활성 유저 수
+    @Query(value = """
+        select t.day as day, count(distinct t.uid) as cnt
+        from (
+            select date(p.post_date) as day, p.user_id as uid
+            from post_tbl p
+            where p.post_is_deleted = false
+              and p.user_id is not null
+              and p.post_date >= :from and p.post_date < :to
+    
+            union all
+    
+            select date(c.comment_date) as day, c.user_id as uid
+            from comment_tbl c
+            join post_tbl p on p.post_id = c.post_id
+            where c.comment_is_deleted = false
+              and p.post_is_deleted = false
+              and c.user_id is not null
+              and c.comment_date >= :from and c.comment_date < :to
+    
+            union all
+    
+            select date(r.recomment_date) as day, r.author_user_id as uid
+            from recomment_tbl r
+            join comment_tbl c on c.comment_id = r.comment_id
+            join post_tbl p on p.post_id = c.post_id
+            where r.recomment_is_deleted = false
+              and c.comment_is_deleted = false
+              and p.post_is_deleted = false
+              and r.author_user_id is not null
+              and r.recomment_date >= :from and r.recomment_date < :to
+        ) t
+        group by t.day
+        order by t.day asc
+    """, nativeQuery = true)
+    List<kr.co.fanplace.repository.DayCountRow> countActiveUserByDayInRange
+    (@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+
+    @Query(value = """
+        select t.uid as userId, sum(t.score) as score
+        from (
+            select p.user_id as uid, count(*) * 2 as score
+            from post_tbl p
+            where p.post_is_deleted = false
+              and p.user_id is not null
+              and p.post_date >= :from and p.post_date < :to
+            group by p.user_id
+    
+            union all
+    
+            select c.user_id as uid, count(*) as score
+            from comment_tbl c
+            join post_tbl p on p.post_id = c.post_id
+            where c.comment_is_deleted = false
+              and p.post_is_deleted = false
+              and c.user_id is not null
+              and c.comment_date >= :from and c.comment_date < :to
+            group by c.user_id
+    
+            union all
+    
+            select r.author_user_id as uid, count(*) as score
+            from recomment_tbl r
+            join comment_tbl c on c.comment_id = r.comment_id
+            join post_tbl p on p.post_id = c.post_id
+            where r.recomment_is_deleted = false
+              and c.comment_is_deleted = false
+              and p.post_is_deleted = false
+              and r.author_user_id is not null
+              and r.recomment_date >= :from and r.recomment_date < :to
+            group by r.author_user_id
+        ) t
+        group by t.uid
+    """, nativeQuery = true)
+    List<kr.co.fanplace.repository.UserScoreRow> sumUserScoreInRange
+    (@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+
+    // 일 50회 이상 댓글 작성 유저 수 (댓글 + 대댓글 합산, 주간 범위 중 '어느 하루라도' 50회 이상이면 포함)
+    @Query(value = """
+        select count(*) from (
+            select x.uid
+            from (
+                select date(c.comment_date) as day, c.user_id as uid, count(*) as cnt
+                from comment_tbl c
+                join post_tbl p on p.post_id = c.post_id
+                where c.comment_is_deleted = false
+                  and p.post_is_deleted = false
+                  and c.user_id is not null
+                  and c.comment_date >= :from and c.comment_date < :to
+                group by date(c.comment_date), c.user_id
+    
+                union all
+    
+                select date(r.recomment_date) as day, r.author_user_id as uid, count(*) as cnt
+                from recomment_tbl r
+                join comment_tbl c on c.comment_id = r.comment_id
+                join post_tbl p on p.post_id = c.post_id
+                where r.recomment_is_deleted = false
+                  and c.comment_is_deleted = false
+                  and p.post_is_deleted = false
+                  and r.author_user_id is not null
+                  and r.recomment_date >= :from and r.recomment_date < :to
+                group by date(r.recomment_date), r.author_user_id
+            ) x
+            group by x.day, x.uid
+            having sum(x.cnt) >= 50
+        ) t
+    """, nativeQuery = true)
+    long countCommentOver50UsersInWeek(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+
+    // 게시판별 활동자 수 (글/댓글/대댓글 작성자 union distinct)
+    @Query(value = """
+        select t.boardId as boardId, t.boardName as boardName, count(distinct t.uid) as cnt
+        from (
+            select p.board_id as boardId, b.board_name as boardName, p.user_id as uid
+            from post_tbl p
+            join board_tbl b on b.board_id = p.board_id
+            where p.post_is_deleted = false
+              and p.user_id is not null
+              and p.post_date >= :from and p.post_date < :to
+    
+            union all
+    
+            select p.board_id as boardId, b.board_name as boardName, c.user_id as uid
+            from comment_tbl c
+            join post_tbl p on p.post_id = c.post_id
+            join board_tbl b on b.board_id = p.board_id
+            where c.comment_is_deleted = false
+              and p.post_is_deleted = false
+              and c.user_id is not null
+              and c.comment_date >= :from and c.comment_date < :to
+    
+            union all
+    
+            select p.board_id as boardId, b.board_name as boardName, r.author_user_id as uid
+            from recomment_tbl r
+            join comment_tbl c on c.comment_id = r.comment_id
+            join post_tbl p on p.post_id = c.post_id
+            join board_tbl b on b.board_id = p.board_id
+            where r.recomment_is_deleted = false
+              and c.comment_is_deleted = false
+              and p.post_is_deleted = false
+              and r.author_user_id is not null
+              and r.recomment_date >= :from and r.recomment_date < :to
+        ) t
+        group by t.boardId, t.boardName
+    """, nativeQuery = true)
+    List<kr.co.fanplace.repository.BoardCountRow> countActiveUserByBoardInRange
+    (@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
 }

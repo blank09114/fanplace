@@ -152,4 +152,51 @@ public interface RecommentRepository extends JpaRepository<Recomment, Long>
         group by r.comment.post.board.id, r.comment.post.board.name
     """)
     List<BoardCountRow> countRecommentByBoardInRange(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+
+    @Query(value = """
+        select date(r.recomment_date) as day, count(*) as cnt
+        from recomment_tbl r
+        join comment_tbl c on c.comment_id = r.comment_id
+        join post_tbl p on p.post_id = c.post_id
+        where r.recomment_is_deleted = false
+          and c.comment_is_deleted = false
+          and p.post_is_deleted = false
+          and r.recomment_date >= :from and r.recomment_date < :to
+        group by date(r.recomment_date)
+        order by day asc
+    """, nativeQuery = true)
+    List<kr.co.fanplace.repository.DayCountRow> countRecommentByDayInRange
+    (@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+
+    @Query(value = """
+        select count(*) from (
+            select x.uid
+            from (
+                select date(c.comment_date) as day, c.user_id as uid, count(*) as cnt
+                from comment_tbl c
+                join post_tbl p on p.post_id = c.post_id
+                where c.comment_is_deleted = false
+                  and p.post_is_deleted = false
+                  and c.user_id is not null
+                  and c.comment_date >= :from and c.comment_date < :to
+                group by date(c.comment_date), c.user_id
+    
+                union all
+    
+                select date(r.recomment_date) as day, r.author_user_id as uid, count(*) as cnt
+                from recomment_tbl r
+                join comment_tbl c on c.comment_id = r.comment_id
+                join post_tbl p on p.post_id = c.post_id
+                where r.recomment_is_deleted = false
+                  and c.comment_is_deleted = false
+                  and p.post_is_deleted = false
+                  and r.author_user_id is not null
+                  and r.recomment_date >= :from and r.recomment_date < :to
+                group by date(r.recomment_date), r.author_user_id
+            ) x
+            group by x.day, x.uid
+            having sum(x.cnt) >= 50
+        ) t
+    """, nativeQuery = true)
+    long countCommentOver50UsersInWeek(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
 }
