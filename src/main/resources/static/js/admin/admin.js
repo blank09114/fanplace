@@ -1,48 +1,103 @@
+const userListState = { page: 0, size: 10 };
+
+// 회원정보 바인딩
+async function bindUserList(commons, page)
+{
+    const wrap = document.getElementById('userList');
+    const listEl = document.getElementById('userListCards');
+    const pagerEl = document.getElementById('userListPagination');
+    if (!wrap || !listEl || !pagerEl) return;
+
+    const safePage = Math.max(0, page | 0);
+    userListState.page = safePage;
+
+    const params = new URLSearchParams();
+    params.set('page', String(safePage));
+    params.set('size', String(userListState.size));
+
+    const data = await commons.fetchJson(
+        `/api/admin/users?${params.toString()}`,
+        { method: 'GET' },
+        { parseJson: true, defaultErrorMessage: null }
+    );
+
+    if (!data) { wrap.style.display = 'none'; return; }
+
+    const items = Array.isArray(data.content) ? data.content : [];
+    const totalPages = Number.isFinite(data.totalPages) ? data.totalPages : 0;
+    const currentPage = Number.isFinite(data.number) ? data.number : safePage;
+
+    // 목록 비었으면 섹션 숨김
+    if (items.length === 0) { wrap.style.display = 'none'; return; }
+
+    wrap.style.display = '';
+    listEl.innerHTML = '';
+
+    for (const it of items)
+    {
+        const userId = it.userId ?? it.id ?? '';
+        const name = it.name ?? '';
+        const mail = it.mail ?? '';
+        const joinedAt = commons.formatDateTime(it.joinedAt || it.createdAt);
+
+        const withdraw = !!it.withdraw;
+        const blocked = !!it.blocked;
+
+        let status = '정상';
+        if (withdraw) status = '탈퇴';
+        else if (blocked) status = '차단';
+
+        const card = document.createElement('div');
+        card.className = 'card widthFull flexColumn gapSm pdMd';
+
+        // 회원정보 카드” 동일 양식
+        card.innerHTML =
+        `
+            <div class="cardItem flexColumnMov gapXs">
+                <p class="title2Text bold">ID</p>
+                <p class="title2Text">${commons.escapeHtml(userId)}</p>
+            </div>
+
+            <div class="cardItem flexColumnMov gapXs">
+                <p class="title2Text bold">닉네임</p>
+                <p class="title2Text">${commons.escapeHtml(name)}</p>
+            </div>
+
+            <div class="cardItem flexColumnMov gapXs">
+                <p class="title2Text bold">메일</p>
+                <p class="title2Text">${commons.escapeHtml(mail)}</p>
+            </div>
+
+            <div class="cardItem flexColumnMov gapXs">
+                <p class="title2Text bold">가입일</p>
+                <p class="title2Text">${commons.escapeHtml(joinedAt)}</p>
+            </div>
+
+            <div class="cardItem flexColumnMov gapXs">
+                <p class="title2Text bold">상태</p>
+                <p class="title2Text">${commons.escapeHtml(status)}</p>
+            </div>
+        `;
+
+        // 카드 클릭 시 회원정보 페이지로 이동
+        card.style.cursor = 'pointer';
+        card.addEventListener('click', () =>
+        {
+            if (!userId) return;
+            window.location.href = `/user/${encodeURIComponent(userId)}`;
+        });
+
+        listEl.appendChild(card);
+    }
+
+    commons.renderPagination(pagerEl, currentPage, totalPages, (p) =>
+    {
+        bindUserList(commons, p);
+    });
+}
+
 export const admin =
 {
-    // 주차 변경
-    changeWeek(commons, direction)
-    {
-        const weekEl = document.getElementById('week');
-        if (!weekEl) return;
-
-        const format = (date) =>
-        {
-            const yy = date.getFullYear();
-            const mm = String(date.getMonth() + 1).padStart(2, '0');
-            const dd = String(date.getDate()).padStart(2, '0');
-            return `${yy}.${mm}.${dd}.`;
-        };
-
-        let baseDate;
-        const text = (weekEl.textContent ?? '').trim();
-        const match = text.match(/(\d{4})\.(\d{2})\.(\d{2})\./);
-
-        if (match)
-        {
-            const y = Number(match[1]);
-            const m = Number(match[2]);
-            const d = Number(match[3]);
-            baseDate = new Date(y, m - 1, d);
-        }
-        else { baseDate = new Date(); }
-        if (direction === 'prev') baseDate.setDate(baseDate.getDate() - 7);
-        else if (direction === 'next') baseDate.setDate(baseDate.getDate() + 7);
-
-        const day = baseDate.getDay();
-        const diffToMonday = (day === 0) ? -6 : (1 - day);
-
-        const monday = new Date(baseDate);
-        monday.setDate(baseDate.getDate() + diffToMonday);
-
-        const sunday = new Date(monday);
-        sunday.setDate(monday.getDate() + 6);
-
-        weekEl.textContent = `${format(monday)} ~ ${format(sunday)}`;
-
-        // TODO: monday~sunday 범위로 통계 재조회
-    },
-
     // 삭제된 글 검색
     searchDeletedPost(commons)
     {
@@ -65,7 +120,7 @@ export const admin =
         // TODO: 실제 검색 동작
         commons.showToast(`"${keyword}" (${typeText}) 검색`);
     },
-    
+
     // 삭제된 댓글 검색
     searchDeletedComment(commons)
     {
@@ -87,10 +142,12 @@ export const admin =
 // 바인딩
 export function bindAdmin(commons)
 {
-    window.changeWeek = (direction) => admin.changeWeek(commons, direction);
+    // 바인딩
+    if (document.getElementById('userList'))
+    {
+        bindUserList(commons, 0);
+        return;
+    }
     window.searchDeletedSearch = () => admin.searchDeletedPost(commons);
     window.searchDeletedComment = () => admin.searchDeletedComment(commons);
-
-    // 관리자 페이지에서만 초기 로딩
-    if (document.querySelector('[data-admin-page="1"]')) { admin.changeWeek(commons, 'current'); }
 }

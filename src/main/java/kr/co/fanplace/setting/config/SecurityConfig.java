@@ -47,6 +47,7 @@ public class SecurityConfig
             .requestMatchers("/api/user/*/login/logs").authenticated()
 
             // 관리자만 허용
+            .requestMatchers("/admin/**").hasRole("ADMIN")
             .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
             // 나머지는 전부 허용

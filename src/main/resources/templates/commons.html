@@ -16,7 +16,7 @@ data-admin=${#authorization.expression('hasRole(''ADMIN'')')}">
             </th:block>
 
             <!-- 관리자 메뉴 -->
-            <th:block sec:authorize="hasRole('ADMIN')"> <a class="text3 lightText">관리자</a> </th:block>
+            <th:block sec:authorize="hasRole('ADMIN')"> <a class="text3 lightText" th:href="@{/admin/}">관리자</a> </th:block>
 
             <!-- 로그인 메뉴 -->
             <th:block sec:authorize="isAuthenticated()">
@@ -80,7 +80,7 @@ data-admin=${#authorization.expression('hasRole(''ADMIN'')')}">
             </th:block>
 
             <!-- 관리자 메뉴 -->
-            <th:block sec:authorize="hasRole('ADMIN')"> <a class="text1">관리자</a> </th:block>
+            <th:block sec:authorize="hasRole('ADMIN')"> <a class="text1" th:href="@{/admin/}">관리자</a> </th:block>
 
             <!-- 로그인 메뉴 -->
             <th:block sec:authorize="isAuthenticated()">
@@ -120,11 +120,11 @@ data-admin=${#authorization.expression('hasRole(''ADMIN'')')}">
 <!-- 관리자 헤더 -->
 <header th:fragment="adminHaeder" class="adminHaeder">
     <div class="container flexColumn gapSm">
-        <div class="headerBottom widthFull flex">
-            <a class="btn navy widthFull">대시보드</a>
-            <a class="btn navy widthFull">회원 목록</a>
-            <a class="btn navy widthFull">삭제된 글</a>
-            <a class="btn navy widthFull">삭제된 댓글</a>
+        <div class="headerBottom admin widthFull flex">
+            <a class="btn navy widthFull" th:href="@{/admin/}">대시보드</a>
+            <a class="btn navy widthFull" th:href="@{/admin/user-list}">회원 목록</a>
+            <a class="btn navy widthFull" th:href="@{/admin/deleted-post}">삭제된 글</a>
+            <a class="btn navy widthFull" th:href="@{/admin/deleted-comment}">삭제된 댓글</a>
             <a class="btn teal widthFull" th:href="@{/}">관리자 나가기</a>
         </div>
     </div>

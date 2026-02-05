@@ -260,4 +260,36 @@ public interface PostRepository extends JpaRepository<Post, Long>
         "order by p.id desc"
     )
     List<PostDTO.ListItem> findLatestPosts(Pageable pageable);
+
+    // 삭제된 글 조회
+    @Query("""
+        select new kr.co.fanplace.dto.post.PostDTO$DeletedListItem
+        (
+            p.id,
+            b.id,
+            b.name,
+            u.userId,
+            u.userName,
+            pl.title,
+            p.createdAt,
+            p.deletedAt,
+            p.viewCount,
+            p.likeCount,
+            p.commentCount
+        )
+        from Post p
+        join p.board b
+        join p.author u
+        join PostLog pl
+            on pl.post.id = p.id
+            and pl.createdAt =
+            (
+                select max(pl2.createdAt)
+                from PostLog pl2
+                where pl2.post.id = p.id
+            )
+        where p.deleted = true
+        order by p.deletedAt desc, p.id desc
+    """)
+    Page<PostDTO.DeletedListItem> findDeletedPostPage(Pageable pageable);
 }

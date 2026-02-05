@@ -232,6 +232,6 @@ export function bindBoard(commons)
 {
     window.searchBoard = () => board.searchBoard(commons);
 
-    // 게시판/검색 페이지에서만 동작(요소 없으면 내부에서 return)
+    // 게시판/검색 페이지에서만 동작
     board.initBoardPage(commons);
 }

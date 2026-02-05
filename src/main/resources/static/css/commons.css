@@ -176,6 +176,7 @@ footer .text1 { color: #F7F8FA; }
 {
     /* 헤더 */
     .headerTop, .headerBottom { display: none !important; }
+    .headerBottom.admin { display: block !important; }
     .headerMiddle { align-items: center !important; gap: 5px; }
     .searchForm { width: 100%; }
     input[name="keyword"] { width: 100%; }

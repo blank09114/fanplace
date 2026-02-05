@@ -2,9 +2,14 @@ package kr.co.fanplace.api.admin;
 
 import jakarta.validation.Valid;
 import kr.co.fanplace.dto.ApiOk;
+import kr.co.fanplace.dto.board.PostDTO;
+import kr.co.fanplace.dto.user.UserInfoDTO;
 import kr.co.fanplace.dto.user.UserSanctionDTO;
+import kr.co.fanplace.service.board.PostService;
 import kr.co.fanplace.service.user.UserSanctionService;
+import kr.co.fanplace.service.user.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,6 +19,8 @@ import org.springframework.web.bind.annotation.*;
 public class AdminAPI
 {
     private final UserSanctionService userSanctionService;
+    private final UserService userService;
+    private final PostService postService;
 
     // 사용자 차단
     @PostMapping("/user/{userId}/sanction")
@@ -30,4 +37,17 @@ public class AdminAPI
         userSanctionService.deleteSanctionLog(userId, sanctionId);
         return ResponseEntity.ok(ApiOk.ok());
     }
+
+    // 회원목록
+    @GetMapping("/users")
+    public Page<UserInfoDTO.Card> getUserList(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) { return userService.getUserListPageAdmin(page, size); }
+
+    // 삭제된 글 목록
+    @GetMapping("/admin/deleted-posts")
+    public Page<PostDTO.DeletedListItem> getDeletedPosts
+    (@RequestParam(defaultValue = "0") int page)
+    { return postService.getDeletedPostPage(page); }
 }

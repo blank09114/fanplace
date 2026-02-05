@@ -391,4 +391,13 @@ public class PostService
     @Transactional(readOnly = true)
     public List<PostDTO.ListItem> getLatestPosts()
     { return postRepository.findLatestPosts(org.springframework.data.domain.PageRequest.of(0, 5)); }
+
+    // 삭제된 글 조회
+    @Transactional(readOnly = true)
+    public Page<PostDTO.DeletedListItem> getDeletedPostPage(int page)
+    {
+        int safePage = Math.max(page, 0);
+        PageRequest pageable = PageRequest.of(safePage, 10);
+        return postRepository.findDeletedPostPage(pageable);
+    }
 }
