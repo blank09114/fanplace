@@ -2,9 +2,11 @@ package kr.co.fanplace.api.admin;
 
 import jakarta.validation.Valid;
 import kr.co.fanplace.dto.ApiOk;
+import kr.co.fanplace.dto.board.CommentDTO;
 import kr.co.fanplace.dto.board.PostDTO;
 import kr.co.fanplace.dto.user.UserInfoDTO;
 import kr.co.fanplace.dto.user.UserSanctionDTO;
+import kr.co.fanplace.service.board.CommentService;
 import kr.co.fanplace.service.board.PostService;
 import kr.co.fanplace.service.user.UserSanctionService;
 import kr.co.fanplace.service.user.UserService;
@@ -21,6 +23,7 @@ public class AdminAPI
     private final UserSanctionService userSanctionService;
     private final UserService userService;
     private final PostService postService;
+    private final CommentService commentService;
 
     // 사용자 차단
     @PostMapping("/user/{userId}/sanction")
@@ -56,4 +59,18 @@ public class AdminAPI
     public Page<PostDTO.DeletedListItem> searchDeletedPostsByTitle
     (@RequestParam String q, @RequestParam(defaultValue = "0") int page)
     { return postService.searchDeletedPostPageByTitle(page, q); }
+
+    // mnt/data/AdminAPI.java
+
+    // 삭제된 댓글/대댓글 목록
+    @GetMapping("/deleted-comments")
+    public Page<CommentDTO.DeletedListItem> getDeletedComments
+    (@RequestParam(defaultValue = "0") int page)
+    { return commentService.getDeletedCommentPage(page, 10, null); }
+
+    // 삭제된 댓글/대댓글 검색
+    @GetMapping("/deleted-comments/search")
+    public Page<CommentDTO.DeletedListItem> searchDeletedComments
+    (@RequestParam String q, @RequestParam(defaultValue = "0") int page)
+    { return commentService.getDeletedCommentPage(page, 10, q); }
 }

@@ -216,4 +216,88 @@ public interface CommentRepository extends JpaRepository<Comment, Long>
         group by c.post.board.id, c.post.board.name
     """)
     List<BoardCountRow> countCommentByBoardInRange(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+
+    // 삭제된 댓글/대댓글
+    interface DeletedCommentRow
+    {
+        String getType();
+        Long getId();
+
+        Long getPostId();
+        String getBoardId();
+        String getBoardName();
+        String getCategoryId();
+        String getCategoryName();
+
+        String getAuthorUserId();
+        String getAuthorName();
+
+        String getContent();
+        LocalDateTime getCreatedAt();
+
+        LocalDateTime getDeletedAt();
+        String getDeletedReason();
+    }
+
+    @Query(value =
+        "select * from ( " +
+            "   select " +
+            "     'COMMENT' as type, " +
+            "     c.comment_id as id, " +
+            "     p.post_id as postId, " +
+            "     b.board_id as boardId, " +
+            "     b.board_name as boardName, " +
+            "     ct.category_id as categoryId, " +
+            "     ct.category_name as categoryName, " +
+            "     u.user_id as authorUserId, " +
+            "     u.user_name as authorName, " +
+            "     c.comment_content as content, " +
+            "     c.comment_date as createdAt, " +
+            "     c.comment_deleted_at as deletedAt, " +
+            "     c.comment_deleted_reason as deletedReason " +
+            "   from comment_tbl c " +
+            "   join post_tbl p on p.post_id = c.post_id " +
+            "   join board_tbl b on b.board_id = p.board_id " +
+            "   join category_tbl ct on ct.category_id = p.category_id " +
+            "   left join user_tbl u on u.user_id = c.user_id " +
+            "   where c.comment_is_deleted = true " +
+            "     and (:q is null or :q = '' or c.comment_content like concat('%', :q, '%')) " +
+            "   union all " +
+            "   select " +
+            "     'RECOMMENT' as type, " +
+            "     r.recomment_id as id, " +
+            "     p.post_id as postId, " +
+            "     b.board_id as boardId, " +
+            "     b.board_name as boardName, " +
+            "     ct.category_id as categoryId, " +
+            "     ct.category_name as categoryName, " +
+            "     u.user_id as authorUserId, " +
+            "     u.user_name as authorName, " +
+            "     r.recomment_content as content, " +
+            "     r.recomment_date as createdAt, " +
+            "     r.recomment_deleted_at as deletedAt, " +
+            "     r.recomment_deleted_reason as deletedReason " +
+            "   from recomment_tbl r " +
+            "   join comment_tbl c on c.comment_id = r.comment_id " +
+            "   join post_tbl p on p.post_id = c.post_id " +
+            "   join board_tbl b on b.board_id = p.board_id " +
+            "   join category_tbl ct on ct.category_id = p.category_id " +
+            "   left join user_tbl u on u.user_id = r.author_user_id " +
+            "   where r.recomment_is_deleted = true " +
+            "     and (:q is null or :q = '' or r.recomment_content like concat('%', :q, '%')) " +
+            ") t " +
+            "order by t.deletedAt desc, t.id desc ", countQuery =
+        "select count(*) from ( " +
+            "   select c.comment_id as id " +
+            "   from comment_tbl c " +
+            "   where c.comment_is_deleted = true " +
+            "     and (:q is null or :q = '' or c.comment_content like concat('%', :q, '%')) " +
+            "   union all " +
+            "   select r.recomment_id as id " +
+            "   from recomment_tbl r " +
+            "   where r.recomment_is_deleted = true " +
+            "     and (:q is null or :q = '' or r.recomment_content like concat('%', :q, '%')) " +
+            ") t ",
+    nativeQuery = true)
+    Page<DeletedCommentRow> findDeletedCommentPage(@Param("q") String q, Pageable pageable);
 }

@@ -19,81 +19,11 @@
         <p class="title2Text bold">삭제된 댓글</p>
 
         <!-- 목록 -->
-        <div class="list widthFull">
+        <div class="list widthFull" id="deletedCommentList">
             <div class="row widthFull flex alignCenter">
                 <p class="text1 textCenter">내역</p>
                 <p class="text1 textCenter date">일시</p>
             </div>
-            <a class="row widthFull flex alignCenter">
-                <div class="widthFull flexColumn">
-                    <p class="text2 lightText">게시판 - 탭 | 2026.01.01. 00:00 삭제됨(사유: 본인 삭제)</p>
-                    <p class="text1">작성자 - 내용</p>
-                </div>
-                <p class="text1 textCenter date">2026.01.01. 00:00</p>
-            </a>
-            <a class="row widthFull flex alignCenter">
-                <div class="widthFull flexColumn">
-                    <p class="text2 lightText">게시판 - 탭 | 2026.01.01. 00:00 삭제됨(사유: 병신)</p>
-                    <p class="text1">작성자 - 내용</p>
-                </div>
-                <p class="text1 textCenter date">2026.01.01. 00:00</p>
-            </a>
-            <a class="row widthFull flex alignCenter">
-                <div class="widthFull flexColumn">
-                    <p class="text2 lightText">게시판 - 탭 | 2026.01.01. 00:00 삭제됨(사유: 본인 삭제)</p>
-                    <p class="text1">작성자 - 내용</p>
-                </div>
-                <p class="text1 textCenter date">2026.01.01. 00:00</p>
-            </a>
-            <a class="row widthFull flex alignCenter">
-                <div class="widthFull flexColumn">
-                    <p class="text2 lightText">게시판 - 탭 | 2026.01.01. 00:00 삭제됨(사유: 병신)</p>
-                    <p class="text1">작성자 - 내용</p>
-                </div>
-                <p class="text1 textCenter date">2026.01.01. 00:00</p>
-            </a>
-            <a class="row widthFull flex alignCenter">
-                <div class="widthFull flexColumn">
-                    <p class="text2 lightText">게시판 - 탭 | 2026.01.01. 00:00 삭제됨(사유: 본인 삭제)</p>
-                    <p class="text1">작성자 - 내용</p>
-                </div>
-                <p class="text1 textCenter date">2026.01.01. 00:00</p>
-            </a>
-            <a class="row widthFull flex alignCenter">
-                <div class="widthFull flexColumn">
-                    <p class="text2 lightText">게시판 - 탭 | 2026.01.01. 00:00 삭제됨(사유: 병신)</p>
-                    <p class="text1">작성자 - 내용</p>
-                </div>
-                <p class="text1 textCenter date">2026.01.01. 00:00</p>
-            </a>
-            <a class="row widthFull flex alignCenter">
-                <div class="widthFull flexColumn">
-                    <p class="text2 lightText">게시판 - 탭 | 2026.01.01. 00:00 삭제됨(사유: 본인 삭제)</p>
-                    <p class="text1">작성자 - 내용</p>
-                </div>
-                <p class="text1 textCenter date">2026.01.01. 00:00</p>
-            </a>
-            <a class="row widthFull flex alignCenter">
-                <div class="widthFull flexColumn">
-                    <p class="text2 lightText">게시판 - 탭 | 2026.01.01. 00:00 삭제됨(사유: 병신)</p>
-                    <p class="text1">작성자 - 내용</p>
-                </div>
-                <p class="text1 textCenter date">2026.01.01. 00:00</p>
-            </a>
-            <a class="row widthFull flex alignCenter">
-                <div class="widthFull flexColumn">
-                    <p class="text2 lightText">게시판 - 탭 | 2026.01.01. 00:00 삭제됨(사유: 본인 삭제)</p>
-                    <p class="text1">작성자 - 내용</p>
-                </div>
-                <p class="text1 textCenter date">2026.01.01. 00:00</p>
-            </a>
-            <a class="row widthFull flex alignCenter">
-                <div class="widthFull flexColumn">
-                    <p class="text2 lightText">게시판 - 탭 | 2026.01.01. 00:00 삭제됨(사유: 병신)</p>
-                    <p class="text1">작성자 - 내용</p>
-                </div>
-                <p class="text1 textCenter date">2026.01.01. 00:00</p>
-            </a>
         </div>
 
         <!-- 검색 -->
@@ -103,15 +33,7 @@
         </form>
 
         <!-- 페이지 -->
-        <div class="pages flex justifyCenter gapXs">
-            <a class="page"> < </a>
-            <a class="page now"> 1 </a>
-            <a class="page"> 2 </a>
-            <a class="page"> 3 </a>
-            <a class="page"> 4 </a>
-            <a class="page"> 5 </a>
-            <a class="page"> > </a>
-        </div>
+        <div class="pages flex justifyCenter gapXs" id="deletedCommentPagination"></div>
     </section>
 
     <!-- 모달 -->
