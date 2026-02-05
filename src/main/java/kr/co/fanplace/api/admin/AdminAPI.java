@@ -46,8 +46,14 @@ public class AdminAPI
     ) { return userService.getUserListPageAdmin(page, size); }
 
     // 삭제된 글 목록
-    @GetMapping("/admin/deleted-posts")
+    @GetMapping("/deleted-posts")
     public Page<PostDTO.DeletedListItem> getDeletedPosts
     (@RequestParam(defaultValue = "0") int page)
     { return postService.getDeletedPostPage(page); }
+
+    // 식제된 글 검색
+    @GetMapping("/deleted-posts/search")
+    public Page<PostDTO.DeletedListItem> searchDeletedPostsByTitle
+    (@RequestParam String q, @RequestParam(defaultValue = "0") int page)
+    { return postService.searchDeletedPostPageByTitle(page, q); }
 }

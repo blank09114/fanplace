@@ -262,34 +262,70 @@ public interface PostRepository extends JpaRepository<Post, Long>
     List<PostDTO.ListItem> findLatestPosts(Pageable pageable);
 
     // 삭제된 글 조회
-    @Query("""
-        select new kr.co.fanplace.dto.post.PostDTO$DeletedListItem
-        (
+    @Query(value = """
+        select new kr.co.fanplace.dto.board.PostDTO$DeletedListItem(
             p.id,
-            b.id,
-            b.name,
-            u.userId,
-            u.userName,
+            b.id, b.name,
+            u.id,
+            case when u is null then '탈퇴 회원' else u.name end,
             pl.title,
-            p.createdAt,
-            p.deletedAt,
-            p.viewCount,
-            p.likeCount,
-            p.commentCount
+            p.createdAt, p.deletedAt,
+            (select count(v) from PostView v where v.post = p),
+            (select count(l) from PostLike l where l.post = p),
+            (
+                (select count(c) from Comment c where c.post = p and c.deleted = false)
+                + (select count(r) from Recomment r
+                    where r.comment.post = p
+                      and r.deleted = false
+                      and r.comment.deleted = false)
+            )
         )
         from Post p
         join p.board b
-        join p.author u
-        join PostLog pl
-            on pl.post.id = p.id
-            and pl.createdAt =
-            (
-                select max(pl2.createdAt)
-                from PostLog pl2
-                where pl2.post.id = p.id
-            )
+        join PostLog pl on pl.post = p
+            and pl.id = (select max(pl2.id) from PostLog pl2 where pl2.post = p)
+        left join p.user u
         where p.deleted = true
         order by p.deletedAt desc, p.id desc
+    """, countQuery = """
+        select count(p) from Post p where p.deleted = true
     """)
     Page<PostDTO.DeletedListItem> findDeletedPostPage(Pageable pageable);
+
+    // 삭제된 글 검색
+    @Query(value = """
+        select new kr.co.fanplace.dto.board.PostDTO$DeletedListItem(
+            p.id,
+            b.id, b.name,
+            (case when u is null then null else u.id end),
+            (case when u is null then '탈퇴 회원' else u.name end),
+            pl.title,
+            p.createdAt, p.deletedAt,
+            (select count(v) from PostView v where v.post = p),
+            (select count(l) from PostLike l where l.post = p),
+            (
+                (select count(c) from Comment c where c.post = p and c.deleted = false)
+                + (select count(r) from Recomment r
+                    where r.comment.post = p
+                      and r.deleted = false
+                      and r.comment.deleted = false)
+            )
+        )
+        from Post p
+        join p.board b
+        join PostLog pl on pl.post = p
+            and pl.id = (select max(pl2.id) from PostLog pl2 where pl2.post = p)
+        left join p.user u
+        where p.deleted = true
+          and lower(pl.title) like lower(concat('%', :q, '%'))
+        order by p.deletedAt desc, p.id desc
+    """, countQuery = """
+        select count(p)
+        from Post p
+        join PostLog pl on pl.post = p
+            and pl.id = (select max(pl2.id) from PostLog pl2 where pl2.post = p)
+        where p.deleted = true
+          and lower(pl.title) like lower(concat('%', :q, '%'))
+    """)
+    Page<PostDTO.DeletedListItem> searchDeletedByTitle(@Param("q") String q, Pageable pageable);
 }

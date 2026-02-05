@@ -1,7 +1,7 @@
 const userListState = { page: 0, size: 10 };
 
 // 회원정보 바인딩
-async function bindUserList(commons, page)
+async function bindUserListPage(commons, page)
 {
     const wrap = document.getElementById('userList');
     const listEl = document.getElementById('userListCards');
@@ -50,7 +50,6 @@ async function bindUserList(commons, page)
         const card = document.createElement('div');
         card.className = 'card widthFull flexColumn gapSm pdMd';
 
-        // 회원정보 카드” 동일 양식
         card.innerHTML =
         `
             <div class="cardItem flexColumnMov gapXs">
@@ -91,63 +90,12 @@ async function bindUserList(commons, page)
     }
 
     commons.renderPagination(pagerEl, currentPage, totalPages, (p) =>
-    {
-        bindUserList(commons, p);
-    });
+    { bindUserListPage(commons, p); });
 }
 
-export const admin =
+// 함수 등록
+export function bindUserList(commons)
 {
-    // 삭제된 글 검색
-    searchDeletedPost(commons)
-    {
-        const f = document.forms?.deletedPostSearch;
-        if (!f) { commons.showToast('검색 폼을 찾을 수 없습니다.'); return; }
-
-        const keywordEl = f.keyword;
-        const selectEl = f.querySelector('select');
-
-        if (!keywordEl) { commons.showToast('검색 입력창을 찾을 수 없습니다.'); return; }
-        if (!commons.validate(keywordEl, '검색어')) return;
-
-        const keyword = commons.getValueEl(keywordEl);
-        const typeText = selectEl?.value ?? '제목';
-
-        // 매핑
-        const typeMap = { '제목': 'title', '제목+내용': 'titleContent', '내용': 'content' };
-        const type = typeMap[typeText] ?? 'title';
-
-        // TODO: 실제 검색 동작
-        commons.showToast(`"${keyword}" (${typeText}) 검색`);
-    },
-
-    // 삭제된 댓글 검색
-    searchDeletedComment(commons)
-    {
-        const f = document.forms?.deletedCommentSearch;
-        if (!f) { commons.showToast('검색 폼을 찾을 수 없습니다.'); return; }
-
-        const keywordEl = f.keyword;
-
-        if (!keywordEl) { commons.showToast('검색 입력창을 찾을 수 없습니다.'); return; }
-        if (!commons.validate(keywordEl, '검색어')) return;
-
-        const keyword = commons.getValueEl(keywordEl);
-
-        // TODO: 실제 검색 동작
-        commons.showToast(`"${keyword}" 검색`);
-    }
-};
-
-// 바인딩
-export function bindAdmin(commons)
-{
-    // 바인딩
-    if (document.getElementById('userList'))
-    {
-        bindUserList(commons, 0);
-        return;
-    }
-    window.searchDeletedSearch = () => admin.searchDeletedPost(commons);
-    window.searchDeletedComment = () => admin.searchDeletedComment(commons);
+    if (!document.getElementById('userList')) return;
+    bindUserListPage(commons, 0);
 }

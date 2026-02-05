@@ -7,8 +7,10 @@ import { bindAlarm } from '/js/account/alarm.js';
 import { bindBoard } from '/js/board/board.js';
 import { bindPost } from '/js/board/post.js';
 import { bindComment } from '/js/board/comment.js';
-import { bindAdmin } from '/js/admin/admin.js';
-import { bindDashboard } from '/js/admin/dashboard.js';
+import { bindDashboard } from "/js/admin/dashboard.js";
+import { bindUserList } from "/js/admin/userList.js";
+import { bindDeletedPost } from "/js/admin/deletedPost.js";
+import { bindDeletedComment } from "/js/admin/deletedComment.js";
 
 // 바인딩
 document.addEventListener('DOMContentLoaded', () =>
@@ -22,6 +24,8 @@ document.addEventListener('DOMContentLoaded', () =>
     bindBoard(commons);
     bindPost(commons);
     bindComment(commons);
-    bindAdmin(commons);
     bindDashboard(commons);
+    bindUserList(commons);
+    bindDeletedPost(commons);
+    bindDeletedComment(commons);
 });

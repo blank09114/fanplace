@@ -400,4 +400,17 @@ public class PostService
         PageRequest pageable = PageRequest.of(safePage, 10);
         return postRepository.findDeletedPostPage(pageable);
     }
+
+    // 식제된 글 검색
+    @Transactional(readOnly = true)
+    public Page<PostDTO.DeletedListItem> searchDeletedPostPageByTitle(int page, String q)
+    {
+        int safePage = Math.max(page, 0);
+        PageRequest pageable = PageRequest.of(safePage, 10);
+
+        if (q == null || q.trim().isEmpty())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "검색어를 입력하세요.");
+
+        return postRepository.searchDeletedByTitle(q.trim(), pageable);
+    }
 }
