@@ -8,6 +8,7 @@ import kr.co.fanplace.entity.user.User;
 import kr.co.fanplace.repository.user.LoginLogRepository;
 import kr.co.fanplace.repository.user.UserRepository;
 import kr.co.fanplace.setting.ip.GeoIpService;
+import kr.co.fanplace.setting.ip.IpUtil;
 import kr.co.fanplace.setting.security.SecurityContextHelper;
 import kr.co.fanplace.setting.security.TokenUtil;
 import lombok.RequiredArgsConstructor;
@@ -36,8 +37,7 @@ public class LoginLogService
     public void recordLogin(User user, HttpSession session, HttpServletRequest request)
     {
         String tokenHash = TokenUtil.sha256Hex(session.getId());
-
-        String ip = request.getRemoteAddr();
+        String ip = IpUtil.resolveClientIp(request);
 
         LoginLog log = LoginLog.builder()
         .user(user).tokenHash(tokenHash).loginIp(ip == null ? "" : ip)

@@ -173,7 +173,7 @@ export const richEditor =
             plugins: "lists link image table code codesample",
             toolbar: [
                 "fontsize | bold italic underline strikethrough | superscript subscript | forecolor backcolor | alignleft aligncenter alignright alignjustify",
-                "bullist numlist | hr | table | link image | removeformat | code"
+                "bullist numlist | hr | table | link image | removeformat"
             ].join(" | "),
 
             font_size_formats: "24px 20px 18px 16px 14px 12px",
