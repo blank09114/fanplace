@@ -35,7 +35,7 @@
             </div>
             <textarea class="widthFull" name="content"
             data-tinymce="post" data-editor-height="600" th:text="*{content}"></textarea>
-            <button type="button" class="btn teal" onclick="board.writePost(commons)"
+            <button type="button" class="btn teal" onclick="writePost()"
             th:text="${mode} == 'edit' ? '수정' : '등록'"></button>
         </form>
     </section>
