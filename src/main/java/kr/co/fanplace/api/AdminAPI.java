@@ -7,7 +7,7 @@ import kr.co.fanplace.dto.board.CommentDTO;
 import kr.co.fanplace.dto.board.PostDTO;
 import kr.co.fanplace.dto.user.UserInfoDTO;
 import kr.co.fanplace.dto.user.UserSanctionDTO;
-import kr.co.fanplace.service.admin.AdminService;
+import kr.co.fanplace.service.AdminService;
 import kr.co.fanplace.service.board.CommentService;
 import kr.co.fanplace.service.board.PostService;
 import kr.co.fanplace.service.user.UserSanctionService;
